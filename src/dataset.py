@@ -14,7 +14,7 @@ URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
 
 class Motion:
 
-    def __init__(self, meta, format_, annotation, motion_data):
+    def __init__(self, format_, motion_data, meta=None, annotation=None):
         self.meta = meta
         self.annotation = annotation
         self.format_ = format_
@@ -29,23 +29,22 @@ class MotionDataset:
         'https://motion-annotation.humanoids.kit.edu/downloads/4/',
     ]
 
-    def __init__(self, root=DEFAULT_ROOT, train=True, transform=None):
+    def __init__(self, root=DEFAULT_ROOT, train=True):
         self.root = os.path.expanduser(root)
+        self.train = train
         print(self.root)
 
     def download(self):
         root = os.path.expanduser(DEFAULT_ROOT)
         print('Downloading the dataset...')
         with requests.get(URL, stream=True) as request:
-            print(request.headers)
-            dataset_length = int(request.headers.get('Content-Length'))
+            dataset_size = int(request.headers.get('Content-Length'))
             with tqdm.wrapattr(
                 request.raw,
                 'read',
-                total=dataset_length,
+                total=dataset_size,
                 desc='',
             ) as raw_data:
-
                 with open(
                     f'{os.path.basename(request.url)}',
                     'wb'
@@ -67,27 +66,35 @@ class MotionDataset:
         current_directory = os.getcwd()
         format_ = input(
             'Enter the type of format type you want to use. '
-            'The possible formats are MMM, C3D: '
+            'The possible formats are MMM, RAW: '
         )
         os.chdir('data/motion_dataset')
-        types, formats = [], []
-        for file in os.listdir():
-            name, file_format = file.split('.')
-            id_, type_ = name.split('_')
-            types.append(type_)
-            formats.append(file_format)
-            if format_ == file_format.lower():
-                with open(file, 'r') as file:
-                    pass
-                print(f'id is {id_}, type is {type_}')
-        print(
-            f'The types are {set(types)}',
-            f'and the formats are {set(formats)}',
+        motions = []
+        ids = map(
+            lambda x: x.split('_')[0],
+            sorted(os.listdir()),
         )
+        for id_ in ids:
+            with open(f'{id_}_annotations.json', 'r',) as file:
+                annotation = file.read()
+            with open(f'{id_}_meta.json', 'r') as file:
+                meta = file.read()
+            with open(
+                f'{id_}_{format_.lower()}.{"xml" if format_ == "mmm" else "c3d"}',
+                'rb',
+            ) as file:
+                motion_data = file.read()
+            motions.append(
+                Motion(
+                    format_,
+                    motion_data,
+                    annotation=annotation,
+                    meta=meta,
+                )
+            )
         os.chdir(current_directory)
 
 
 if __name__ == '__main__':
     motion_dataset = MotionDataset()
     motion_dataset.parse()
-
