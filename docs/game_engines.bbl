@@ -1,0 +1,100 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{christopoulou2017overview}{article}{}
+      \name{author}{2}{}{%
+        {{hash=70dfc77b6caaa29320f2d69351d6ca68}{%
+           family={Christopoulou},
+           familyi={C\bibinitperiod},
+           given={Eleftheria},
+           giveni={E\bibinitperiod}}}%
+        {{hash=90b7159b31e8ad25877c807b1fec7852}{%
+           family={Xinogalos},
+           familyi={X\bibinitperiod},
+           given={Stelios},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{4e103a762cc1fab4504cf20576c0b429}
+      \strng{fullhash}{4e103a762cc1fab4504cf20576c0b429}
+      \strng{bibnamehash}{4e103a762cc1fab4504cf20576c0b429}
+      \strng{authorbibnamehash}{4e103a762cc1fab4504cf20576c0b429}
+      \strng{authornamehash}{4e103a762cc1fab4504cf20576c0b429}
+      \strng{authorfullhash}{4e103a762cc1fab4504cf20576c0b429}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Overview and comparative analysis of game engines for desktop and mobile devices}
+      \field{year}{2017}
+    \endentry
+    \entry{mat2014using}{inproceedings}{}
+      \name{author}{5}{}{%
+        {{hash=28c4f8dadb32f2ce37a6a026d0062132}{%
+           family={Mat},
+           familyi={M\bibinitperiod},
+           given={Ruzinoor\bibnamedelima Che},
+           giveni={R\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=ceca577b8f29afbeacc06a79d8d5024a}{%
+           family={Shariff},
+           familyi={S\bibinitperiod},
+           given={Abdul\bibnamedelimb Rashid\bibnamedelima Mohammed},
+           giveni={A\bibinitperiod\bibinitdelim R\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=2724f2cd4c42b90f96dfd7cf301fdc70}{%
+           family={Zulkifli},
+           familyi={Z\bibinitperiod},
+           given={Abdul\bibnamedelima Nasir},
+           giveni={A\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=785d34d3b59b32ec11d6f2a9d7f3df1f}{%
+           family={Rahim},
+           familyi={R\bibinitperiod},
+           given={Mohd\bibnamedelimb Shafry\bibnamedelima Mohd},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=f8b8c1524fc2ededd9928a5fdcced455}{%
+           family={Mahayudin},
+           familyi={M\bibinitperiod},
+           given={Mohd\bibnamedelima Hafiz},
+           giveni={M\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {IOP Publishing}%
+      }
+      \strng{namehash}{2172e0e1b969597d8cfdd0886864345b}
+      \strng{fullhash}{05eae6118da0c4d34a2976380e6ffe3a}
+      \strng{bibnamehash}{2172e0e1b969597d8cfdd0886864345b}
+      \strng{authorbibnamehash}{2172e0e1b969597d8cfdd0886864345b}
+      \strng{authornamehash}{2172e0e1b969597d8cfdd0886864345b}
+      \strng{authorfullhash}{05eae6118da0c4d34a2976380e6ffe3a}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{IOP Conference Series: Earth and Environmental Science}
+      \field{number}{1}
+      \field{title}{Using game engine for 3D terrain visualisation of GIS data: A review}
+      \field{volume}{20}
+      \field{year}{2014}
+      \field{pages}{012037}
+      \range{pages}{1}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

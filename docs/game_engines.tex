@@ -1,0 +1,54 @@
+\documentclass[
+	12pt, 
+	a4paper, 
+	%draft
+]{article}
+\usepackage{geometry}
+\geometry{left=1.6cm, right=1.6cm, bottom=3cm, top=3cm}
+
+\usepackage{blindtext}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[breaklinks]{hyperref}
+\usepackage{microtype}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+\usepackage[T1]{fontenc}
+\usepackage{fourier}
+\usepackage{baskervald}
+\hfuzz=8.002pt
+\vfuzz=8.002pt
+\hbadness=99999
+
+\author{Mohamed Ghazal}
+\title{Game engines}
+\date{\today}
+
+\begin{document}
+	\maketitle
+	In this document an overview of many 3D physics engines will be made. This will facilitate the arduous process of chosing a suitable 3D physics engine for our application. This is completely dependent of the effieciency of the implementation and its openness, and the following criterias:
+	\begin{itemize}
+		\item Usability.
+		\item Technical support and documentation.
+		\item Performance.
+		\item Language: the language used to implement and extend the engine.
+		\item Portability: the supported platforms.
+		\item Licencing.
+	\end{itemize}
+	\section{Unreal}
+	\section{Bullet}
+	\section{Blender}
+
+	\section{Unity}
+	Unity 3D is created by Unity Technologies and it can be used to create both online and offline games. This physics engine is well documented and offeres a veriety of online tutorials for better entry opportunities. It utlizes the concept of assets, which can be copied as files in the source directory or imported directly. This versetility allows the developers to gain much contol over the assets, that they are using. Thie modular design is one of the main advantages of this physics engine. In addition to that, it is very protable, and works on many platforms, such as Mac os, Windows, Linux and mobile.\cite{mat2014using}\newline
+	As for the usability of the engine, it has a dedicated editor MonoDevelop and a GUI interface, and it was inplemented with C\#, Boo and JavaScript.\cite{christopoulou2017overview} The later makes Unity 3D compatible for the usage in Web Developement to implement Website incorperating rudimentary animations, physcially accurate simulations. Furthermore, the game engine is with supports importing and exporting content from/to the best known CAD-Platforms, such as Blender, Maya and 3D Studio Max.\cite{christopoulou2017overview}.\newline
+	Eleftheria Christopoulou and Stelios Xinogalos in their comparative analysis of game engines ranked Unity 3D as the most usable game engines by including a lot of tutorial, examples and assets. However, their source remain closed for users of their personal version. Furthermore, the community of Unity 3D is very large giving access to more more online support for new users\cite{christopoulou2017overview}. Eleftheria Christopoulou and Stelios Xinogalos consider Unity 3D a suitable game engine for beginners for having a simpler and refined user interface and providing a lot of ressources for them. In addition to that, the hardware reqirments aren't too steep and they see the development and export of mobile games with Unity 3D as very staightforward and easy\cite{christopoulou2017overview}.
+	\section{pychrono}
+	\section{Opensim}
+	\section{Panda 3D}
+	\printbibliography
+\end{document}
