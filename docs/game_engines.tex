@@ -15,7 +15,7 @@
 \usepackage{xcolor}
 \usepackage[breaklinks]{hyperref}
 \usepackage{microtype}
-\usepackage[backend=biber]{biblatex}
+\usepackage[backend=biber, style=ieee]{biblatex}
 \addbibresource{bibliography.bib}
 \usepackage[T1]{fontenc}
 \usepackage{fourier}
@@ -51,6 +51,7 @@
 		\item Using Laptops that are hardware targeted for optimization in everything related to power consumption, made users biased toward them a less performant than desktop PCs, but reducing the number of power conserving features implemented to increase time on batteries and reduce the amount of heat generated resulted in an observable increase in performance\cite{lind2012using}.
 		\item The limiting factor on systems on systems that performed badly on low problem complexity were those with GPUs with low quality. This resulted in an overload of the CPUs, that aren't specifically designed to handle the this type of workload, which is GPU-intensive\cite{lind2012using}.
 	\end{itemize}
+	Morten Lind and Amund Skavhaug see these results as consistent with the sub-linear behaviour overall, and that they lead to the conclusion, that there are no super-linear effects that would negatively influence the performance of the system in higher complexity orders. Thus, they concluded that their approach is applicable in a great amount of use in the emulation of physical objects, and the mechanical phenomenon observed on them under motion, given the available hardware can support this application\cite{lind2012using}.
 	\section{Unity}
 	Unity 3D is created by Unity Technologies and it can be used to create both online and offline games. This physics engine is well documented and offers a variety of online tutorials for better entry opportunities. It utilizes the concept of assets, which can be copied as files in the source directory or imported directly. This versatility allows the developers to gain much control over the assets, that they are using. Their modular design is one of the main advantages of this physics engine. In addition to that, it is very portable, and works on many platforms, such as Mac os, Windows, Linux and mobile.\cite{mat2014using}\newline
 	As for the usability of the engine, it has a dedicated editor MonoDevelop and a GUI interface, and it was implemented with C\#, Boo and JavaScript.\cite{christopoulou2017overview} The later makes Unity 3D compatible for the usage in Web Development to implement Website incorporating rudimentary animations, physically accurate simulations. Furthermore, the game engine is with supports importing and exporting content from/to the best known CAD-Platforms, such as Blender, Maya and 3D Studio Max.\cite{christopoulou2017overview}.\newline
