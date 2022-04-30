@@ -69,9 +69,21 @@
 		\item fluid–solid interaction problems governed, in part, by the Navier-Stokes equations
 		\item the dynamics of deformable bodies governed by partial differ- ential equations
 	\end{itemize}
-	In addition to that, chrono can handle multi-physics problems. Chrono, as mentioned above, is written entirely with C++ and is compiled into libraries used by other third party applications. Functions implemented with chrono can be envoked using an API(Application Programming Interface), comming in two flavors C++ and Python(pychrono). chrono is configured and built using CMake, making it compatible with Windows, Linux, and Mac Os, and robustly cross-platform compatible. Thus easing the adaption with minimal specific hardware and software requirements. Furthermore, chrono is designed to lavrage parallel and GPU-Computing, and depending on the operating environment, hardware and software, it can use special implemented software for commercial hardware, i.g. CUDA for Nvidia, etc. In terms of usability, the documentation of the main modules of chrono is very extensive, and was generated from the annotations in the C++ Code. Besides, chrono is distributed with multiple ready for use toolkits for ease of adaption by users interested in using it without deep understanding of the underlying implementations. These toolkits are essentially templates encapsulating best-practice solutions, that can reduce modeling time and improved the robustness of the generated simulations\cite{tasora2020chrono}.\newline
-
+	In addition to that, chrono can handle multi-physics problems. Chrono, as mentioned above, is written entirely with C++ and is compiled into libraries used by other third party applications. Functions implemented with chrono can be envoked using an API(Application Programming Interface), comming in two flavors C++ and Python(pychrono). chrono is configured and built using CMake, making it compatible with Windows, Linux, and Mac Os, and robustly cross-platform compatible. Thus easing the adaption with minimal specific hardware and software requirements. Furthermore, chrono is designed to lavrage parallel and GPU-Computing, and depending on the operating environment, hardware and software, it can use special implemented software for commercial hardware, i.g. CUDA for Nvidia, etc. In terms of usability, the documentation of the main modules of chrono is very extensive, and was generated from the annotations in the C++ Code. Besides, chrono is distributed with multiple ready for use toolkits for ease of adaption by users interested in using it without deep understanding of the underlying implementations. These toolkits are essentially templates encapsulating best-practice solutions, that can reduce modeling time and improved the robustness of the generated simulations\cite{tasora2020chrono}.
 	\section{Opensim}
 	\section{Panda 3D}
+	Panda 3d is graphics engine and programming environment developed by disney's VR. It is very flexible and supports a range of applications, such as real-
+	time graphics applications to the development of high-end virtual reality theme park attractions or video games. The name itself is an acronym listing the primary features of Panda 3D, platform-agnos- tic, networked, display architecture\cite{goslin2004panda3d}. A fully featured version of this graphics engine include\cite{goslin2004panda3d}:
+	\begin{itemize}
+		\item particle systems
+		\item physics and collisions,
+		\item soft- and hard-skin character animation,
+		\item 2D and 3D nonuniform rational B-spline support,
+		\item 2D graphical user interface support,
+		\item multipass rendering, and
+		\item a real-time shader framework.
+	\end{itemize}
+	Pandas was released as an open source project, and was implemented as a platform-agnostic software by extensively using abstraction layers to facilitate portability. This can be achieved by representing services in an abstract form, so that they can be interchangeably used across-platforms. For terms of usability, Panda 3D was written in C++, uses standard programming tools and techniques to provide a low entry point to novice users and decrease the learning curve. Furthermore, Panda 3D takes advantage of the C++ standard library to further advance the portability of this graphics engine. On the other hand, this implementation methods allow users and third party developers to implement Python’s Tkinter/Pmw wrappers around the Tcl/Tk API to generate graphical user interfaces\cite{goslin2004panda3d}.
+
 	\printbibliography
 \end{document}
