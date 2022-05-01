@@ -1,8 +1,9 @@
 import os
+import logging
+import json
+import xml.etree.cElementTree as ET
 import shutil
 import requests
-import tempfile
-import errno
 import zipfile
 from tqdm.auto import tqdm
 
@@ -20,8 +21,55 @@ class Motion:
         self.format_ = format_
         self.motion_data = motion_data
 
+    '''
+    The parsiong section of this model is inspired by the code snippet
+    in https://motion-annotation.humanoids.kit.edu/dataset/
+    '''
+    def _parse_frame(self, joint_indexes):
+        n_joints = len(joint_indexes)
+        xml_joint_pos = self.motion_data.find('JointPosition')
+        if xml_joint_pos is None:
+            raise RuntimeError('<JointPosition> not found')
+        joint_pos = self._parse_list(xml_joint_pos, n_joints, joint_indexes)
+
+        return joint_pos
+
+    def _parse_motion(self, motion):
+        xml_joint_order = self.motion_data.find('JointOrder')
+        if xml_joint_order is None:
+            raise RuntimeError('<JointOrder> not found')
+
+        joint_names = []
+        joint_indexes = []
+        for idx, xml_joint in enumerate(xml_joint_order.findall('Joint')):
+            name = xml_joint.get('name')
+            if name is None:
+                raise RuntimeError('<Joint> has no name')
+            joint_indexes.append(idx)
+            joint_names.append(name)
+
+        frames = []
+        xml_frames = self.motion_data.find('MotionFrames')
+
+        if xml_frames is None:
+            raise RuntimeError('<MotionFrames> not found')
+
+        for xml_frame in xml_frames.findall('MotionFrame'):
+            frames.append(self._parse_frame(xml_frame, joint_indexes))
+
+        return joint_names, frames
+
     def parse(self):
-        pass
+        xml_tree = ET.parse(self.motion_data)
+        xml_root = xml_tree.getroot()
+        xml_motions = xml_root.findall('Motion')
+        motions = []
+
+        if len(xml_motions) > 1:
+            logging.warn('more than one <Motion> tag in file "%s", only parsing the first one')
+
+        motions.append(self._parse_motion(xml_motions[0]))
+        return motions
 
 
 class MotionDataset:
@@ -50,6 +98,10 @@ class MotionDataset:
                     'wb'
                 ) as dataset:
                     shutil.copyfileobj(raw_data, dataset)
+        return dataset, root
+
+    def extract(self):
+        dataset, root = self.download()
         print('Extracting the dataset...')
         with zipfile.ZipFile(dataset, 'r') as zip_file:
             zip_file.extract(
