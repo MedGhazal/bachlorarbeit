@@ -1,1 +1,7 @@
+certifi==2021.10.8
+charset-normalizer==2.0.12
+idna==3.3
+pybullet==3.2.4
+requests==2.27.1
 tqdm==4.64.0
+urllib3==1.26.9

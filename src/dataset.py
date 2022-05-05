@@ -8,7 +8,7 @@ import zipfile
 from tqdm.auto import tqdm
 
 # Change this to the path where you want to download the dataset to
-DEFAULT_ROOT = 'Developer/bachelorarbeit/data'
+DEFAULT_ROOT = 'data/motion_data'
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
 # BUFFER_SIZE = 32 * 2048 * 2048
 
@@ -25,22 +25,44 @@ class Motion:
     The parsiong section of this model is inspired by the code snippet
     in https://motion-annotation.humanoids.kit.edu/dataset/
     '''
+    def _parse_list(self, xml_elem, length, indexes=None):
+
+        if indexes is None:
+            indexes = range(length)
+
+        elems = [
+            float(x) for idx, x in enumerate(xml_elem.text.rstrip().split(' '))
+            if idx in indexes
+        ]
+
+        if len(elems) != length:
+            raise RuntimeError('invalid number of elements')
+
+        return elems
+
     def _parse_frame(self, joint_indexes):
-        n_joints = len(joint_indexes)
         xml_joint_pos = self.motion_data.find('JointPosition')
+
         if xml_joint_pos is None:
             raise RuntimeError('<JointPosition> not found')
-        joint_pos = self._parse_list(xml_joint_pos, n_joints, joint_indexes)
+
+        joint_pos = self._parse_list(
+            xml_joint_pos,
+            len(joint_indexes),
+            joint_indexes,
+        )
 
         return joint_pos
 
     def _parse_motion(self, motion):
         xml_joint_order = self.motion_data.find('JointOrder')
+
         if xml_joint_order is None:
             raise RuntimeError('<JointOrder> not found')
 
         joint_names = []
         joint_indexes = []
+
         for idx, xml_joint in enumerate(xml_joint_order.findall('Joint')):
             name = xml_joint.get('name')
             if name is None:
