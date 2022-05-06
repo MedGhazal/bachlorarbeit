@@ -1,4 +1,4 @@
-# from dataset import MotionDataset, Motion
+from dataset import MotionDataset, Motion
 import pybullet as pb
 import time
 import os
@@ -6,7 +6,6 @@ import os
 if __name__ == '__main__':
     physicsClient = pb.connect(pb.GUI)
     pb.setGravity(0, 0, -10)
-    print(os.getcwd())
     planeId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(

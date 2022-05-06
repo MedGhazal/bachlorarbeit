@@ -1,12 +1,18 @@
 import os
 import logging
-import json
+# import json
 import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
 from tqdm.auto import tqdm
+from robot import Robot
 
+logging.basicConfig(
+    filename='logs/logger.log',
+    encoding='utf-8',
+    level=logging.DEBUG,
+)
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
@@ -15,11 +21,12 @@ URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
 
 class Motion:
 
-    def __init__(self, format_, motion_data, meta=None, annotation=None):
+    def __init__(self, format_, motion_file, meta=None, annotation=None):
         self.meta = meta
         self.annotation = annotation
         self.format_ = format_
-        self.motion_data = motion_data
+        self.motion_file = motion_file
+        self.parse()
 
     '''
     The parsiong section of this model is inspired by the code snippet
@@ -40,8 +47,8 @@ class Motion:
 
         return elems
 
-    def _parse_frame(self, joint_indexes):
-        xml_joint_pos = self.motion_data.find('JointPosition')
+    def _parse_frame(self, xml_frame, joint_indexes):
+        xml_joint_pos = xml_frame.find('JointPosition')
 
         if xml_joint_pos is None:
             raise RuntimeError('<JointPosition> not found')
@@ -54,8 +61,8 @@ class Motion:
 
         return joint_pos
 
-    def _parse_motion(self, motion):
-        xml_joint_order = self.motion_data.find('JointOrder')
+    def _parse_motion(self, xml_motion):
+        xml_joint_order = xml_motion.find('JointOrder')
 
         if xml_joint_order is None:
             raise RuntimeError('<JointOrder> not found')
@@ -71,7 +78,7 @@ class Motion:
             joint_names.append(name)
 
         frames = []
-        xml_frames = self.motion_data.find('MotionFrames')
+        xml_frames = xml_motion.find('MotionFrames')
 
         if xml_frames is None:
             raise RuntimeError('<MotionFrames> not found')
@@ -79,19 +86,33 @@ class Motion:
         for xml_frame in xml_frames.findall('MotionFrame'):
             frames.append(self._parse_frame(xml_frame, joint_indexes))
 
+        xml_config = xml_motion.findall('ModelProcessorConfig')
+        xml_model_height = xml_config[0].findall('Height')
+        xml_model_mass = xml_config[0].findall('Mass')
+        height = float(xml_model_height[0].text)
+        mass = float(xml_model_mass[0].text)
+        joints = {
+            'names': joint_names,
+            'indexes': joint_indexes,
+        }
+        self.robot = Robot(height, mass, joints)
+
         return joint_names, frames
 
     def parse(self):
-        xml_tree = ET.parse(self.motion_data)
+        xml_tree = ET.parse(self.motion_file)
         xml_root = xml_tree.getroot()
-        xml_motions = xml_root.findall('Motion')
-        motions = []
+        self.xml_motions = xml_root.findall('Motion')
+        self.motions = []
 
-        if len(xml_motions) > 1:
-            logging.warn('more than one <Motion> tag in file "%s", only parsing the first one')
+        if len(self.xml_motions) > 1:
+            logging.warn(
+                'more than one <Motion> tag in file "%s", '
+                'only parsing the first one'
+            )
 
-        motions.append(self._parse_motion(xml_motions[0]))
-        return motions
+        for motion in self.xml_motions:
+            self.motions.append(self._parse_motion(motion))
 
 
 class MotionDataset:
@@ -102,7 +123,7 @@ class MotionDataset:
     def __init__(self, root=DEFAULT_ROOT, train=True):
         self.root = os.path.expanduser(root)
         self.train = train
-        print(self.root)
+        self.motions = []
 
     def download(self):
         root = os.path.expanduser(DEFAULT_ROOT)
@@ -143,29 +164,25 @@ class MotionDataset:
             'The possible formats are MMM, RAW: '
         )
         os.chdir('data/motion_dataset')
-        motions = []
         ids = map(
             lambda x: x.split('_')[0],
             sorted(os.listdir()),
         )
+        ids = set(ids)
         for id_ in ids:
             with open(f'{id_}_annotations.json', 'r',) as file:
                 annotation = file.read()
             with open(f'{id_}_meta.json', 'r') as file:
                 meta = file.read()
-            with open(
-                f'{id_}_{format_.lower()}.{"xml" if format_ == "mmm" else "c3d"}',
-                'rb',
-            ) as file:
-                motion_data = file.read()
-            motions.append(
+            self.motions.append(
                 Motion(
                     format_,
-                    motion_data,
+                    f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
                     annotation=annotation,
                     meta=meta,
                 )
             )
+            break
         os.chdir(current_directory)
 
 

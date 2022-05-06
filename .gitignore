@@ -11,4 +11,6 @@
 *.synctex.gz
 .DS_Store
 /venv/*
-/data/*
+/data/motion_data/*
+/logs/*
+/__pycache__/
