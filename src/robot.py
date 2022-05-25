@@ -8,6 +8,7 @@ class Robot:
         self.create_model()
 
     def create_model(self):
+        pass
         # with open('model.urdf', 'w') as urdf_file:
         #     urdf_file.write(f'<robot name={self.robot_name}>')
         # for link_name, link_index in zip(
@@ -19,19 +20,19 @@ class Robot:
         #         urdf_file.write(f'<link name={self.robot_name}/>')
         # with open('model.urfd', 'a') as urdf_file:
         #     urdf_file.write('</robot>')
-        print(f'<robot name="{self.robot_name}">')
-        print('<link name="head"/>')
-        print('<link name="neck"/>')
-        print('<link name="left_shoulder"/>')
-        print('<link name="right_shoulder"/>')
-        print('<link name="left_arm"/>')
-        print('<link name="right_arm"/>')
-        print('<link name="left_forarm"/>')
-        print('<link name="right_forarm"/>')
-        print('<link name="left_hand"/>')
-        print('<link name="right_hand"/>')
-        print('<link name=""/>')
-        for joint_name in self.joints['names']:
-            break
-            print(joint_name)
-        print('<robot/>')
+        # print(f'<robot name="{self.robot_name}">')
+        # print('<link name="head"/>')
+        # print('<link name="neck"/>')
+        # print('<link name="left_shoulder"/>')
+        # print('<link name="right_shoulder"/>')
+        # print('<link name="left_arm"/>')
+        # print('<link name="right_arm"/>')
+        # print('<link name="left_forarm"/>')
+        # print('<link name="right_forarm"/>')
+        # print('<link name="left_hand"/>')
+        # print('<link name="right_hand"/>')
+        # print('<link name=""/>')
+        # for joint_name in self.joints['names']:
+        #     break
+        #     print(joint_name)
+        # print('<robot/>')

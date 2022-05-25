@@ -26,7 +26,6 @@ class Motion:
         self.annotation = annotation
         self.format_ = format_
         self.motion_file = motion_file
-        self.parse()
 
     '''
     The parsiong section of this model is inspired by the code snippet
@@ -100,6 +99,8 @@ class Motion:
         return joint_names, frames
 
     def parse(self):
+        current_directory = os.getcwd()
+        os.chdir('data/motion_dataset')
         xml_tree = ET.parse(self.motion_file)
         xml_root = xml_tree.getroot()
         self.xml_motions = xml_root.findall('Motion')
@@ -113,6 +114,7 @@ class Motion:
 
         for motion in self.xml_motions:
             self.motions.append(self._parse_motion(motion))
+        os.chdir(current_directory)
 
 
 class MotionDataset:
@@ -159,10 +161,11 @@ class MotionDataset:
     def parse(self):
         print('Parsing the dataset...')
         current_directory = os.getcwd()
-        format_ = input(
-            'Enter the type of format type you want to use. '
-            'The possible formats are MMM, RAW: '
-        )
+        # format_ = input(
+        #     'Enter the type of format type you want to use. '
+        #     'The possible formats are MMM, RAW: '
+        # )
+        format_ = 'mmm'
         os.chdir('data/motion_dataset')
         ids = map(
             lambda x: x.split('_')[0],
@@ -182,10 +185,4 @@ class MotionDataset:
                     meta=meta,
                 )
             )
-            break
         os.chdir(current_directory)
-
-
-if __name__ == '__main__':
-    motion_dataset = MotionDataset()
-    motion_dataset.parse()
