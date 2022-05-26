@@ -100,6 +100,7 @@ class Motion:
 
     def parse(self):
         current_directory = os.getcwd()
+        print(self.annotation)
         os.chdir('data/motion_dataset')
         xml_tree = ET.parse(self.motion_file)
         xml_root = xml_tree.getroot()
