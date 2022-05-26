@@ -100,8 +100,8 @@ class Motion:
 
     def parse(self):
         current_directory = os.getcwd()
-        print(self.annotation)
-        os.chdir('data/motion_dataset')
+        print(f'The annotation of the motion is {self.annotation}')
+        os.chdir(DEFAULT_ROOT)
         xml_tree = ET.parse(self.motion_file)
         xml_root = xml_tree.getroot()
         self.xml_motions = xml_root.findall('Motion')
@@ -123,13 +123,12 @@ class MotionDataset:
         'https://motion-annotation.humanoids.kit.edu/downloads/4/',
     ]
 
-    def __init__(self, root=DEFAULT_ROOT, train=True):
+    def __init__(self, root=DEFAULT_ROOT, train=False):
         self.root = os.path.expanduser(root)
         self.train = train
         self.motions = []
 
     def download(self):
-        root = os.path.expanduser(DEFAULT_ROOT)
         print('Downloading the dataset...')
         with requests.get(URL, stream=True) as request:
             dataset_size = int(request.headers.get('Content-Length'))
@@ -144,35 +143,31 @@ class MotionDataset:
                     'wb'
                 ) as dataset:
                     shutil.copyfileobj(raw_data, dataset)
-        return dataset, root
+        return dataset
 
     def extract(self):
-        dataset, root = self.download()
+        dataset = self.download()
+        os.makedirs(DEFAULT_ROOT)
         print('Extracting the dataset...')
         with zipfile.ZipFile(dataset, 'r') as zip_file:
-            zip_file.extract(
-                os.path.join(
-                    os.expanduser(DEFAULT_ROOT),
-                    '2017..',
-                ),
-                path=root,
-            )
+            for file in tqdm(zip_file.infolist(), desc=''):
+                zip_file.extract(
+                    file,
+                    os.path.expanduser(DEFAULT_ROOT),
+                )
+        os.remove(dataset)
         print('Done')
 
     def parse(self):
-        print('Parsing the dataset...')
+        print('Parsing the dataset, and extracting mmm-files...')
         current_directory = os.getcwd()
-        # format_ = input(
-        #     'Enter the type of format type you want to use. '
-        #     'The possible formats are MMM, RAW: '
-        # )
         format_ = 'mmm'
-        os.chdir('data/motion_dataset')
+        os.chdir(DEFAULT_ROOT)
         ids = map(
             lambda x: x.split('_')[0],
             sorted(os.listdir()),
         )
-        ids = set(ids)
+        ids = sorted(list(set(ids)))
         for id_ in ids:
             with open(f'{id_}_annotations.json', 'r',) as file:
                 annotation = file.read()

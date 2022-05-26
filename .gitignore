@@ -1,3 +1,4 @@
+logs/*
 *.swp
 *.aux
 *.bbl
@@ -11,6 +12,6 @@
 *.synctex.gz
 .DS_Store
 /venv/*
-/data/motion_data/*
+/data/motion_dataset/*
 /logs/*
 /__pycache__/
