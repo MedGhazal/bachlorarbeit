@@ -28,7 +28,7 @@ class Motion:
         self.motion_file = motion_file
 
     '''
-    The parsiong section of this model is inspired by the code snippet
+    The parsing section of this model is inspired by the code snippet
     in https://motion-annotation.humanoids.kit.edu/dataset/
     '''
     def _parse_list(self, xml_elem, length, indexes=None):
