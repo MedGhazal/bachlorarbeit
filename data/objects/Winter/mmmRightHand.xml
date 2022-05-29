@@ -1,0 +1,705 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<Robot Type='MMMRightHand' RootNode='RightHandBase'>
+
+   	<!-- ***************** Thumb ***************** -->
+	<RobotNode name='RightFingerJoint11y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='-1' c2='1.0677e-07' c3='-1.0677e-07' c4='0' />
+				<row2 c1='0' c2='0.707107' c3='0.707107' c4='0' />
+				<row3 c1='1.50996e-07' c2='0.707107' c3='-0.707107' c4='0' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='-0.785398' hi='0.785398' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint11y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint12y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint11z_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='10.584' />
+				<row3 c1='0' c2='0' c3='1' c4='-7.884' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='0' y='0' z='1'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Child name='RightFingerJoint11y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint12y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='21.168' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint12y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint13y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint13y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='17.064' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint13y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+	</RobotNode>
+
+    <!-- ***************** Index Finger ***************** -->
+	<RobotNode name='RightFingerJoint21x_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='7.54979e-08' c2='1' c3='-8.74228e-08' c4='0' />
+				<row2 c1='1' c2='-7.54979e-08' c3='8.74228e-08' c4='13.554' />
+				<row3 c1='8.74228e-08' c2='-8.74228e-08' c3='-1' c4='-48.3' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='0' y='1' z='0'/>
+			<limits lo='-0.785398' hi='0.785398' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Child name='RightFingerJoint21y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint21y_joint'>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint21y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint22y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint22y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='26.46' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint22y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint23y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint23y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='15.444' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint23y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+	</RobotNode>
+
+   	<!-- ***************** Middle Finger ***************** -->
+	<RobotNode name='RightFingerJoint31x_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='7.54979e-08' c2='1' c3='-8.74228e-08' c4='0' />
+				<row2 c1='1' c2='-7.54979e-08' c3='8.74228e-08' c4='0' />
+				<row3 c1='8.74228e-08' c2='-8.74228e-08' c3='-1' c4='-48.168' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='0' y='1' z='0'/>
+			<limits lo='-0.785398' hi='0.785398' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Child name='RightFingerJoint31y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint31y_joint'>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint31y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint32y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint32y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='28.728' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint32y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint33y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint33y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='18.36' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint33y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+	</RobotNode>
+
+    <!-- ***************** Ring Finger ***************** -->
+	<RobotNode name='RightFingerJoint40y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='7.54979e-08' c2='1' c3='-8.74228e-08' c4='0' />
+				<row2 c1='1' c2='-7.54979e-08' c3='8.74228e-08' c4='-6.25' />
+				<row3 c1='8.74228e-08' c2='-8.74228e-08' c3='-1' c4='-8.75' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='0.0872665' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint40y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint41x_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint41x_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='-4.9' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='35.422' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='0' y='1' z='0'/>
+			<limits lo='-0.785398' hi='0.785398' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Child name='RightFingerJoint41y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint41y_joint'>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint41y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint42y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint42y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='26.352' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint42y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint43y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint43y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='17.82' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint43y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+	</RobotNode>
+
+	<!-- ***************** Pinky Finger ***************** -->
+	<RobotNode name='RightFingerJoint50y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='7.54979e-08' c2='1' c3='-8.74228e-08' c4='0' />
+				<row2 c1='1' c2='-7.54979e-08' c3='8.74228e-08' c4='-12.88' />
+				<row3 c1='8.74228e-08' c2='-8.74228e-08' c3='-1' c4='-9.97' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='0.174533' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint50y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint51x_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint51x_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='-8.828' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='29.774' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='0' y='1' z='0'/>
+			<limits lo='-0.785398' hi='0.785398' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Child name='RightFingerJoint51y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint51y_joint'>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint51y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint52y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint52y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='22.032' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint52y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Child name='RightFingerJoint53y_joint'/>
+	</RobotNode>
+
+
+	<RobotNode name='RightFingerJoint53y_joint'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='12.636' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Joint type='revolute'>
+			<axis x='1' y='0' z='0'/>
+			<limits lo='0' hi='1.5708' units='radian'/>
+			<MaxAcceleration value='-1'/>
+			<MaxVelocity value='-1'/>
+			<MaxTorque value='-1'/>
+		</Joint>
+		<Visualization>
+			<File type='inventor'>./models/RightFingerJoint53y_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+	</RobotNode>
+
+
+	<RobotNode name='RightHandSegment'>
+		<Transform>
+			<Matrix4x4 units='mm'>
+				<row1 c1='1' c2='0' c3='0' c4='0' />
+				<row2 c1='0' c2='1' c3='0' c4='0' />
+				<row3 c1='0' c2='0' c3='1' c4='0' />
+				<row4 c1='0' c2='0' c3='0' c4='1' />
+			</Matrix4x4>
+		</Transform>
+		<Physics>
+			<Mass unit='kg' value='0.006'/>
+			<CoM location='Custom' x='-8.25728e-12' y='3.81383e-05' z='53.4'/>
+			<InertiaMatrix>
+					<row1 c1='0.0021869' c2='0' c3='0'/>
+					<row2 c1='0' c2='0.0033304' c3='0'/>
+					<row3 c1='0' c2='0' c3='0.001283'/>
+			</InertiaMatrix>
+		</Physics>
+		<Visualization>
+			<File type='inventor'>./models/RWy_joint_visu.wrl</File>
+                <UseAsCollisionModel/></Visualization>
+		<Sensor type='position' name='MARKER_LHPS'>
+			<Transform>
+				<Matrix4x4 units='mm'>
+					<row1 c1='1' c2='0' c3='0' c4='-9.65197' />
+					<row2 c1='0' c2='1' c3='0' c4='-21.7232' />
+					<row3 c1='0' c2='0' c3='1' c4='78.9456' />
+					<row4 c1='0' c2='0' c3='0' c4='1' />
+				</Matrix4x4>
+			</Transform>
+		</Sensor>
+		<Sensor type='position' name='MARKER_LHTS'>
+			<Transform>
+				<Matrix4x4 units='mm'>
+					<row1 c1='1' c2='0' c3='0' c4='-10.3235' />
+					<row2 c1='0' c2='1' c3='0' c4='13.0487' />
+					<row3 c1='0' c2='0' c3='1' c4='69.6834' />
+					<row4 c1='0' c2='0' c3='0' c4='1' />
+				</Matrix4x4>
+			</Transform>
+		</Sensor>
+		<Sensor type='position' name='MARKER_LIFD'>
+			<Transform>
+				<Matrix4x4 units='mm'>
+					<row1 c1='1' c2='0' c3='0' c4='-7.41577' />
+					<row2 c1='0' c2='1' c3='0' c4='14.2213' />
+					<row3 c1='0' c2='0' c3='1' c4='14.536' />
+					<row4 c1='0' c2='0' c3='0' c4='1' />
+				</Matrix4x4>
+			</Transform>
+		</Sensor>
+	</RobotNode>
+
+
+	<RobotNode name='RightHandBase'>
+		<Child name='RightHandTCP'/>
+		<Child name='RightHandSegment'/>
+		<Child name='RightFingerJoint50y_joint'/>
+		<Child name='RightFingerJoint31x_joint'/>
+		<Child name='RightFingerJoint21x_joint'/>
+		<Child name='RightFingerJoint11z_joint'/>
+		<Child name='RightFingerJoint40y_joint'/>
+	</RobotNode>
+
+	<RobotNode name="RightHandTCP">
+      		<Transform>
+        		<Translation x="-20" y="0" z="-40"/>
+			<rollpitchyaw roll='0' pitch='-135' yaw='0' unit='degree'/>
+      		</Transform>
+		<Child name='RightHandGCP'/>
+    	</RobotNode>
+
+	<RobotNode name="RightHandGCP">
+      		<Transform>
+        		<Translation x="0" y="0" z="0"/>
+        		<rollpitchyaw roll="0" pitch="0" yaw="0" unit="degree"/>
+      		</Transform>
+   	</RobotNode>
+
+    <!-- ************************ RobotNodeSets ************************** -->
+	<RobotNodeSet name='All'>
+		<Node name='RightHandBase'/>
+		<Node name='RightHandTCP'/>
+		<Node name='RightHandGCP'/>
+		<Node name='RightHandSegment'/>
+		<Node name='RightFingerJoint50y_joint'/>
+		<Node name='RightFingerJoint51x_joint'/>
+		<Node name='RightFingerJoint51y_joint'/>
+		<Node name='RightFingerJoint52y_joint'/>
+		<Node name='RightFingerJoint53y_joint'/>
+		<Node name='RightFingerJoint31x_joint'/>
+		<Node name='RightFingerJoint31y_joint'/>
+		<Node name='RightFingerJoint32y_joint'/>
+		<Node name='RightFingerJoint33y_joint'/>
+		<Node name='RightFingerJoint21x_joint'/>
+		<Node name='RightFingerJoint21y_joint'/>
+		<Node name='RightFingerJoint22y_joint'/>
+		<Node name='RightFingerJoint23y_joint'/>
+		<Node name='RightFingerJoint11z_joint'/>
+		<Node name='RightFingerJoint11y_joint'/>
+		<Node name='RightFingerJoint12y_joint'/>
+		<Node name='RightFingerJoint13y_joint'/>
+		<Node name='RightFingerJoint40y_joint'/>
+		<Node name='RightFingerJoint41x_joint'/>
+		<Node name='RightFingerJoint41y_joint'/>
+		<Node name='RightFingerJoint42y_joint'/>
+		<Node name='RightFingerJoint43y_joint'/>
+	</RobotNodeSet>
+
+	<RobotNodeSet name='Joints_Revolute'>
+		<Node name='RightFingerJoint50y_joint'/>
+		<Node name='RightFingerJoint51x_joint'/>
+		<Node name='RightFingerJoint51y_joint'/>
+		<Node name='RightFingerJoint52y_joint'/>
+		<Node name='RightFingerJoint53y_joint'/>
+		<Node name='RightFingerJoint31x_joint'/>
+		<Node name='RightFingerJoint31y_joint'/>
+		<Node name='RightFingerJoint32y_joint'/>
+		<Node name='RightFingerJoint33y_joint'/>
+		<Node name='RightFingerJoint21x_joint'/>
+		<Node name='RightFingerJoint21y_joint'/>
+		<Node name='RightFingerJoint22y_joint'/>
+		<Node name='RightFingerJoint23y_joint'/>
+		<Node name='RightFingerJoint11z_joint'/>
+		<Node name='RightFingerJoint11y_joint'/>
+		<Node name='RightFingerJoint12y_joint'/>
+		<Node name='RightFingerJoint13y_joint'/>
+		<Node name='RightFingerJoint40y_joint'/>
+		<Node name='RightFingerJoint41x_joint'/>
+		<Node name='RightFingerJoint41y_joint'/>
+		<Node name='RightFingerJoint42y_joint'/>
+		<Node name='RightFingerJoint43y_joint'/>
+	</RobotNodeSet>
+
+    <!-- ************************ Endeffector ************************** -->
+    	<Endeffector name="EndeffectorRightHand" base="RightHandBase" tcp="RightHandTCP" gcp="RightHandGCP">
+	   	<Preshape name="Open Preshape">
+		     	<Node name='RightFingerJoint11z_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint11y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint12y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint13y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint21x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint21y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint22y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint23y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint31x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint31y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint32y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint33y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint40y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint41x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint41y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint42y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint43y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint50y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint51x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint51y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint52y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint53y_joint' unit="radian" value="0"/>
+	  	</Preshape>
+		<Preshape name="Close Preshape">
+		     	<Node name='RightFingerJoint11z_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint11y_joint' unit="radian" value="-0.638136"/>
+			<Node name='RightFingerJoint12y_joint' unit="radian" value="0.785398"/>
+			<Node name='RightFingerJoint13y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint21x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint21y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint22y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint23y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint31x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint31y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint32y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint33y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint40y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint41x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint41y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint42y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint43y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint50y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint51x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint51y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint52y_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint53y_joint' unit="radian" value="1.5708"/>
+	  	</Preshape>
+		<Preshape name="Power Preshape">
+		     	<Node name='RightFingerJoint11z_joint' unit="radian" value="1.5708"/>
+			<Node name='RightFingerJoint11y_joint' unit="radian" value="-0.2945"/>
+			<Node name='RightFingerJoint12y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint13y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint21x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint21y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint22y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint23y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint31x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint31y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint32y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint33y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint40y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint41x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint41y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint42y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint43y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint50y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint51x_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint51y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint52y_joint' unit="radian" value="0"/>
+			<Node name='RightFingerJoint53y_joint' unit="radian" value="0"/>
+	  	</Preshape>
+		<Static>
+			<Node name="RightHandSegment"/>
+		</Static>
+		<Actor name='RightPinkyActor'>
+			<Node name='RightFingerJoint50y_joint' considerCollisions="Actors"/>
+			<!--<Node name='RightFingerJoint51x_joint'/>-->
+			<Node name='RightFingerJoint51y_joint' considerCollisions="Actors"/>
+			<Node name='RightFingerJoint52y_joint' considerCollisions="All"/>
+			<Node name='RightFingerJoint53y_joint' considerCollisions="All"/>
+		</Actor>
+		<Actor name='RightRingActor'>
+			<Node name='RightFingerJoint40y_joint' considerCollisions="Actors"/>
+			<!--<Node name='RightFingerJoint41x_joint'/>-->
+			<Node name='RightFingerJoint41y_joint' considerCollisions="Actors"/>
+			<Node name='RightFingerJoint42y_joint' considerCollisions="All"/>
+			<Node name='RightFingerJoint43y_joint' considerCollisions="All"/>
+		</Actor>
+		<Actor name='RightMiddleActor'>
+			<!--<Node name='RightFingerJoint31x_joint'/>-->
+			<Node name='RightFingerJoint31y_joint' considerCollisions="Actors"/>
+			<Node name='RightFingerJoint32y_joint' considerCollisions="Actors"/>
+			<Node name='RightFingerJoint33y_joint' considerCollisions="All"/>
+		</Actor>
+		<Actor name='RightIndexActor'>
+			<!--<Node name='RightFingerJoint21x_joint'/>-->
+			<Node name='RightFingerJoint21y_joint' considerCollisions="Actors"/>
+			<Node name='RightFingerJoint22y_joint' considerCollisions="Actors"/>
+			<Node name='RightFingerJoint23y_joint' considerCollisions="All"/>
+		</Actor>
+		<Actor name='RightThumbActor'>
+			<!--<Node name='RightFingerJoint11z_joint'/>-->
+			<Node name='RightFingerJoint11y_joint' considerCollisions="Actors" direction='0.005'/>
+			<Node name='RightFingerJoint12y_joint' considerCollisions="Actors" direction='0.02'/>
+			<Node name='RightFingerJoint13y_joint' considerCollisions='All' direction='0.02'/>
+		</Actor>
+	</Endeffector>
+
+</Robot>

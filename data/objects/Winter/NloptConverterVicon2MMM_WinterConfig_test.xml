@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ConverterConfig type='NloptConverter'>
+  <Model name='Winter'>
+    <MarkerMapping>
+      <Mapping source="C7" target="MARKER_C7"/>
+      <Mapping source="L3" target="MARKER_L3"/>
+      <Mapping source="CLAV" target="MARKER_CLAV"/>
+      <Mapping source="RBAK" target="MARKER_RBAK"/>
+      <Mapping source="T10" target="MARKER_T10"/>
+      <Mapping source="STRN" target="MARKER_STRN"/>
+      <Mapping source="RASI" target="MARKER_RASI"/>
+      <Mapping source="LUPA" target="MARKER_LUPA"/>
+      <Mapping source="LASI" target="MARKER_LASI"/>
+      <Mapping source="LHIP" target="MARKER_LHIP"/>
+      <Mapping source="LPSI" target="MARKER_LPSI"/>
+      <Mapping source="LKNE" target="MARKER_LKNE"/>
+      <Mapping source="RPSI" target="MARKER_RPSI"/>
+      <Mapping source="LFRA" target="MARKER_LFRA"/>
+      <Mapping source="LWPS" target="MARKER_LWPS"  weight="3.0"/>
+      <Mapping source="LWTS" target="MARKER_LWTS"  weight="3.0"/>
+      <Mapping source="LMT1" target="MARKER_LMT1"/>
+      <Mapping source="LMT5" target="MARKER_LMT5"/>
+      <Mapping source="LTOE" target="MARKER_LTOE"/>
+      <Mapping source="RUPA" target="MARKER_RUPA"/>
+      <Mapping source="RHIP" target="MARKER_RHIP"/>
+      <Mapping source="RKNE" target="MARKER_RKNE"/>
+      <Mapping source="RWPS" target="MARKER_RWPS" weight="3.0"/>
+      <Mapping source="RWTS" target="MARKER_RWTS" weight="3.0"/>
+      <Mapping source="RMT1" target="MARKER_RMT1"/>
+      <Mapping source="RMT5" target="MARKER_RMT5"/>
+      <Mapping source="RTOE" target="MARKER_RTOE"/>
+      <Mapping source="RHEE" target="MARKER_RHEE"/>
+      <Mapping source="LHEE" target="MARKER_LHEE"/>
+
+      <!-- Shoulders -->
+      <Mapping source="RSHO" target="MARKER_RSHO"/>
+      <Mapping source="LSHO" target="MARKER_LSHO"/>
+
+      <!-- Ellbows -->
+      <Mapping source="RAOL" target="MARKER_RAOL"/>
+      <Mapping source="RAEL" target="MARKER_RAEL" weight="10.0"/>
+      <Mapping source="LAOL" target="MARKER_LAOL"/>
+      <Mapping source="LAEL" target="MARKER_LAEL" weight="10.0"/>
+
+      <!-- LowerArm
+      <Mapping source="RFRA" target="MARKER_RFRA" weight="0.3"/>
+      <Mapping source="LFRA" target="MARKER_LFRA" weight="0.3"/>-->
+
+      <!-- Hands -->
+      <Mapping source="RHTS" target="MARKER_RHTS"  weight="10.0"/>
+      <Mapping source="RHPS" target="MARKER_RHPS"  weight="10.0"/>
+      <Mapping source="LHTS" target="MARKER_LHTS"  weight="10.0"/>
+      <Mapping source="LHPS" target="MARKER_LHPS"  weight="10.0"/>
+
+      <!-- Head -->
+      <Mapping source="LFHD" target="MARKER_LFHD"/>
+      <Mapping source="RFHD" target="MARKER_RFHD"/>
+      <Mapping source="LBHD" target="MARKER_LBHD"/>
+      <Mapping source="RBHD" target="MARKER_RBHD"/>
+
+      <Mapping source="LANK" target="MARKER_LANK"/>
+      <Mapping source="RANK" target="MARKER_RANK"/>
+      <Mapping source="LBAK" target="MARKER_LBAK"/>
+      <Mapping source="LTIP" target="MARKER_LTIP"/>
+      <Mapping source="RTIP" target="MARKER_RTIP"/>
+      <Mapping source="LTHI" target="MARKER_LTHI"/>
+      <Mapping source="RTHI" target="MARKER_RTHI"/>
+    </MarkerMapping>
+
+    <JointSet>
+      <!-- Neck -->
+      <Joint name='BLNx_joint'/>
+      <Joint name='BLNy_joint'/>
+      <Joint name='BLNz_joint'/>
+
+      <!-- Pelvis -->
+      <Joint name='BPx_joint'/>
+      <Joint name='BPy_joint'/>
+      <Joint name='BPz_joint'/>
+
+      <!-- Torso -->
+      <Joint name='BTx_joint'/>
+      <Joint name='BTy_joint'/>
+      <Joint name='BTz_joint'/>
+
+      <!-- Head -->
+      <Joint name='BUNx_joint'/>
+      <Joint name='BUNy_joint'/>
+      <Joint name='BUNz_joint'/>
+
+      <!-- Left Ankle -->
+      <Joint name='LAx_joint'/>
+      <Joint name='LAy_joint'/>
+      <Joint name='LAz_joint'/>
+
+      <!-- Left Elbow -->
+      <Joint name='LEx_joint'/>
+      <Joint name='LEz_joint'/>
+
+      <!-- Left Hip -->
+      <Joint name='LHx_joint'/>
+      <Joint name='LHy_joint'/>
+      <Joint name='LHz_joint'/>
+
+      <!-- Left Knee -->
+      <Joint name='LKx_joint'/>
+
+      <!-- Left Shoulder Inner -->
+      <!--
+      <Joint name='LSCx_joint'/>
+      <Joint name='LSCy_joint'/>
+      <Joint name='LSCz_joint'/>
+      -->
+
+      <!-- Left Shoulder Outer -->
+      <Joint name='LSx_joint'/>
+      <Joint name='LSy_joint'/>
+      <Joint name='LSz_joint'/>
+
+      <!--  Left Wrist -->
+      <Joint name='LWx_joint'/>
+      <Joint name='LWy_joint'/>
+
+      <!-- Left Foot -->
+      <Joint name='LFx_joint'/>
+      <Joint name='LMrot_joint'/>
+
+      <!-- Right Ankle -->
+      <Joint name='RAx_joint'/>
+      <Joint name='RAy_joint'/>
+      <Joint name='RAz_joint'/>
+
+      <!-- Right Elbow -->
+      <Joint name='REx_joint'/>
+      <Joint name='REz_joint'/>
+
+      <!-- Right Hip -->
+      <Joint name='RHx_joint'/>
+      <Joint name='RHy_joint'/>
+      <Joint name='RHz_joint'/>
+
+      <!-- Right Knee -->
+      <Joint name='RKx_joint'/>
+
+      <!-- Right Shoulder Inner -->
+      <!--
+      <Joint name='RSCx_joint'/>
+      <Joint name='RSCy_joint'/>
+      <Joint name='RSCz_joint'/>
+      -->
+
+      <!-- Right Shoulder Outer -->
+      <Joint name='RSx_joint'/>
+      <Joint name='RSy_joint'/>
+      <Joint name='RSz_joint'/>
+
+      <!-- Right Wrist -->
+      <Joint name='RWx_joint'/>
+      <Joint name='RWy_joint'/>
+      <Joint name='RightFingerJoint50y_joint'/>
+
+      <!-- Right Foot -->
+      <Joint name='RFx_joint'/>
+      <Joint name='RMrot_joint'/>
+    </JointSet>
+  </Model>
+  <!-- <Optimization>
+    <Algorithm name="BOBYQA"/>
+    <Strategy name="WholeMotion"/>
+  </Optimization> -->
+</ConverterConfig>

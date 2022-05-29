@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ConverterConfig type='NloptConverter'>
+  <Model name='Winter'>
+    <MarkerMapping>
+      <Mapping c3d="thumb_01"	mmm="MARKER_thumb_cmc"/>
+      <Mapping c3d="thumb_02"	mmm="MARKER_thumb_ip"/>
+      <Mapping c3d="thumb_03"	mmm="MARKER_thumb_mcp"/>
+      <Mapping c3d="indexFinger_01" mmm="MARKER_index_mcp"/>
+      <Mapping c3d="indexFinger_02" mmm="MARKER_index_dip"/>
+      <Mapping c3d="indexFinger_03" mmm="MARKER_index_pip"/>
+      <Mapping c3d="middlefinger_01" mmm="MARKER_middle_mcp"/>
+      <Mapping c3d="middlefinger_02" mmm="MARKER_middle_dip"/>
+      <Mapping c3d="middlefinger_03" mmm="MARKER_middle_pip"/>
+      <Mapping c3d="ringfinger_01" mmm="MARKER_ring_mcp"/>
+      <Mapping c3d="ringfinger_02" mmm="MARKER_ring_dip"/>
+      <Mapping c3d="ringfinger_03" mmm="MARKER_ring_pip"/>
+      <Mapping c3d="littlefinger_01" mmm="MARKER_little_mcp"/>
+      <Mapping c3d="littlefinger_02" mmm="MARKER_little_dip"/>
+      <Mapping c3d="littlefinger_03" mmm="MARKER_little_pip"/>
+      <Mapping c3d="innerHand_01" mmm="MARKER_palm04"/>
+      <Mapping c3d="innerHand_02" mmm="MARKER_palm01"/>
+      <Mapping c3d="innerHand_03" mmm="MARKER_palm02"/>
+      <Mapping c3d="innerHand_04" mmm="MARKER_palm03"/>
+      <Mapping c3d="outerHand_01" mmm="MARKER_palm06"/>
+      <Mapping c3d="outerHand_02" mmm="MARKER_palm05"/>
+      <Mapping c3d="outerHand_03" mmm="MARKER_palm07"/>
+      <Mapping c3d="wrist_01" mmm="MARKER_wrist01"/>
+      <Mapping c3d="wrist_02" mmm="MARKER_arm02"/>
+      <Mapping c3d="wrist_03" mmm="MARKER_wrist02"/>
+      <Mapping c3d="wrist_04" mmm="MARKER_arm01"/>
+
+      <!-- Unused vicon markers
+      RTHI
+      LTHI
+      RIFD
+      RFRA
+      LH3
+      LH2
+      RH3
+      RH2
+      RAOL
+      -->
+    </MarkerMapping>
+
+    <JointSet>
+      <Joint name='RWx_joint'/>
+      <Joint name='RWy_joint'/>
+      <Joint name='RightFingerJoint21x_joint'/>
+      <Joint name='RightFingerJoint21y_joint'/>
+      <Joint name='RightFingerJoint22y_joint'/>
+      <Joint name='RightFingerJoint23y_joint'/>
+      <Joint name='RightFingerJoint11z_joint'/>
+      <Joint name='RightFingerJoint11y_joint'/>
+      <Joint name='RightFingerJoint12y_joint'/>
+      <Joint name='RightFingerJoint13y_joint'/>
+      <Joint name='RightFingerJoint31x_joint'/>
+      <Joint name='RightFingerJoint31y_joint'/>
+      <Joint name='RightFingerJoint32y_joint'/>
+      <Joint name='RightFingerJoint33y_joint'/>
+      <Joint name='RightFingerJoint40y_joint'/>
+      <Joint name='RightFingerJoint41x_joint'/>
+      <Joint name='RightFingerJoint41y_joint'/>
+      <Joint name='RightFingerJoint42y_joint'/>
+      <Joint name='RightFingerJoint43y_joint'/>
+      <Joint name='RightFingerJoint50y_joint'/>
+      <Joint name='RightFingerJoint51x_joint'/>
+      <Joint name='RightFingerJoint51y_joint'/>
+      <Joint name='RightFingerJoint52y_joint'/>
+      <Joint name='RightFingerJoint53y_joint'/>
+    </JointSet>
+  </Model>
+</ConverterConfig>
