@@ -77,6 +77,11 @@
 				<mesh filename="models/collada/LAsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
+		<collision>
+			<geometry>
+				<mesh filename="models/collada/LAsegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</collision>
 	</link>
 	<link name="LAx_joint"/>
 	<link name="LAy_joint">
@@ -162,11 +167,11 @@
 				<mesh filename="models/collada/LMrot_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LMrot_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LSCsegment_joint">
 		<visual>
@@ -174,11 +179,11 @@
 				<mesh filename="models/collada/LSCsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LSCsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LSCx_joint"/>
 	<link name="LSCy_joint"/>
@@ -194,11 +199,11 @@
 				<mesh filename="models/collada/LSsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LSsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LSx_joint"/>
 	<link name="LSy_joint"/>
@@ -214,11 +219,11 @@
 				<mesh filename="models/collada/LWsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LWsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LWx_joint"/>
 	<link name="LWy_joint">
@@ -227,11 +232,11 @@
 				<mesh filename="models/collada/LWy_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LWy_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftEyeSegmentX_joint"/>
 	<link name="LeftEyeSegmentY_joint">
@@ -240,11 +245,11 @@
 				<mesh filename="models/collada/LeftEyeSegmentY_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftEyeSegmentY_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint11y_joint">
 		<visual>
@@ -252,11 +257,11 @@
 				<mesh filename="models/collada/LeftFingerJoint11y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint11y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint11z_joint"/>
 	<link name="LeftFingerJoint12y_joint">
@@ -265,11 +270,11 @@
 				<mesh filename="models/collada/LeftFingerJoint12y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint12y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint13y_joint">
 		<visual>
@@ -277,11 +282,11 @@
 				<mesh filename="models/collada/LeftFingerJoint13y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint13y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint21x_joint"/>
 	<link name="LeftFingerJoint21y_joint">
@@ -290,11 +295,11 @@
 				<mesh filename="models/collada/LeftFingerJoint21y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint21y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint22y_joint">
 		<visual>
@@ -302,11 +307,11 @@
 				<mesh filename="models/collada/LeftFingerJoint22y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint22y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint23y_joint">
 		<visual>
@@ -314,11 +319,11 @@
 				<mesh filename="models/collada/LeftFingerJoint23y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint23y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint31x_joint"/>
 	<link name="LeftFingerJoint31y_joint">
@@ -327,11 +332,11 @@
 				<mesh filename="models/collada/LeftFingerJoint31y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint31y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint32y_joint">
 		<visual>
@@ -339,11 +344,11 @@
 				<mesh filename="models/collada/LeftFingerJoint32y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint32y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint33y_joint">
 		<visual>
@@ -351,11 +356,11 @@
 				<mesh filename="models/collada/LeftFingerJoint33y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint33y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint40y_joint">
 		<visual>
@@ -363,11 +368,11 @@
 				<mesh filename="models/collada/LeftFingerJoint40y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint40y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint41x_joint"/>
 	<link name="LeftFingerJoint41y_joint">
@@ -376,11 +381,11 @@
 				<mesh filename="models/collada/LeftFingerJoint41y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint41y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint42y_joint">
 		<visual>
@@ -388,11 +393,11 @@
 				<mesh filename="models/collada/LeftFingerJoint42y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint42y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint43y_joint">
 		<visual>
@@ -400,11 +405,11 @@
 				<mesh filename="models/collada/LeftFingerJoint43y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint43y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint50y_joint">
 		<visual>
@@ -412,11 +417,11 @@
 				<mesh filename="models/collada/LeftFingerJoint50y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint50y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint51x_joint"/>
 	<link name="LeftFingerJoint51y_joint">
@@ -425,11 +430,11 @@
 				<mesh filename="models/collada/LeftFingerJoint51y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint51y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint52y_joint">
 		<visual>
@@ -437,11 +442,11 @@
 				<mesh filename="models/collada/LeftFingerJoint52y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint52y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFingerJoint53y_joint">
 		<visual>
@@ -449,11 +454,11 @@
 				<mesh filename="models/collada/LeftFingerJoint53y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/LeftFingerJoint53y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="LeftFootHeight_joint">
 		<inertial>
@@ -481,11 +486,11 @@
 				<mesh filename="models/collada/RAsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RAsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RAx_joint"/>
 	<link name="RAy_joint">
@@ -494,11 +499,11 @@
 				<mesh filename="models/collada/RAy_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RAy_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RAz_joint"/>
 	<link name="REsegment_joint">
@@ -512,11 +517,11 @@
 				<mesh filename="models/collada/REsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/REsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="REx_joint"/>
 	<link name="REz_joint"/>
@@ -526,11 +531,11 @@
 				<mesh filename="models/collada/RFx_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RFx_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RHsegment_joint">
 		<visual>
@@ -538,11 +543,11 @@
 				<mesh filename="models/collada/RHsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RHsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RHx_joint"/>
 	<link name="RHy_joint"/>
@@ -558,11 +563,11 @@
 				<mesh filename="models/collada/RKsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RKsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RKx_joint"/>
 	<link name="RMrot_joint">
@@ -571,11 +576,11 @@
 				<mesh filename="models/collada/RMrot_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RMrot_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RSCsegment_joint">
 		<visual>
@@ -583,11 +588,11 @@
 				<mesh filename="models/collada/RSCsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RSCsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RSCx_joint"/>
 	<link name="RSCy_joint"/>
@@ -603,11 +608,11 @@
 				<mesh filename="models/collada/RSsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RSsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RSx_joint"/>
 	<link name="RSy_joint"/>
@@ -623,11 +628,11 @@
 				<mesh filename="models/collada/RWsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RWsegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RWx_joint"/>
 	<link name="RWy_joint">
@@ -636,11 +641,11 @@
 				<mesh filename="models/collada/RWy_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RWy_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightEyeSegmentX_joint"/>
 	<link name="RightEyeSegmentY_joint">
@@ -649,11 +654,11 @@
 				<mesh filename="models/collada/RightEyeSegmentY_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightEyeSegmentY_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint11y_joint">
 		<visual>
@@ -661,11 +666,11 @@
 				<mesh filename="models/collada/RightFingerJoint11y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint11y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint11z_joint"/>
 	<link name="RightFingerJoint12y_joint">
@@ -674,11 +679,11 @@
 				<mesh filename="models/collada/RightFingerJoint12y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint12y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint13y_joint">
 		<visual>
@@ -686,11 +691,11 @@
 				<mesh filename="models/collada/RightFingerJoint13y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint13y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint21x_joint"/>
 	<link name="RightFingerJoint21y_joint">
@@ -699,11 +704,11 @@
 				<mesh filename="models/collada/RightFingerJoint21y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint21y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint22y_joint">
 		<visual>
@@ -711,11 +716,11 @@
 				<mesh filename="models/collada/RightFingerJoint22y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint22y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint23y_joint">
 		<visual>
@@ -723,11 +728,11 @@
 				<mesh filename="models/collada/RightFingerJoint23y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint23y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint31x_joint"/>
 	<link name="RightFingerJoint31y_joint">
@@ -736,11 +741,11 @@
 				<mesh filename="models/collada/RightFingerJoint31y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint31y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint32y_joint">
 		<visual>
@@ -748,11 +753,11 @@
 				<mesh filename="models/collada/RightFingerJoint32y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint32y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint33y_joint">
 		<visual>
@@ -760,11 +765,11 @@
 				<mesh filename="models/collada/RightFingerJoint33y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint33y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint40y_joint">
 		<visual>
@@ -772,11 +777,11 @@
 				<mesh filename="models/collada/RightFingerJoint40y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint40y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint41x_joint"/>
 	<link name="RightFingerJoint41y_joint">
@@ -785,11 +790,11 @@
 				<mesh filename="models/collada/RightFingerJoint41y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint41y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint42y_joint">
 		<visual>
@@ -797,11 +802,11 @@
 				<mesh filename="models/collada/RightFingerJoint42y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint42y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint43y_joint">
 		<visual>
@@ -809,11 +814,11 @@
 				<mesh filename="models/collada/RightFingerJoint43y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint43y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint50y_joint">
 		<visual>
@@ -821,11 +826,11 @@
 				<mesh filename="models/collada/RightFingerJoint50y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint50y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint51x_joint"/>
 	<link name="RightFingerJoint51y_joint">
@@ -834,11 +839,11 @@
 				<mesh filename="models/collada/RightFingerJoint51y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint51y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint52y_joint">
 		<visual>
@@ -846,11 +851,11 @@
 				<mesh filename="models/collada/RightFingerJoint52y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint52y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFingerJoint53y_joint">
 		<visual>
@@ -858,11 +863,11 @@
 				<mesh filename="models/collada/RightFingerJoint53y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
-		<collsion>
+		<collision>
 			<geometry>
 				<mesh filename="models/collada/RightFingerJoint53y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
-		</collsion>
+		</collision>
 	</link>
 	<link name="RightFootHeight_joint">
 		<inertial>
