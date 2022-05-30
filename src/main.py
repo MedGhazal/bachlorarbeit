@@ -21,13 +21,13 @@ if __name__ == '__main__':
             )
         )
     )
-    startPos = [0, 0, .9]
+    startPos = [0, 0, .55]
     startOrientation = pb.getQuaternionFromEuler([0, 0, 0])
     boxId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(
-                'data/objects',
-                'robot.urdf',
+                'data/objects/Winter',
+                'mmm.urdf',
             ),
         ),
         startPos,
@@ -35,15 +35,15 @@ if __name__ == '__main__':
     )
     motion = motion_dataset.motions[next_motion]
     motion.parse()
-    print(f'The number of joints is {pb.getNumJoints(boxId)}')
-    print(
-        f'The number of joints in the mmm-files is '
-        f'{len(motion.motions[0][0])}'
-    )
-    print(
-        f'The joints in the mmm-files are'
-        f'{motion.motions[0][0]}'
-    )
+    # print(f'The number of joints is {pb.getNumJoints(boxId)}')
+    # print(
+        # f'The number of joints in the mmm-files is '
+        # f'{len(motion.motions[0][0])}'
+    # )
+    # print(
+        # f'The joints in the mmm-files are'
+        # f'{motion.motions[0][0]}'
+    # )
     joint_ids = {
         joint.decode(): id_
         for id_, joint in [
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             in range(66)
         ]
     }
-    print(f'The joints and their ids ind the simulation are {joint_ids}')
+    # print(f'The joints and their ids ind the simulation are {joint_ids}')
     # initialPosition = .5
     # for i in range(30):
     #     pb.setJointMotorControl2(
