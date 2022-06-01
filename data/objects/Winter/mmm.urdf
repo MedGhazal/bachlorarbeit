@@ -65,6 +65,11 @@
 				<mesh filename="models/collada/HeadSegment_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</visual>
+		<collision>
+			<geometry>
+				<mesh filename="models/collada/HeadSegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</collision>
 	</link>
 	<link name="LAsegment_joint">
 		<inertial>
@@ -899,6 +904,7 @@
 		<child link="BLNsegment_joint"/>
 	</joint>
 	<joint name="BLNx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="BLNsegment_joint"/>
 		<child link="BLNx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.261799"/>
@@ -921,6 +927,7 @@
 		<child link="BPSegment_joint"/>
 	</joint>
 	<joint name="BPx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="BPSegment_joint"/>
 		<child link="BPx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.872665" upper="0.610865"/>
@@ -943,6 +950,7 @@
 		<child link="BTSegment_joint"/>
 	</joint>
 	<joint name="BTx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="BTSegment_joint"/>
 		<child link="BTx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.610865" upper="0.471239"/>
@@ -965,6 +973,7 @@
 		<child link="BUNsegment_joint"/>
 	</joint>
 	<joint name="BUNx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="BUNsegment_joint"/>
 		<child link="BUNx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.349066" upper="0.523599"/>
@@ -992,6 +1001,7 @@
 		<child link="LAsegment_joint"/>
 	</joint>
 	<joint name="LAx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LAsegment_joint"/>
 		<child link="LAx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.698132" upper="0.523599"/>
@@ -1014,6 +1024,7 @@
 		<child link="LEsegment_joint"/>
 	</joint>
 	<joint name="LEx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LEsegment_joint"/>
 		<child link="LEx_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="2.79253"/>
@@ -1025,6 +1036,7 @@
 		<limit effort="100" velocity="1" lower="-1.5708" upper="1.5708"/>
 	</joint>
 	<joint name="LFx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<origin xyz="-0.0088 0.0537 -0.0144" rpy="-0.261799306 -0 0.15707922"/>
 		<parent link="LMrot_joint"/>
 		<child link="LFx_joint"/>
@@ -1036,6 +1048,7 @@
 		<child link="LHsegment_joint"/>
 	</joint>
 	<joint name="LHx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LHsegment_joint"/>
 		<child link="LHx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
@@ -1058,6 +1071,7 @@
 		<child link="LKsegment_joint"/>
 	</joint>
 	<joint name="LKx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LKsegment_joint"/>
 		<child link="LKx_joint"/>
 		<limit effort="100" velocity="1" lower="-2.26893" upper="0"/>
@@ -1075,6 +1089,7 @@
 		<child link="LSCsegment_joint"/>
 	</joint>
 	<joint name="LSCx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LSCsegment_joint"/>
 		<child link="LSCx_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="0"/>
@@ -1097,6 +1112,7 @@
 		<child link="LSsegment_joint"/>
 	</joint>
 	<joint name="LSx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LSsegment_joint"/>
 		<child link="LSx_joint"/>
 		<limit effort="100" velocity="1" lower="-1.22173" upper="3.31613"/>
@@ -1119,6 +1135,7 @@
 		<child link="LWsegment_joint"/>
 	</joint>
 	<joint name="LWx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="LWsegment_joint"/>
 		<child link="LWx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.523599" upper="0.349066"/>
@@ -1130,16 +1147,19 @@
 		<limit effort="100" velocity="1" lower="-1.22173" upper="1.5708"/>
 	</joint>
 	<joint name="LeftEyeSegmentX_joint" type="fixed">
+		<axis xyz="1 0 0"/>
 		<origin xyz="-0.015 0 0" rpy="0 -0 0"/>
 		<parent link="MidHeadSegment_joint"/>
 		<child link="LeftEyeSegmentX_joint"/>
 	</joint>
 	<joint name="LeftEyeSegmentY_joint" type="fixed">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0.03 0" rpy="0 -0 0"/>
 		<parent link="LeftEyeSegmentX_joint"/>
 		<child link="LeftEyeSegmentY_joint"/>
 	</joint>
 	<joint name="LeftFingerJoint11y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0" rpy="-0.785398185 -0 0"/>
 		<parent link="LeftFingerJoint11z_joint"/>
 		<child link="LeftFingerJoint11y_joint"/>
@@ -1153,12 +1173,15 @@
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint12y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
+		<parent link="LWy_joint"/>
 		<origin xyz="0 0 0.021168" rpy="0 -0 0"/>
 		<parent link="LeftFingerJoint11y_joint"/>
 		<child link="LeftFingerJoint12y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint13y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.017064" rpy="0 -0 0"/>
 		<parent link="LeftFingerJoint12y_joint"/>
 		<child link="LeftFingerJoint13y_joint"/>
@@ -1166,23 +1189,26 @@
 	</joint>
 	<joint name="LeftFingerJoint21x_joint" type="revolute">
 		<origin xyz="0 0.013554 -0.048276" rpy="-3.1415925 -8.74227979e-08 -1.57079625"/>
-		<axis xyz="0 1 0"/>
+		<axis xyz="1 0 0"/>
 		<parent link="LWy_joint"/>
 		<child link="LeftFingerJoint21x_joint"/>
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
 	</joint>
 	<joint name="LeftFingerJoint21y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<parent link="LeftFingerJoint21x_joint"/>
 		<child link="LeftFingerJoint21y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint22y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.02646" rpy="0 -0 0"/>
 		<parent link="LeftFingerJoint21y_joint"/>
 		<child link="LeftFingerJoint22y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint23y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.015444" rpy="0 -0 0"/>
 		<parent link="LeftFingerJoint22y_joint"/>
 		<child link="LeftFingerJoint23y_joint"/>
@@ -1190,29 +1216,33 @@
 	</joint>
 	<joint name="LeftFingerJoint31x_joint" type="revolute">
 		<origin xyz="0 0 -0.048168" rpy="-3.1415925 -8.74227979e-08 -1.57079625"/>
-		<axis xyz="0 1 0"/>
+		<axis xyz="1 0 0"/>
 		<parent link="LWy_joint"/>
 		<child link="LeftFingerJoint31x_joint"/>
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
 	</joint>
 	<joint name="LeftFingerJoint31y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<parent link="LeftFingerJoint31x_joint"/>
 		<child link="LeftFingerJoint31y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint32y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.028728" rpy="0 -0 0"/>
 		<parent link="LeftFingerJoint31y_joint"/>
 		<child link="LeftFingerJoint32y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint33y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.01836" rpy="0 -0 0"/>
 		<parent link="LeftFingerJoint32y_joint"/>
 		<child link="LeftFingerJoint33y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint40y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 -0.00625 -0.00875" rpy="-3.1415925 -8.74227979e-08 -1.57079625"/>
 		<parent link="LWy_joint"/>
 		<child link="LeftFingerJoint40y_joint"/>
@@ -1226,6 +1256,7 @@
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
 	</joint>
 	<joint name="LeftFingerJoint41y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<parent link="LeftFingerJoint41x_joint"/>
 		<child link="LeftFingerJoint41y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
@@ -1235,15 +1266,18 @@
 		<parent link="LeftFingerJoint41y_joint"/>
 		<child link="LeftFingerJoint42y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="LeftFingerJoint43y_joint" type="revolute">
 		<origin xyz="0 0 0.01782" rpy="0 -0 0"/>
+		<axis xyz="0 1 0"/>
 		<parent link="LeftFingerJoint42y_joint"/>
 		<child link="LeftFingerJoint43y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint50y_joint" type="revolute">
 		<origin xyz="0 -0.01288 -0.00977" rpy="-3.1415925 -8.74227979e-08 -1.57079625"/>
+		<axis xyz="0 1 0"/>
 		<parent link="LWy_joint"/>
 		<child link="LeftFingerJoint50y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="0.174533"/>
@@ -1257,17 +1291,20 @@
 	</joint>
 	<joint name="LeftFingerJoint51y_joint" type="revolute">
 		<parent link="LeftFingerJoint51x_joint"/>
+		<axis xyz="0 1 0"/>
 		<child link="LeftFingerJoint51y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint52y_joint" type="revolute">
 		<origin xyz="0 0 0.022032" rpy="0 -0 0"/>
+		<axis xyz="0 1 0"/>
 		<parent link="LeftFingerJoint51y_joint"/>
 		<child link="LeftFingerJoint52y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="LeftFingerJoint53y_joint" type="revolute">
 		<origin xyz="0 0 0.012636" rpy="0 -0 0"/>
+		<axis xyz="0 1 0"/>
 		<parent link="LeftFingerJoint52y_joint"/>
 		<child link="LeftFingerJoint53y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
@@ -1294,6 +1331,7 @@
 	</joint>
 	<joint name="RAx_joint" type="revolute">
 		<parent link="RAsegment_joint"/>
+		<axis xyz="1 0 0"/>
 		<child link="RAx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.698132" upper="0.523599"/>
 	</joint>
@@ -1316,6 +1354,7 @@
 	</joint>
 	<joint name="REx_joint" type="revolute">
 		<parent link="REsegment_joint"/>
+		<axis xyz="1 0 0"/>
 		<child link="REx_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="2.79253"/>
 	</joint>
@@ -1327,6 +1366,7 @@
 	</joint>
 	<joint name="RFx_joint" type="revolute">
 		<origin xyz="0.0088 0.0537 -0.0143922" rpy="-0.261799306 -0 -0.15707922"/>
+		<axis xyz="1 0 0"/>
 		<parent link="RMrot_joint"/>
 		<child link="RFx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.785398" upper="1.5708"/>
@@ -1338,11 +1378,12 @@
 	</joint>
 	<joint name="RHx_joint" type="revolute">
 		<parent link="RHsegment_joint"/>
+		<axis xyz="0 1 0"/>
 		<child link="RHx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
 	</joint>
 	<joint name="RHy_joint" type="revolute">
-		<axis xyz="0 1 0"/>
+		<axis xyz="1 0 0"/>
 		<parent link="RHz_joint"/>
 		<child link="RHy_joint"/>
 		<limit effort="100" velocity="1" lower="-1.13446" upper="0.349066"/>
@@ -1359,6 +1400,7 @@
 		<child link="RKsegment_joint"/>
 	</joint>
 	<joint name="RKx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="RKsegment_joint"/>
 		<child link="RKx_joint"/>
 		<limit effort="100" velocity="1" lower="-2.26893" upper="0"/>
@@ -1376,6 +1418,7 @@
 		<child link="RSCsegment_joint"/>
 	</joint>
 	<joint name="RSCx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="RSCsegment_joint"/>
 		<child link="RSCx_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="0"/>
@@ -1398,6 +1441,7 @@
 		<child link="RSsegment_joint"/>
 	</joint>
 	<joint name="RSx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="RSsegment_joint"/>
 		<child link="RSx_joint"/>
 		<limit effort="100" velocity="1" lower="-1.22173" upper="3.31613"/>
@@ -1420,6 +1464,7 @@
 		<child link="RWsegment_joint"/>
 	</joint>
 	<joint name="RWx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
 		<parent link="RWsegment_joint"/>
 		<child link="RWx_joint"/>
 		<limit effort="100" velocity="1" lower="-0.523599" upper="0.349066"/>
@@ -1432,15 +1477,18 @@
 	</joint>
 	<joint name="RightEyeSegmentX_joint" type="fixed">
 		<origin xyz="0.015 0 0" rpy="0 -0 0"/>
+		<axis xyz="1 0 0"/>
 		<parent link="MidHeadSegment_joint"/>
 		<child link="RightEyeSegmentX_joint"/>
 	</joint>
 	<joint name="RightEyeSegmentY_joint" type="fixed">
 		<origin xyz="0 0.03 0" rpy="0 -0 0"/>
+		<axis xyz="0 1 0"/>
 		<parent link="RightEyeSegmentX_joint"/>
 		<child link="RightEyeSegmentY_joint"/>
 	</joint>
 	<joint name="RightFingerJoint11y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0" rpy="2.3561945 -1.50996001e-07 3.14159274"/>
 		<parent link="RightFingerJoint11z_joint"/>
 		<child link="RightFingerJoint11y_joint"/>
@@ -1454,12 +1502,14 @@
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint12y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.021168" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint11y_joint"/>
 		<child link="RightFingerJoint12y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint13y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.017064" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint12y_joint"/>
 		<child link="RightFingerJoint13y_joint"/>
@@ -1473,17 +1523,20 @@
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
 	</joint>
 	<joint name="RightFingerJoint21y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<parent link="RightFingerJoint21x_joint"/>
 		<child link="RightFingerJoint21y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint22y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.02646" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint21y_joint"/>
 		<child link="RightFingerJoint22y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint23y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.015444" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint22y_joint"/>
 		<child link="RightFingerJoint23y_joint"/>
@@ -1491,29 +1544,33 @@
 	</joint>
 	<joint name="RightFingerJoint31x_joint" type="revolute">
 		<origin xyz="0 0 -0.048168" rpy="-3.1415925 -8.74227979e-08 1.57079625"/>
-		<axis xyz="0 1 0"/>
+		<axis xyz="1 0 0"/>
 		<parent link="RWy_joint"/>
 		<child link="RightFingerJoint31x_joint"/>
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
 	</joint>
 	<joint name="RightFingerJoint31y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<parent link="RightFingerJoint31x_joint"/>
 		<child link="RightFingerJoint31y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint32y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.028728" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint31y_joint"/>
 		<child link="RightFingerJoint32y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint33y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.01836" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint32y_joint"/>
 		<child link="RightFingerJoint33y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
 	</joint>
 	<joint name="RightFingerJoint40y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 -0.00625 -0.00875" rpy="-3.1415925 -8.74227979e-08 1.57079625"/>
 		<parent link="RWy_joint"/>
 		<child link="RightFingerJoint40y_joint"/>
@@ -1527,6 +1584,7 @@
 		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
 	</joint>
 	<joint name="RightFingerJoint41y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<parent link="RightFingerJoint41x_joint"/>
 		<child link="RightFingerJoint41y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
@@ -1536,18 +1594,21 @@
 		<parent link="RightFingerJoint41y_joint"/>
 		<child link="RightFingerJoint42y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="RightFingerJoint43y_joint" type="revolute">
 		<origin xyz="0 0 0.01782" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint42y_joint"/>
 		<child link="RightFingerJoint43y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="RightFingerJoint50y_joint" type="revolute">
 		<origin xyz="0 -0.01288 -0.00997" rpy="-3.1415925 -8.74227979e-08 1.57079625"/>
 		<parent link="RWy_joint"/>
 		<child link="RightFingerJoint50y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="0.174533"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="RightFingerJoint51x_joint" type="revolute">
 		<origin xyz="-0.008828 0 0.029774" rpy="0 -0 0"/>
@@ -1560,14 +1621,17 @@
 		<parent link="RightFingerJoint51x_joint"/>
 		<child link="RightFingerJoint51y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="RightFingerJoint52y_joint" type="revolute">
 		<origin xyz="0 0 0.022032" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint51y_joint"/>
 		<child link="RightFingerJoint52y_joint"/>
 		<limit effort="100" velocity="1" lower="0" upper="1.5708"/>
+		<axis xyz="0 1 0"/>
 	</joint>
 	<joint name="RightFingerJoint53y_joint" type="revolute">
+		<axis xyz="0 1 0"/>
 		<origin xyz="0 0 0.012636" rpy="0 -0 0"/>
 		<parent link="RightFingerJoint52y_joint"/>
 		<child link="RightFingerJoint53y_joint"/>

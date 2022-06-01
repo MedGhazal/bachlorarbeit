@@ -107,7 +107,7 @@ if __name__ == '__main__':
                         continue
                 pb.stepSimulation()
             time.sleep(1./10.)
-        print(f'The joint that aren\'t conform are {joints_not_mmm_conform}')
+        # print(f'The joint that aren\'t conform are {joints_not_mmm_conform}')
         continue_break = input(
             '0 to exit or enter next motion: '
         )

@@ -94,7 +94,7 @@ class Motion:
             'names': joint_names,
             'indexes': joint_indexes,
         }
-        self.robot = Robot(height, mass, joints)
+        self.robot = Robot(height, mass)
 
         return joint_names, frames
 
