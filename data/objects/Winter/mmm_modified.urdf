@@ -227,6 +227,11 @@
 		</collision>
 	</link>
 	<link name="LAx_joint">
+		<inertial>
+			<mass value="0.04"/>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1395" rpy="0 -0 0"/>
+			<inertia ixx="0.237419" ixy="0" ixz="0" iyy="0.256481" iyz="0" izz="0.040572"/>
+		</inertial>
 		<visual>
 			<geometry>
 				<mesh filename="models/collada/LAy_joint_visu.dae" scale="1 1 1"/>
@@ -239,6 +244,11 @@
 		</collision>
 	</link>
 	<link name="LAy_joint">
+		<inertial>
+			<mass value="0.04"/>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1395" rpy="0 -0 0"/>
+			<inertia ixx="0.237419" ixy="0" ixz="0" iyy="0.256481" iyz="0" izz="0.040572"/>
+		</inertial>
 		<visual>
 			<geometry>
 				<mesh filename="models/collada/LAy_joint_visu.dae" scale="1 1 1"/>
@@ -251,6 +261,11 @@
 		</collision>
 	</link>
 	<link name="LAz_joint">
+		<inertial>
+			<mass value="0.04"/>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1395" rpy="0 -0 0"/>
+			<inertia ixx="0.237419" ixy="0" ixz="0" iyy="0.256481" iyz="0" izz="0.040572"/>
+		</inertial>
 		<visual>
 			<geometry>
 				<mesh filename="models/collada/LAy_joint_visu.dae" scale="1 1 1"/>
@@ -280,6 +295,11 @@
 		</collision>
 	</link>
 	<link name="LEx_joint">
+		<inertial>
+			<mass value="0.027"/>
+			<origin xyz="-8.25728e-15 3.81383e-08 0.106" rpy="0 -0 0"/>
+			<inertia ixx="0.0837755" ixy="0" ixz="0" iyy="0.0940772" iyz="0" izz="0.0287506"/>
+		</inertial>
 		<visual>
 			<geometry>
 				<mesh filename="models/collada/LFx_joint_visu.dae" scale="1 1 1"/>
@@ -292,6 +312,11 @@
 		</collision>
 	</link>
 	<link name="LEz_joint">
+		<inertial>
+			<mass value="0.027"/>
+			<origin xyz="-8.25728e-15 3.81383e-08 0.106" rpy="0 -0 0"/>
+			<inertia ixx="0.0837755" ixy="0" ixz="0" iyy="0.0940772" iyz="0" izz="0.0287506"/>
+		</inertial>
 		<visual>
 			<geometry>
 				<mesh filename="models/collada/LFx_joint_visu.dae" scale="1 1 1"/>
@@ -304,6 +329,11 @@
 		</collision>
 	</link>
 	<link name="LFx_joint">
+		<inertial>
+			<mass value="0.027"/>
+			<origin xyz="-8.25728e-15 3.81383e-08 0.106" rpy="0 -0 0"/>
+			<inertia ixx="0.0837755" ixy="0" ixz="0" iyy="0.0940772" iyz="0" izz="0.0287506"/>
+		</inertial>
 		<visual>
 			<geometry>
 				<mesh filename="models/collada/LFx_joint_visu.dae" scale="1 1 1"/>
@@ -557,7 +587,7 @@
 			</geometry>
 		</collision>
 	</link>
-	<link name="LWx_joint"/>
+	<link name="LWx_joint">
 		<inertial>
 			<mass value="0.016"/>
 			<origin xyz="-8.25728e-15 3.81383e-08 0.0826" rpy="0 -0 0"/>
@@ -777,6 +807,7 @@
 				<mesh filename="models/collada/LeftFingerJoint41y_joint_visu.dae" scale="1 1 1"/>
 			</geometry>
 		</collision>
+	</link>
 	<link name="LeftFingerJoint41y_joint">
 		<visual>
 			<geometry>
@@ -887,7 +918,6 @@
 			<inertia ixx="0.0021869" ixy="0" ixz="0" iyy="0.0033304" iyz="0" izz="0.001283"/>
 		</inertial>
 	</link>
-	<link name="MidHeadSegment_joint"/>
 	<link name="RAsegment_joint">
 		<inertial>
 			<mass value="0.04"/>
@@ -1555,7 +1585,6 @@
 			<inertia ixx="0.0036504" ixy="0" ixz="0" iyy="0.0111794" iyz="0" izz="0.0096393"/>
 		</inertial>
 	</link>
-	<link name="RightFootLength_joint"/>
 	<link name="RightHandSegment_joint">
 		<inertial>
 			<mass value="0.006"/>
@@ -1570,7 +1599,6 @@
 			<inertia ixx="6.37245" ixy="0" ixz="0" iyy="5.09635" iyz="0" izz="4.22532"/>
 		</inertial>
 	</link>
-	<link name="root"/>
 	<link name="root_joint"/>
 	<joint name="BLNsegment_joint" type="fixed">
 		<origin xyz="0 0 0.022" rpy="0 -0 0"/>
@@ -1823,7 +1851,7 @@
 	<joint name="LeftEyeSegmentX_joint" type="fixed">
 		<axis xyz="1 0 0"/>
 		<origin xyz="-0.015 0 0" rpy="0 -0 0"/>
-		<parent link="MidHeadSegment_joint"/>
+		<parent link="HeadSegment_joint"/>
 		<child link="LeftEyeSegmentX_joint"/>
 	</joint>
 	<joint name="LeftEyeSegmentY_joint" type="fixed">
@@ -1996,7 +2024,7 @@
 	<joint name="MidHeadSegment_joint" type="fixed">
 		<origin xyz="0 0 0.066" rpy="0 -0 0"/>
 		<parent link="BUNy_joint"/>
-		<child link="MidHeadSegment_joint"/>
+		<child link="HeadSegment_joint"/>
 	</joint>
 	<joint name="RAsegment_joint" type="fixed">
 		<origin xyz="0 0 -0.246" rpy="0 -0 0"/>
@@ -2152,7 +2180,7 @@
 	<joint name="RightEyeSegmentX_joint" type="fixed">
 		<origin xyz="0.015 0 0" rpy="0 -0 0"/>
 		<axis xyz="1 0 0"/>
-		<parent link="MidHeadSegment_joint"/>
+		<parent link="HeadSegment_joint"/>
 		<child link="RightEyeSegmentX_joint"/>
 	</joint>
 	<joint name="RightEyeSegmentY_joint" type="fixed">
@@ -2316,11 +2344,6 @@
 		<parent link="RAy_joint"/>
 		<child link="RightFootHeight_joint"/>
 	</joint>
-	<joint name="RightFootLength_joint" type="fixed">
-		<origin xyz="0 0.068 0" rpy="0 -0 0"/>
-		<parent link="RightFootHeight_joint"/>
-		<child link="RightFootLength_joint"/>
-	</joint>
 	<joint name="RightHandSegment_joint" type="fixed">
 		<origin xyz="0 0 -0.108" rpy="0 -0 0"/>
 		<parent link="RWy_joint"/>
@@ -2330,11 +2353,5 @@
 		<origin xyz="0 0 0.188" rpy="0 -0 0"/>
 		<parent link="BTy_joint"/>
 		<child link="collarSegment_joint"/>
-	</joint>
-	<joint name="root_joint" type="revolute">
-		<axis xyz="0 0 1"/>
-		<parent link="root"/>
-		<child link="root_joint"/>
-		<limit effort="100" velocity="1" lower="0" upper="0"/>
 	</joint>
 </robot>
