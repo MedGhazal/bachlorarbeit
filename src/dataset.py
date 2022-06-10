@@ -8,11 +8,11 @@ import zipfile
 from tqdm.auto import tqdm
 from robot import Robot
 
-logging.basicConfig(
-    filename='logs/logger.log',
-    encoding='utf-8',
-    level=logging.DEBUG,
-)
+# logging.basicConfig(
+#     filename='logs/logger.log',
+#     encoding='utf-8',
+#     level=logging.DEBUG,
+# )
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
@@ -103,6 +103,7 @@ class Motion:
         print(f'The annotation of the motion is {self.annotation}')
         os.chdir(DEFAULT_ROOT)
         xml_tree = ET.parse(self.motion_file)
+        os.chdir(current_directory)
         xml_root = xml_tree.getroot()
         self.xml_motions = xml_root.findall('Motion')
         self.motions = []
@@ -115,7 +116,6 @@ class Motion:
 
         for motion in self.xml_motions:
             self.motions.append(self._parse_motion(motion))
-        os.chdir(current_directory)
 
 
 class MotionDataset:

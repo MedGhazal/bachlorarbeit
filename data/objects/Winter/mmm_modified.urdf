@@ -918,7 +918,23 @@
 			<inertia ixx="0.0021869" ixy="0" ixz="0" iyy="0.0033304" iyz="0" izz="0.001283"/>
 		</inertial>
 	</link>
-	<link name="MidHeadSegment_joint"/>
+	<link name="MidHeadSegment_joint">
+		<inertial>
+			<mass value="0.07"/>
+			<origin xyz="0 3.33729e-11 -0.065" rpy="0 -0 0"/>
+			<inertia ixx="0.612157" ixy="0" ixz="0" iyy="0.5733" iyz="0" izz="0.430612"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<mesh filename="models/collada/HeadSegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<mesh filename="models/collada/HeadSegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</collision>
+	</link>
 	<link name="RAsegment_joint">
 		<inertial>
 			<mass value="0.04"/>

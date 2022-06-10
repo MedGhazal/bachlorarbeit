@@ -27,7 +27,7 @@ if __name__ == '__main__':
         os.path.expanduser(
             os.path.join(
                 'data/objects/Winter',
-                'mmm.urdf',
+                'mmm_modified.urdf',
             ),
         ),
         startPos,
@@ -93,6 +93,9 @@ if __name__ == '__main__':
                     positions,
                 )}
                 for jointId in range(pb.getNumJoints(boxId)):
+                    # print(
+                    #     f'Moving the link: {pb.getJointInfo(boxId, jointId)[1].decode()}'
+                    # )
                     try:
                         next_position = positions[
                             pb.getJointInfo(boxId, jointId)[1].decode()

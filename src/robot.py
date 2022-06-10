@@ -180,30 +180,110 @@ class Robot:
     def create_model(self):
         current_directory = os.getcwd()
         os.chdir(os.path.expanduser('data/objects/Winter'))
-        xml_tree = ET.parse('mmm.urdf')
+        xml_tree = ET.parse('mmm_modified.urdf')
         xml_root = xml_tree.getroot()
         self.links = xml_root.findall('link')
         self.joints = xml_root.findall('joint')
-
+        sound_meshes = 0
+        faulty_meshes = 0
         for link in self.links:
-            print(
-                f'The link with the name {link.get("name")} has the following'
-            )
-            intertial = link.find('inertial')
-            if intertial:
-                print(
-                    f'  - Inertial:\n      - With mass '
-                    f'{intertial.find("mass").get("value")}\n'
-                    f'      - with origin {intertial.find("origin").get("xyz")} and '
-                    f'and {intertial.find("origin").get("rpy")} '
-                    f'      - with inertia'
-                    f'{intertial.find("inertia").get("ixx")}'
-                    f'{intertial.find("inertia").get("ixy")}'
-                    f'{intertial.find("inertia").get("iyy")}'
-                    f'{intertial.find("inertia").get("iyz")}'
-                    f'{intertial.find("inertia").get("ixz")}'
-                    f'{intertial.find("inertia").get("izz")}'
-                )
+            if link.find('inertial'):
+                mass = float(
+                    link.find('inertial').find('mass').get('value')
+                ) * self.mass
+                origin = {
+                    'xyz': list(
+                        map(
+                            lambda x: float(x),
+                            link.find('inertial').find('origin').get('xyz').split(' ')
+                        )
+                    ),
+                    'rpy': list(
+                        map(
+                            lambda x: float(x),
+                            link.find('inertial').find('origin').get('rpy').split(' ')
+                        )
+                    ),
+                }
+                if link.find('visual'):
+                    sound_meshes += 1
+                    mesh_file = link.find('visual').find('geometry').find('mesh').get('filename')
+                    mesh = pymeshlab.MeshSet()
+                    mesh.load_new_mesh(mesh_file)
+                    print(
+                       f'---Processing the mesh of the link {link.get("name")}'
+                    )
+                    geomatric_measures = mesh.get_geometric_measures()
+                    try:
+                        inertia = {
+                            'ixx': geomatric_measures['inertia_tensor'][0][0],
+                            'ixy': geomatric_measures['inertia_tensor'][0][1],
+                            'iyy': geomatric_measures['inertia_tensor'][1][1],
+                            'ixz': geomatric_measures['inertia_tensor'][0][2],
+                            'iyy': geomatric_measures['inertia_tensor'][1][1],
+                            'izz': geomatric_measures['inertia_tensor'][2][2],
+                        }
+                        print(f'The inertia_tensor is = {geomatric_measures["inertia_tensor"]}')
+                        inertial = Inertial(mass, origin, inertia)
+                    except KeyError:
+                        faulty_meshes += 1
+                        print(
+                            '-----inertial_tensor cannot be calucualted for this mesh'
+                        )
+                    # continue_ = input(
+                    #     'Do you want to check the next mesh?(y/n)'
+                    # )
+                    # if continue_ is 'y':
+                    #     continue
+                    # else:
+                    #     break
+            else:
+                if link.find('visual'):
+                    sound_meshes += 1
+                    print(
+                       f'---Processing the mesh of the link {link.get("name")}'
+                    )
+                    mesh_file = link.find('visual').find('geometry').find('mesh').get('filename')
+                    mesh = pymeshlab.MeshSet()
+                    mesh.load_new_mesh(mesh_file)
+                    geomatric_measures = mesh.get_geometric_measures()
+                    try:
+                        print(f'The inertia_tensor is = {geomatric_measures["inertia_tensor"]}')
+                    except KeyError:
+                        faulty_meshes += 1
+                        print(
+                            '-----inertial_tensor cannot be calucualted for this mesh'
+                        )
+                else:
+                    print(
+                        f'No visual attributes for the link {link.get("name")}'
+                    )
+        print(f'{faulty_meshes}')
+        print(f'{sound_meshes}')
+        print(
+            f'-------The percentage of faulty meshes is '
+            f'{faulty_meshes/sound_meshes*100}%.'
+        )
+
+        # for link in self.links:
+        #     print(
+        #         f'The link with the name {link.get("name")} has the following'
+        #     )
+        #     intertial = link.find('inertial')
+        #     if intertial:
+        #         print(
+        #             f'  - Inertial:\n      - With mass '
+        #             f'{intertial.find("mass").get("value")}\n'
+        #             f'      - with origin {intertial.find("origin").get("xyz")} and '
+        #             f'and {intertial.find("origin").get("rpy")} '
+        #             f'      - with inertia'
+        #             f'{intertial.find("inertia").get("ixx")}'
+        #             f'{intertial.find("inertia").get("ixy")}'
+        #             f'{intertial.find("inertia").get("iyy")}'
+        #             f'{intertial.find("inertia").get("iyz")}'
+        #             f'{intertial.find("inertia").get("ixz")}'
+        #             f'{intertial.find("inertia").get("izz")}'
+        #         )
         # for joint in self.joints:
         #     print(joint)
 
@@ -222,19 +302,3 @@ class Robot:
 if __name__ == '__main__':
     robot = Robot(180, 70)
     robot.create_model()
-    current_directory = os.getcwd()
-    os.chdir(
-        os.path.expanduser(
-            'data/objects/Winter/models/collada'
-        )
-    )
-    mesh = pymeshlab.MeshSet()
-    mesh.load_new_mesh('BTSegment_joint_visu.dae')
-    geomatric_measures = mesh.get_geometric_measures()
-    print(geomatric_measures)
-    print(f'The inertia_tensor is = {geomatric_measures["inertia_tensor"]}')
-    # print(f'Volume                                  = {volume}')
-    # print(f'Position of the center of gravity (COG) = {cog}')
-    # print(f'Inertia matrix at expressed at the COG  = {inertia[0, :]}')
-    # print(f'                                          {inertia[1, :]}')
-    # print(f'                                          {inertia[2, :]}')
