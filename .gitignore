@@ -15,3 +15,5 @@ logs/*
 /data/motion_data/*
 /logs/*
 /__pycache__/
+*.gv
+Winter.pdf

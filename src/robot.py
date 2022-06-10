@@ -1,3 +1,18 @@
+import xml.etree.cElementTree as ET
+import pymeshlab
+import os
+
+
+class Geemotry:
+
+    def __init__(self, type_, size=None):
+        self.type_ = type_
+        self.size = size
+
+    def get_urdf_element(self):
+        pass
+
+
 class Inertial:
 
     def __init__(self, mass, origin, inertia):
@@ -100,7 +115,16 @@ class Link:
 
 class Joint:
 
-    def __init__(self, name, type_, parent_link, child_link, dynamics, limit, axis):
+    def __init__(
+        self,
+        name,
+        type_,
+        parent_link,
+        child_link,
+        dynamics,
+        limit,
+        axis,
+    ):
         self.name = name
         self.type_ = type_
         self.parent_link = parent_link
@@ -146,15 +170,44 @@ class Joint:
 
 class Robot:
 
-    def __init__(self, height, mass, joints_names):
+    def __init__(self, height, mass):
         self.height = height
         self.mass = mass
-        self.joints = joints_names 
         self.robot_name = 'George'
         self.create_model()
+        self.scale = [height / 100] * 3
 
     def create_model(self):
-        pass
+        current_directory = os.getcwd()
+        os.chdir(os.path.expanduser('data/objects/Winter'))
+        xml_tree = ET.parse('mmm.urdf')
+        xml_root = xml_tree.getroot()
+        self.links = xml_root.findall('link')
+        self.joints = xml_root.findall('joint')
+
+        for link in self.links:
+            print(
+                f'The link with the name {link.get("name")} has the following'
+            )
+            intertial = link.find('inertial')
+            if intertial:
+                print(
+                    f'  - Inertial:\n      - With mass '
+                    f'{intertial.find("mass").get("value")}\n'
+                    f'      - with origin {intertial.find("origin").get("xyz")} and '
+                    f'and {intertial.find("origin").get("rpy")} '
+                    f'      - with inertia'
+                    f'{intertial.find("inertia").get("ixx")}'
+                    f'{intertial.find("inertia").get("ixy")}'
+                    f'{intertial.find("inertia").get("iyy")}'
+                    f'{intertial.find("inertia").get("iyz")}'
+                    f'{intertial.find("inertia").get("ixz")}'
+                    f'{intertial.find("inertia").get("izz")}'
+                )
+        # for joint in self.joints:
+        #     print(joint)
+
+        os.chdir(current_directory)
 
     def get_joints(self):
         pass
@@ -164,3 +217,24 @@ class Robot:
 
     def create_urdf_file(self):
         pass
+
+
+if __name__ == '__main__':
+    robot = Robot(180, 70)
+    robot.create_model()
+    current_directory = os.getcwd()
+    os.chdir(
+        os.path.expanduser(
+            'data/objects/Winter/models/collada'
+        )
+    )
+    mesh = pymeshlab.MeshSet()
+    mesh.load_new_mesh('BTSegment_joint_visu.dae')
+    geomatric_measures = mesh.get_geometric_measures()
+    print(geomatric_measures)
+    print(f'The inertia_tensor is = {geomatric_measures["inertia_tensor"]}')
+    # print(f'Volume                                  = {volume}')
+    # print(f'Position of the center of gravity (COG) = {cog}')
+    # print(f'Inertia matrix at expressed at the COG  = {inertia[0, :]}')
+    # print(f'                                          {inertia[1, :]}')
+    # print(f'                                          {inertia[2, :]}')
