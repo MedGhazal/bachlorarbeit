@@ -3,14 +3,42 @@ import pymeshlab
 import os
 
 
-class Geemotry:
+class Geometry:
 
-    def __init__(self, type_, size=None):
-        self.type_ = type_
-        self.size = size
+    def __init__(self, file_name, scale=None):
+        self.file_name = file_name
+        if scale:
+            self.scale = ' '.join(
+                list(
+                    map(
+                        lambda x: str(x),
+                        scale,
+                    )
+                )
+            )
+        else:
+            self.scale = ' '.join(
+                list(
+                    map(
+                        lambda x: str(x),
+                        [1, 1, 1],
+                    )
+                )
+            )
 
     def get_urdf_element(self):
-        pass
+        mesh = ' '.join([
+            '<mesh',
+            f'filename="{self.file_name}"',
+            f'scale="{self.scale}"',
+            'mesh/>',
+        ])
+        geometry_element = '\n'.join([
+            '<geometry>',
+            mesh,
+            '</geometry>',
+        ])
+        return geometry_element
 
 
 class Inertial:
@@ -18,7 +46,7 @@ class Inertial:
     def __init__(self, mass, origin, inertia):
         self.mass = mass
         self.origin = origin
-        self.inertial = inertia
+        self.inertia = inertia
 
     def get_urdf_element(self):
         mass_element = f'<mass value="{self.mass}"/>'
@@ -29,68 +57,43 @@ class Inertial:
         for key, value in self.inertia.items():
             inertia_element += f'{key}="{value}"'
         inertia_element += '/>'
-        self.element = '\n'.join(
+        self.element = '\n'.join([
             '<intertial>',
             mass_element,
             origin_element,
             inertia_element,
             '</inertial>',
-        )
+        ])
         return self.element
 
 
 class Visual:
 
-    def __init__(self, origin, geometry, material):
-        self.origin = origin
+    def __init__(self, geometry):
         self.geometry = geometry
-        self.material = material
 
     def get_urdf_element(self):
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
-        origin_element = f'<origin {xyz} {rpy}/>'
-        geometry_element = '\n'.join(
-            '<geometry>',
-            self.geometry.get_urdf_represetation(),
-            '</geometry>',
-        )
-        material_element = '\n'.join(
-            '<material name="{self.material["name"]}">',
-            '<color rgba="{self.material.getColorValues()}"/>',
-            '</material>',
-        )
-        self.element = '\n'.join(
+        geometry_element = self.geometry.get_urdf_element()
+        self.element = '\n'.join([
             '<visual>',
-            origin_element,
             geometry_element,
-            material_element,
             '</visual>',
-        )
+        ])
         return self.element
 
 
 class Collision:
 
-    def __init__(self, origin, geometry):
-        self.origin = origin
+    def __init__(self, geometry):
         self.geometry = geometry
 
-    def get_urfd_element(self):
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
-        origin_element = f'<origin {xyz} {rpy}'
-        geometry_element = '\n'.join(
-            '<geometry>',
-            self.geometry.get_urdf_represetation(),
-            '</geometry>',
-        )
-        self.element = '\n'.join(
+    def get_urdf_element(self):
+        geometry_element = self.geometry.get_urdf_element()
+        self.element = '\n'.join([
             '<collision>',
-            origin_element,
             geometry_element,
             '</collision>'
-        )
+        ])
         return self.element
 
 
@@ -103,13 +106,13 @@ class Link:
         self.inertial = inertial
 
     def get_urdf_element(self):
-        self.element = '\n'.join(
+        self.element = '\n'.join([
             '<link name="{self.name}"',
             self.inertial.get_urdf_element(),
             self.visual.get_urdf_element(),
-            self.collsion.get_urdf_element(),
+            self.collision.get_urdf_element(),
             '</link>',
-        )
+        ])
         return self.element
 
 
@@ -121,9 +124,10 @@ class Joint:
         type_,
         parent_link,
         child_link,
-        dynamics,
-        limit,
         axis,
+        limit,
+        origin,
+        dynamics=None,
     ):
         self.name = name
         self.type_ = type_
@@ -132,39 +136,48 @@ class Joint:
         self.dynamics = dynamics
         self.limit = limit
         self.axis = axis
+        self.origin = origin
 
     def get_urdf_element(self):
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
-        origin_element = f'<origin {xyz} {rpy}/>'
-        parent_link_element = f'<parent link="{self.parent_link.name}"/>'
-        child_link_element = f'<child link="{self.child_link.name}"/>'
-        dynamics_element = ' '.join(
-            '<dynamics',
-            f'damping="{self.dynamics["damping"]}',
-            f'friction="{self.dynamics["friction"]}',
-            '/>',
-        )
-        limit_element = ' '.join(
-            '<limit',
-            f'effort="{self.limit["effort"]}"',
-            f'velocity="{self.limit["velocity"]}"',
-            f'lower="{self.limit["lower"]}"',
-            f'upper="{self.limit["upper"]}"',
-            '/>,',
-        )
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        axis_element = '<axis {xyz}/>'
-        self.element = '\n'.join(
-            '<joint name="{self.name}" type="{self.type_}">',
+        origin_element = ''
+        if self.origin:
+            xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
+            rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
+            origin_element = f'<origin {xyz} {rpy}/>'
+        parent_link_element = f'<parent link="{self.parent_link}"/>'
+        child_link_element = f'<child link="{self.child_link}"/>'
+        dynamic_element = ''
+        if self.dynamics:
+            dynamics_element = ' '.join([
+                '<dynamics',
+                f'damping="{self.dynamics["damping"]}',
+                f'friction="{self.dynamics["friction"]}',
+                '/>',
+            ])
+        limit_element = ''
+        if self.limit:
+            limit_element = ' '.join([
+                '<limit',
+                f'effort="{self.limit["effort"]}"',
+                f'velocity="{self.limit["velocity"]}"',
+                f'lower="{self.limit["lower"]}"',
+                f'upper="{self.limit["upper"]}"',
+                '/>,',
+            ])
+        axis_element = ''
+        if self.origin:
+            xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
+            axis_element = '<axis {xyz}/>'
+        self.element = '\n'.join([
+            f'<joint name="{self.name}" type="{self.type_}">',
             origin_element,
             parent_link_element,
             child_link_element,
-            dynamics_element,
+            dynamics_element if dynamic_element else '',
             limit_element,
             axis_element,
             '</joint>',
-        )
+        ])
         return self.element
 
 
@@ -173,7 +186,7 @@ class Robot:
     def __init__(self, height, mass):
         self.height = height
         self.mass = mass
-        self.robot_name = 'George'
+        self.name = 'George'
         self.create_model()
         self.scale = [height / 100] * 3
 
@@ -184,8 +197,75 @@ class Robot:
         xml_root = xml_tree.getroot()
         self.links = xml_root.findall('link')
         self.joints = xml_root.findall('joint')
+        self.get_links()
+        self.get_joints()
+        os.chdir(current_directory)
+
+    def get_joints(self):
+        self.joint_elements = []
+        for joint in self.joints:
+            origin = {}
+            if joint.findall('origin'):
+                origin = {
+                    'xyz': list(
+                        map(
+                            lambda x: float(x),
+                            joint.find(
+                                'origin'
+                            ).get(
+                                'xyz'
+                            ).split(
+                                ' '
+                            )
+                        )
+                    ),
+                    'rpy': list(
+                        map(
+                            lambda x: float(x),
+                            joint.find(
+                                'origin'
+                            ).get(
+                                'rpy'
+                            ).split(
+                                ' '
+                            )
+                        )
+                    ),
+                }
+            axis = {}
+            if joint.findall('axis'):
+                axis = {
+                    'xyz': list(
+                        map(
+                            lambda x: int(x),
+                            joint.find('axis').get('xyz').split(' '),
+                        )
+                    ),
+                }
+            limit = {}
+            if joint.findall('limit'):
+                limit['effort'] = joint.find('limit').get('effort')
+                limit['velocity'] = joint.find('limit').get('velocity')
+                limit['lower'] = joint.find('limit').get('lower')
+                limit['upper'] = joint.find('limit').get('upper')
+            joint = Joint(
+                joint.get('name'),
+                joint.get('type'),
+                joint.find('parent').get('link'),
+                joint.find('child').get('link'),
+                axis,
+                limit,
+                origin,
+            )
+            self.joint_elements.append(joint)
+
+    def get_links(self):
         sound_meshes = 0
         faulty_meshes = 0
+        self.link_elements = []
+        show_polyset = input('Show polyset?(y/n)')
+        show_polyset = show_polyset == 'y'
+
         for link in self.links:
             if link.find('inertial'):
                 mass = float(
@@ -195,19 +275,43 @@ class Robot:
                     'xyz': list(
                         map(
                             lambda x: float(x),
-                            link.find('inertial').find('origin').get('xyz').split(' ')
+                            link.find(
+                                'inertial'
+                            ).find(
+                                'origin'
+                            ).get(
+                                'xyz'
+                            ).split(
+                                ' '
+                            )
                         )
                     ),
                     'rpy': list(
                         map(
                             lambda x: float(x),
-                            link.find('inertial').find('origin').get('rpy').split(' ')
+                            link.find(
+                                'inertial'
+                            ).find(
+                                'origin'
+                            ).get(
+                                'rpy'
+                            ).split(
+                                ' '
+                            )
                         )
                     ),
                 }
                 if link.find('visual'):
                     sound_meshes += 1
-                    mesh_file = link.find('visual').find('geometry').find('mesh').get('filename')
+                    mesh_file = link.find(
+                        'visual'
+                    ).find(
+                        'geometry'
+                    ).find(
+                        'mesh'
+                    ).get(
+                        'filename'
+                    )
                     mesh = pymeshlab.MeshSet()
                     mesh.load_new_mesh(mesh_file)
                     print(
@@ -220,44 +324,67 @@ class Robot:
                             'ixy': geomatric_measures['inertia_tensor'][0][1],
                             'iyy': geomatric_measures['inertia_tensor'][1][1],
                             'ixz': geomatric_measures['inertia_tensor'][0][2],
-                            'iyy': geomatric_measures['inertia_tensor'][1][1],
+                            'iyz': geomatric_measures['inertia_tensor'][1][2],
                             'izz': geomatric_measures['inertia_tensor'][2][2],
                         }
-                        print(f'The inertia_tensor is = {geomatric_measures["inertia_tensor"]}')
+                        print(
+                            f'The inertia_tensor is ='
+                            f'{geomatric_measures["inertia_tensor"]}'
+                        )
                         inertial = Inertial(mass, origin, inertia)
                     except KeyError:
                         faulty_meshes += 1
                         print(
-                            '-----inertial_tensor cannot be calucualted for this mesh'
+                            '-----inertial_tensor cannot be calucualted for '
+                            'this mesh'
                         )
-                    # continue_ = input(
-                    #     'Do you want to check the next mesh?(y/n)'
-                    # )
-                    # if continue_ is 'y':
-                    #     continue
-                    # else:
-                    #     break
             else:
                 if link.find('visual'):
                     sound_meshes += 1
                     print(
                        f'---Processing the mesh of the link {link.get("name")}'
                     )
-                    mesh_file = link.find('visual').find('geometry').find('mesh').get('filename')
+                    mesh_file = link.find(
+                        'visual'
+                    ).find(
+                        'geometry'
+                    ).find(
+                        'mesh'
+                    ).get(
+                        'filename'
+                    )
                     mesh = pymeshlab.MeshSet()
                     mesh.load_new_mesh(mesh_file)
+                    if show_polyset:
+                        mesh.show_polyscope()
                     geomatric_measures = mesh.get_geometric_measures()
                     try:
-                        print(f'The inertia_tensor is = {geomatric_measures["inertia_tensor"]}')
+                        print(
+                            f'The inertia_tensor is ='
+                            f'{geomatric_measures["inertia_tensor"]}'
+                        )
                     except KeyError:
                         faulty_meshes += 1
                         print(
-                            '-----inertial_tensor cannot be calucualted for this mesh'
+                            '-----inertial_tensor cannot be calucualted for'
+                            ' this mesh'
                         )
+                    geometry = Geometry(mesh_file, scale=[self.height] * 3)
+                    visual = Visual(geometry)
+                    collision = Collision(geometry)
                 else:
                     print(
                         f'No visual attributes for the link {link.get("name")}'
                     )
+                self.link_elements.append(
+                    Link(
+                        link.get('name'),
+                        inertial,
+                        visual,
+                        collision,
+                    )
+                )
+
         print(f'{faulty_meshes}')
         print(f'{sound_meshes}')
         print(
@@ -265,40 +392,23 @@ class Robot:
             f'{faulty_meshes/sound_meshes*100}%.'
         )
 
-        # for link in self.links:
-        #     print(
-        #         f'The link with the name {link.get("name")} has the following'
-        #     )
-        #     intertial = link.find('inertial')
-        #     if intertial:
-        #         print(
-        #             f'  - Inertial:\n      - With mass '
-        #             f'{intertial.find("mass").get("value")}\n'
-        #             f'      - with origin {intertial.find("origin").get("xyz")} and '
-        #             f'and {intertial.find("origin").get("rpy")} '
-        #             f'      - with inertia'
-        #             f'{intertial.find("inertia").get("ixx")}'
-        #             f'{intertial.find("inertia").get("ixy")}'
-        #             f'{intertial.find("inertia").get("iyy")}'
-        #             f'{intertial.find("inertia").get("iyz")}'
-        #             f'{intertial.find("inertia").get("ixz")}'
-        #             f'{intertial.find("inertia").get("izz")}'
-        #         )
-        # for joint in self.joints:
-        #     print(joint)
-
-        os.chdir(current_directory)
-
-    def get_joints(self):
-        pass
-
-    def get_links(self):
-        pass
-
     def create_urdf_file(self):
-        pass
+        urdf_file = '\n'.join([
+            '<?xml version="1.0" encoding="utf-8"?>',
+            f'<robot name="{self.name}">'
+            '\n'.join(
+                link.get_urdf_element() for link in self.link_elements
+            ),
+            '\n'.join(
+                joint.get_urdf_element() for joint in self.joint_elements
+            ),
+            '</robot>',
+        ])
+        with open('temporary_urdf.xml', 'w') as xml_file:
+            xml_file.write(urdf_file)
 
 
 if __name__ == '__main__':
     robot = Robot(180, 70)
     robot.create_model()
+    robot.create_urdf_file()
