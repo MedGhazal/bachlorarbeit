@@ -274,7 +274,7 @@ class Robot:
             inertial = None
             visual = None
             collision = None
-            if link.find('inertial'):
+            if link.findall('inertial'):
                 mass = float(
                     link.find('inertial').find('mass').get('value')
                 ) * self.mass
@@ -308,7 +308,7 @@ class Robot:
                         )
                     ),
                 }
-                if link.find('visual'):
+                if link.findall('visual'):
                     sound_meshes += 1
                     mesh_file = link.find(
                         'visual'
@@ -345,8 +345,11 @@ class Robot:
                             '-----inertial_tensor cannot be calucualted for '
                             'this mesh'
                         )
+                else:
+                    inertia = link.find('inertial').find('inertia').attrib
+                    inertial = Inertial(mass, origin, inertia)
 
-            if link.find('visual'):
+            if link.findall('visual'):
                 sound_meshes += 1
                 print(
                    f'---Processing the mesh of the link {link.get("name")}'
