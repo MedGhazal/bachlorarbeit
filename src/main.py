@@ -21,20 +21,21 @@ if __name__ == '__main__':
             )
         )
     )
+    motion = motion_dataset.motions[next_motion]
+    motion.parse()
     startPos = [0, 0, .55]
     startOrientation = pb.getQuaternionFromEuler([0, 0, 0])
     boxId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(
                 'data/objects/Winter',
-                'mmm_modified.urdf',
+                # 'mmm_modified.urdf',
+                'temporary.urdf'
             ),
         ),
         startPos,
         startOrientation,
     )
-    motion = motion_dataset.motions[next_motion]
-    motion.parse()
     # print(f'The number of joints is {pb.getNumJoints(boxId)}')
     # print(
         # f'The number of joints in the mmm-files is '

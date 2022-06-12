@@ -31,7 +31,7 @@ class Geometry:
             '<mesh',
             f'filename="{self.file_name}"',
             f'scale="{self.scale}"',
-            'mesh/>',
+            '/>',
         ])
         geometry_element = '\n'.join([
             '<geometry>',
@@ -53,12 +53,12 @@ class Inertial:
         xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
         rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
         origin_element = f'<origin {xyz} {rpy}/>'
-        inertia_element = '<inertia'
+        inertia_element = '<inertia '
         for key, value in self.inertia.items():
-            inertia_element += f'{key}="{value}"'
+            inertia_element += f'{key}="{value}" '
         inertia_element += '/>'
         self.element = '\n'.join([
-            '<intertial>',
+            '<inertial>',
             mass_element,
             origin_element,
             inertia_element,
@@ -107,10 +107,10 @@ class Link:
 
     def get_urdf_element(self):
         self.element = '\n'.join([
-            '<link name="{self.name}"',
-            self.inertial.get_urdf_element(),
-            self.visual.get_urdf_element(),
-            self.collision.get_urdf_element(),
+            f'<link name="{self.name}">',
+            self.inertial.get_urdf_element() if self.inertial else '',
+            self.visual.get_urdf_element() if self.visual else '',
+            self.collision.get_urdf_element() if self.collision else '',
             '</link>',
         ])
         return self.element
@@ -165,9 +165,9 @@ class Joint:
                 '/>,',
             ])
         axis_element = ''
-        if self.origin:
-            xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-            axis_element = '<axis {xyz}/>'
+        if self.axis:
+            xyz = f'xyz="{" ".join(str(value) for value in self.axis["xyz"])}"'
+            axis_element = f'<axis {xyz}/>'
         self.element = '\n'.join([
             f'<joint name="{self.name}" type="{self.type_}">',
             origin_element,
@@ -189,6 +189,8 @@ class Robot:
         self.name = 'George'
         self.create_model()
         self.scale = [height / 100] * 3
+        self.create_model()
+        self.create_urdf_file()
 
     def create_model(self):
         current_directory = os.getcwd()
@@ -263,10 +265,15 @@ class Robot:
         sound_meshes = 0
         faulty_meshes = 0
         self.link_elements = []
-        show_polyset = input('Show polyset?(y/n)')
-        show_polyset = show_polyset == 'y'
+        # show_polyset = input('Show polyset?(y/n)')
+        # show_polyset = show_polyset == 'y'
+        show_polyset = False
 
         for link in self.links:
+
+            inertial = None
+            visual = None
+            collision = None
             if link.find('inertial'):
                 mass = float(
                     link.find('inertial').find('mass').get('value')
@@ -338,52 +345,53 @@ class Robot:
                             '-----inertial_tensor cannot be calucualted for '
                             'this mesh'
                         )
-            else:
-                if link.find('visual'):
-                    sound_meshes += 1
-                    print(
-                       f'---Processing the mesh of the link {link.get("name")}'
-                    )
-                    mesh_file = link.find(
-                        'visual'
-                    ).find(
-                        'geometry'
-                    ).find(
-                        'mesh'
-                    ).get(
-                        'filename'
-                    )
-                    mesh = pymeshlab.MeshSet()
-                    mesh.load_new_mesh(mesh_file)
-                    if show_polyset:
-                        mesh.show_polyscope()
-                    geomatric_measures = mesh.get_geometric_measures()
-                    try:
-                        print(
-                            f'The inertia_tensor is ='
-                            f'{geomatric_measures["inertia_tensor"]}'
-                        )
-                    except KeyError:
-                        faulty_meshes += 1
-                        print(
-                            '-----inertial_tensor cannot be calucualted for'
-                            ' this mesh'
-                        )
-                    geometry = Geometry(mesh_file, scale=[self.height] * 3)
-                    visual = Visual(geometry)
-                    collision = Collision(geometry)
-                else:
-                    print(
-                        f'No visual attributes for the link {link.get("name")}'
-                    )
-                self.link_elements.append(
-                    Link(
-                        link.get('name'),
-                        inertial,
-                        visual,
-                        collision,
-                    )
+
+            if link.find('visual'):
+                sound_meshes += 1
+                print(
+                   f'---Processing the mesh of the link {link.get("name")}'
                 )
+                mesh_file = link.find(
+                    'visual'
+                ).find(
+                    'geometry'
+                ).find(
+                    'mesh'
+                ).get(
+                    'filename'
+                )
+                mesh = pymeshlab.MeshSet()
+                mesh.load_new_mesh(mesh_file)
+                if show_polyset:
+                    mesh.show_polyscope()
+                geomatric_measures = mesh.get_geometric_measures()
+                try:
+                    print(
+                        f'The inertia_tensor is ='
+                        f'{geomatric_measures["inertia_tensor"]}'
+                    )
+                except KeyError:
+                    faulty_meshes += 1
+                    print(
+                        '-----inertial_tensor cannot be calucualted for'
+                        ' this mesh'
+                    )
+                geometry = Geometry(mesh_file, scale=[self.height] * 3)
+                visual = Visual(geometry)
+                collision = Collision(geometry)
+            else:
+                print(
+                    f'No visual attributes for the link {link.get("name")}'
+                )
+
+            self.link_elements.append(
+                Link(
+                    link.get('name'),
+                    inertial,
+                    visual,
+                    collision,
+                )
+            )
 
         print(f'{faulty_meshes}')
         print(f'{sound_meshes}')
@@ -395,7 +403,7 @@ class Robot:
     def create_urdf_file(self):
         urdf_file = '\n'.join([
             '<?xml version="1.0" encoding="utf-8"?>',
-            f'<robot name="{self.name}">'
+            f'<robot name="{self.name}">',
             '\n'.join(
                 link.get_urdf_element() for link in self.link_elements
             ),
@@ -404,7 +412,7 @@ class Robot:
             ),
             '</robot>',
         ])
-        with open('temporary_urdf.xml', 'w') as xml_file:
+        with open('data/objects/Winter/temporary.urdf', 'w') as xml_file:
             xml_file.write(urdf_file)
 
 
