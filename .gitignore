@@ -17,3 +17,7 @@ logs/*
 /__pycache__/
 *.gv
 Winter.pdf
+George.pdf
+.polyscope.ini
+data/objects/Winter/imgui.ini
+data/objects/Winter/temporary.urdf

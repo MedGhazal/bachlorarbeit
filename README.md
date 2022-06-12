@@ -22,3 +22,19 @@ To Launsh the simulation entre the following command and follow the instructions
 ```
 python3 src/main.py
 ```
+
+As for the urdf-tools for compiling and visualising urdf-Models the following software is needed
+#### For Mac os:
+-- urdfdom urdfdom_headers
+To check the urdf-file run the following command:
+```
+check_urdf <PATH-TO-FILE>
+```
+To show a graphical representation of the urdf-file run the following command:
+```
+urdf_to_graphviz <PATH-TO-FILE>
+```
+The output of this command is two files:
+-- <NAME-OF-ROBOT>.pdf a graphical repersetation of the urdf-file as a directed-graph
+-- <NAME-OF-ROBOT>.gv that can be opened with graphviz
+

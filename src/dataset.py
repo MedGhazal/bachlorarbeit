@@ -90,7 +90,8 @@ class Motion:
         xml_model_mass = xml_config[0].findall('Mass')
         height = float(xml_model_height[0].text)
         mass = float(xml_model_mass[0].text)
-        self.robot = Robot(height, mass)
+        # self.robot = Robot(height, mass)
+        self.robot = Robot(1, mass)
 
         return joint_names, frames
 
