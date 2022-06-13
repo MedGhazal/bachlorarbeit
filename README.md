@@ -37,5 +37,7 @@ urdf_to_graphviz <PATH-TO-FILE>
 ```
 The output of this command is two files:
 - <NAME-OF-ROBOT>.pdf a graphical repersetation of the urdf-file as a directed-graph
-- <NAME-OF-ROBOT>.gv that can be opened with graphviz
-
+- <NAME-OF-ROBOT>.gv that can be opened with graphviz with the following command, which saves the graph to the output-file **output.svg**
+```
+cat <NAME-OF-ROBOT>.gv | dot -Tsvg -o output.svg
+```

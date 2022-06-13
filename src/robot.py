@@ -21,7 +21,7 @@ class Geometry:
                 list(
                     map(
                         lambda x: str(x),
-                        [1, 1, 1],
+                        [0, 1, 1],
                     )
                 )
             )
@@ -141,8 +141,8 @@ class Joint:
     def get_urdf_element(self):
         origin_element = ''
         if self.origin:
-            xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-            rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
+            xyz = f'xyz="{" ".join(str(item) for item in self.origin["xyz"])}"'
+            rpy = f'rpy="{" ".join(str(item) for item in self.origin["rpy"])}"'
             origin_element = f'<origin {xyz} {rpy}/>'
         parent_link_element = f'<parent link="{self.parent_link}"/>'
         child_link_element = f'<child link="{self.child_link}"/>'
@@ -367,18 +367,6 @@ class Robot:
                 mesh.load_new_mesh(mesh_file)
                 if show_polyset:
                     mesh.show_polyscope()
-                geomatric_measures = mesh.get_geometric_measures()
-                try:
-                    print(
-                        f'The inertia_tensor is ='
-                        f'{geomatric_measures["inertia_tensor"]}'
-                    )
-                except KeyError:
-                    faulty_meshes += 1
-                    print(
-                        '-----inertial_tensor cannot be calucualted for'
-                        ' this mesh'
-                    )
                 geometry = Geometry(mesh_file, scale=[self.height] * 3)
                 visual = Visual(geometry)
                 collision = Collision(geometry)
