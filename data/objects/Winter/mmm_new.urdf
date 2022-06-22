@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="New_George">
+	<!-- Links --> 
+	<link name="root"/>
+	<link name="Left_hip">
+		<inertial>
+			<mass value="0.14"/>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1216" rpy="0 -0 0"/>
+			<inertia ixx="3.0625" ixy="0" ixz="0" iyy="3.0625" iyz="0" izz="0.636804"/>
+		</inertial>
+		<visual>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1216" rpy="0 -0 0"/>
+			<geometry>
+				<mesh filename="models/collada/LHsegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</visual>
+	</link>
+	<link name="Right_hip">
+		<inertial>
+			<mass value="0.14"/>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1216" rpy="0 -0 0"/>
+			<inertia ixx="3.0625" ixy="0" ixz="0" iyy="3.0625" iyz="0" izz="0.636804"/>
+		</inertial>
+		<visual>
+			<origin xyz="-2.75474e-15 1.04413e-08 0.1216" rpy="0 -0 0"/>
+			<geometry>
+				<mesh filename="models/collada/RHsegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</visual>
+	</link>
+	<link name="Pelvis">
+		<inertial>
+			<mass value="0.1"/>
+			<origin xyz="0 3.33729e-11 -0.0336" rpy="0 -0 0"/>
+			<inertia ixx="1.024" ixy="0" ixz="0" iyy="0.81796" iyz="0" izz="0.676"/>
+		</inertial>
+		<visual>
+			<origin xyz="0 3.33729e-11 -0.0336" rpy="0 -0 0"/>
+			<geometry>
+				<mesh filename="models/collada/BTSegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</visual>
+	</link>
+	<link name="Right_torso">
+		<inertial>
+			<mass value="0.021"/>
+			<origin xyz="-0.01 4.16334e-17 0" rpy="0 -0 0"/>
+			<inertia ixx="0.0298116" ixy="0" ixz="0" iyy="0.0063504" iyz="0" izz="0.0298116"/>
+		</inertial>
+		<visual>
+			<origin xyz="-0.01 4.16334e-17 0" rpy="0 -0 0"/>
+			<geometry>
+				<mesh filename="models/collada/RSCsegment_joint_visu.dae" scale="1 1 1"/>
+			</geometry>
+		</visual>
+	</link>
+	<!-- Links --> 
+	<joint name="LHx_joint" type="revolute">
+		<axis xyz="1 0 0"/>
+		<origin xyz="-0.052 0 0" rpy="0 0 0"/>
+		<parent link="root"/>
+		<child link="Left_hip"/>
+		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
+	</joint>
+	<joint name="LHy_joint" type="revolute">
+		<axis xyz="0 1 0"/>
+		<origin xyz="-0.052 0 0" rpy="0 0 0"/>
+		<parent link="root"></parent>
+		<child link="Left_hip"></child>
+		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
+	</joint>
+	<joint name="LHz_joint" type="revolute">
+		<axis xyz="0 0 1"/>
+		<origin xyz="-0.052 0 0" rpy="0 0 0"/>
+		<parent link="root"></parent>
+		<child link="Left_hip"></child>
+		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
+	</joint>
+	<joint name="RHx_joint" type="revolute">
+		<origin xyz="0.052 0 0" rpy="0 0 0"/>
+		<axis xyz="1 0 0"/>
+		<parent link="root"></parent>
+		<child link="Right_hip"></child>
+		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
+	</joint>
+	<joint name="RHy_joint" type="revolute">
+		<origin xyz="0.052 0 0" rpy="0 0 0"/>
+		<axis xyz="0 1 0"/>
+		<parent link="root"></parent>
+		<child link="Right_hip"></child>
+		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
+	</joint>
+	<joint name="RHz_joint" type="revolute">
+		<origin xyz="0.052 0 0" rpy="0 0 0"/>
+		<axis xyz="0 0 1"/>
+		<parent link="root"></parent>
+		<child link="Right_hip"></child>
+		<limit effort="100" velocity="1" lower="-0.872665" upper="1.65806"/>
+	</joint>
+	<joint name="BPx_joint" type="revolute">
+		<origin xyz="0.052 0 0" rpy="0 0 0"/>
+		<axis xyz="1 0 0"/>
+		<parent link="root"></parent>
+		<child link="Pelvis"></child>
+		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
+	</joint>
+	<joint name="BPy_joint" type="revolute">
+		<origin xyz="0.052 0 0" rpy="0 0 0"/>
+		<axis xyz="0 1 0"/>
+		<parent link="root"></parent>
+		<child link="Pelvis"></child>
+		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
+	</joint>
+	<joint name="BPz_joint" type="revolute">
+		<origin xyz="0.052 0 0" rpy="0 0 0"/>
+		<axis xyz="0 0 1"/>
+		<parent link="root"></parent>
+		<child link="Pelvis"></child>
+		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
+	</joint>
+	<joint name="BTx_joint" type="revolute">
+		<origin xyz="0 0 0.06" rpy="0 0 0"/>
+		<axis xyz="1 0 0"/>
+		<parent link="Pelvis"></parent>
+		<child link="Right_torso"></child>
+		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
+	</joint>
+	<joint name="BTy_joint" type="revolute">
+		<origin xyz="0 0 0.06" rpy="0 0 0"/>
+		<axis xyz="0 1 0"/>
+		<parent link="Pelvis"></parent>
+		<child link="Right_torso"></child>
+		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
+	</joint>
+	<joint name="BTz_joint" type="revolute">
+		<origin xyz="0 0 0.06" rpy="0 0 0"/>
+		<axis xyz="0 0 1"/>
+		<parent link="Pelvis"></parent>
+		<child link="Right_torso"></child>
+		<limit effort="100" velocity="1" lower="-0.785398" upper="0.785398"/>
+	</joint>
+</robot>
