@@ -1,5 +1,5 @@
 import os
-import shutils
+import shutil
 from dataset import DEFAULT_ROOT
 from functools import partial
 
