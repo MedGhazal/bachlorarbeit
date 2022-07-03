@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot name="unknown type">
+<robot name="Winter">
 	<link name="BLNsegment_joint"/>
 	<link name="BLNx_joint"/>
 	<link name="BLNy_joint"/>

@@ -8,11 +8,6 @@ import zipfile
 from tqdm.auto import tqdm
 from robot import Robot
 
-# logging.basicConfig(
-#     filename='logs/logger.log',
-#     encoding='utf-8',
-#     level=logging.DEBUG,
-# )
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
@@ -166,6 +161,7 @@ class MotionDataset:
 
     def download(self):
         print('Downloading the dataset...')
+
         with requests.get(URL, stream=True) as request:
             dataset_size = int(request.headers.get('Content-Length'))
             with tqdm.wrapattr(
@@ -179,6 +175,7 @@ class MotionDataset:
                     'wb'
                 ) as dataset:
                     shutil.copyfileobj(raw_data, dataset)
+
         return dataset
 
     def extract(self):
@@ -192,7 +189,6 @@ class MotionDataset:
                     os.path.expanduser(DEFAULT_ROOT),
                 )
         os.remove(dataset)
-        print('Done')
 
     def parse(self):
         print('Parsing the dataset, and extracting mmm-files...')
@@ -204,6 +200,7 @@ class MotionDataset:
             sorted(os.listdir()),
         )
         ids = sorted(list(set(ids)))
+
         for id_ in ids:
             with open(f'{id_}_annotations.json', 'r',) as file:
                 annotation = file.read()
@@ -217,4 +214,5 @@ class MotionDataset:
                     meta=meta,
                 )
             )
+
         os.chdir(current_directory)

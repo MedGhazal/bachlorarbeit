@@ -201,7 +201,7 @@ class Robot:
         self.height = height
         self.mass = mass
         self.name = 'George'
-        self.create_model()
+        self.links = []
         self.scale = [height / 100] * 3
         self.create_model()
         self.create_urdf_file()
@@ -379,9 +379,3 @@ class Robot:
         ])
         with open('data/objects/Winter/temporary.urdf', 'w') as xml_file:
             xml_file.write(urdf_file)
-
-
-if __name__ == '__main__':
-    robot = Robot(180, 70)
-    robot.create_model()
-    robot.create_urdf_file()
