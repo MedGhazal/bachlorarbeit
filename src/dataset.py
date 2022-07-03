@@ -119,13 +119,12 @@ class Motion:
         for xml_frame in xml_frames.findall('MotionFrame'):
             self.frames.append(self._parse_frame(xml_frame, joints))
 
-        # xml_config = xml_motion.findall('ModelProcessorConfig')
-        # xml_model_height = xml_config[0].findall('Height')
-        # xml_model_mass = xml_config[0].findall('Mass')
-        # height = float(xml_model_height[0].text)
-        # mass = float(xml_model_mass[0].text)
-        # self.robot = Robot(height, mass)
-        # self.robot = Robot(1, mass)
+        xml_config = xml_motion.findall('ModelProcessorConfig')
+        xml_model_height = xml_config[0].findall('Height')
+        xml_model_mass = xml_config[0].findall('Mass')
+        self.scale_factor = float(xml_model_height[0].text)
+        mass = float(xml_model_mass[0].text)
+        self.robot = Robot(mass)
 
         return joints, self.frames
 

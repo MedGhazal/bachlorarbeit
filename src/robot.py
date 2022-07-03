@@ -9,32 +9,13 @@ class FaultyMesh(Exception):
 
 class Geometry:
 
-    def __init__(self, file_name, scale=None):
+    def __init__(self, file_name):
         self.file_name = file_name
-        if scale:
-            self.scale = ' '.join(
-                list(
-                    map(
-                        lambda x: str(x),
-                        scale,
-                    )
-                )
-            )
-        else:
-            self.scale = ' '.join(
-                list(
-                    map(
-                        lambda x: str(x),
-                        [0, 1, 1],
-                    )
-                )
-            )
 
     def get_urdf_element(self):
         mesh = ' '.join([
             '<mesh',
             f'filename="{self.file_name}"',
-            f'scale="{self.scale}"',
             '/>',
         ])
         geometry_element = '\n'.join([
@@ -73,18 +54,13 @@ class Inertial:
 
 class Visual:
 
-    def __init__(self, geometry, origin):
+    def __init__(self, geometry):
         self.geometry = geometry
-        self.origin = origin
 
     def get_urdf_element(self):
         geometry_element = self.geometry.get_urdf_element()
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
-        origin_element = f'<origin {xyz} {rpy}/>'
         self.element = '\n'.join([
             '<visual>',
-            origin_element,
             geometry_element,
             '</visual>',
         ])
@@ -93,18 +69,13 @@ class Visual:
 
 class Collision:
 
-    def __init__(self, geometry, origin):
+    def __init__(self, geometry):
         self.geometry = geometry
-        self.origin = origin
 
     def get_urdf_element(self):
         geometry_element = self.geometry.get_urdf_element()
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
-        origin_element = f'<origin {xyz} {rpy}/>'
         self.element = '\n'.join([
             '<collision>',
-            origin_element,
             geometry_element,
             '</collision>'
         ])
@@ -197,19 +168,17 @@ class Joint:
 
 class Robot:
 
-    def __init__(self, height, mass):
-        self.height = height
+    def __init__(self, mass):
         self.mass = mass
         self.name = 'George'
         self.links = []
-        self.scale = [height / 100] * 3
         self.create_model()
         self.create_urdf_file()
 
     def create_model(self):
         current_directory = os.getcwd()
         os.chdir(os.path.expanduser('data/objects/Winter'))
-        xml_tree = ET.parse('mmm_new.urdf')
+        xml_tree = ET.parse('mmm.urdf')
         xml_root = xml_tree.getroot()
         self.links = xml_root.findall('link')
         self.joints = xml_root.findall('joint')
@@ -326,6 +295,7 @@ class Robot:
             inertial = None
             visual = None
             collision = None
+
             if link.findall('inertial'):
                 sound_meshes += 1
                 inertial, faulty = self.get_inertial(
@@ -337,15 +307,11 @@ class Robot:
             if link.findall('visual'):
                 sound_meshes += 1
                 mesh_file = self.get_mesh_file(link.find('visual'))
-                if link.find('inertial'):
-                    origin = self.get_origin(
-                        link.find('inertial').find('origin'))
                 geometry = Geometry(
                     mesh_file,
-                    scale=[1, 1, self.height],
                 )
-                visual = Visual(geometry, origin)
-                collision = Collision(geometry, origin)
+                visual = Visual(geometry)
+                collision = Collision(geometry)
             else:
                 print(
                     f'No visual attributes for the link {link.get("name")}'

@@ -2,7 +2,6 @@ from dataset import MotionDataset, DEFAULT_ROOT
 import pybullet as pb
 import time
 import os
-import math
 import numpy as np
 
 
@@ -24,19 +23,20 @@ def load_urdf_models():
             )
         )
     )
-    startPosition = [0, 0, .54 * 1.8]
+    scale = motion_dataset.motions[next_motion].scale_factor
+    startPosition = [0, 0, .54 * scale]
     startOrientation = pb.getQuaternionFromEuler([0, 0, 0])
     boxId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(
                 'data/objects/Winter',
-                'mmm.urdf',
+                'temporary.urdf',
             ),
         ),
         startPosition,
         startOrientation,
-        # flags=pb.URDF_MERGE_FIXED_LINKS,
-        globalScaling=1.8,
+        flags=pb.URDF_MERGE_FIXED_LINKS,
+        globalScaling=scale,
     )
     return planeId, boxId
 
@@ -54,12 +54,19 @@ def get_joints_ids():
 
 def play_frame(frame, motion_time):
     root_position = np.array(frame.root_position)
-    # root_rotation = frame.root_rotation
+    root_rotation = frame.root_rotation
     pb.setJointMotorControlMultiDof(
         boxId,
         0,
         pb.POSITION_CONTROL,
         targetPosition=list(root_position / 1000),
+        # force=[1, 1, 1],
+    )
+    pb.setJointMotorControlMultiDof(
+        boxId,
+        0,
+        pb.POSITION_CONTROL,
+        targetPosition=root_rotation,
         # force=[1, 1, 1],
     )
     joint_positions = frame.joint_positions
@@ -108,21 +115,14 @@ if __name__ == '__main__':
     next_motion = int(input('Choose motion: '))
     physicsClient = pb.connect(pb.GUI)
     pb.setGravity(0, 0, -9.81)
+
+    motion = motion_dataset.motions[next_motion]
+    motion.parse()
     planeId, boxId = load_urdf_models()
+    motion_time = 0
 
-    while True:
-        motion = motion_dataset.motions[next_motion]
-        motion.parse()
-        motion_time = 0
-
-        for frame in motion.frames:
-            play_frame(frame, motion_time)
-
-        continue_break = input('0 to exit or enter next motion: ')
-        if continue_break != '0':
-            next_motion = int(continue_break)
-        else:
-            break
+    for frame in motion.frames:
+        play_frame(frame, motion_time)
 
     cubePos, cubeOrn = pb.getBasePositionAndOrientation(boxId)
     pb.disconnect()
