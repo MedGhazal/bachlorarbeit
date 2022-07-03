@@ -28,20 +28,27 @@ class Geometry:
 
 class Inertial:
 
-    def __init__(self, mass, origin, inertia):
+    def __init__(self, mass, origin=None, inertia=None):
         self.mass = mass
         self.origin = origin
         self.inertia = inertia
 
     def get_urdf_element(self):
         mass_element = f'<mass value="{self.mass}"/>'
-        xyz = f'xyz="{" ".join(str(value) for value in self.origin["xyz"])}"'
-        rpy = f'rpy="{" ".join(str(value) for value in self.origin["rpy"])}"'
-        origin_element = f'<origin {xyz} {rpy}/>'
-        inertia_element = '<inertia '
-        for key, value in self.inertia.items():
-            inertia_element += f'{key}="{value}" '
-        inertia_element += '/>'
+        origin_element = ''
+
+        if self.origin:
+            xyz = f'xyz="{" ".join(str(x) for x in self.origin["xyz"])}"'
+            rpy = f'rpy="{" ".join(str(x) for x in self.origin["rpy"])}"'
+            origin_element = f'<origin {xyz} {rpy}/>'
+
+        inertia_element = ''
+        if self.inertia:
+            inertia_element = '<inertia '
+            for key, value in self.inertia.items():
+                inertia_element += f'{key}="{value}" '
+            inertia_element += '/>'
+
         self.element = '\n'.join([
             '<inertial>',
             mass_element,
@@ -279,7 +286,7 @@ class Robot:
                     f'{link.get("name")}'
                 )
                 inertia = inertial.find('inertia').attrib
-        inertial = Inertial(mass, origin, inertia)
+        inertial = Inertial(mass, origin=origin, inertia=inertia)
         return inertial, faulty_mesh
 
     def get_links(self):
@@ -303,6 +310,16 @@ class Robot:
                     link.find('inertial'),
                 )
                 faulty_meshes += 1 if faulty else 0
+            else:
+                inertia = {
+                    'ixx': 1,
+                    'ixy': 1,
+                    'iyy': 1,
+                    'ixz': 1,
+                    'iyz': 1,
+                    'izz': 1,
+                }
+                inertial = Inertial(0, inertia=inertia)
 
             if link.findall('visual'):
                 sound_meshes += 1
@@ -311,11 +328,39 @@ class Robot:
                     mesh_file,
                 )
                 visual = Visual(geometry)
+                if not link.findall('inertial'):
+                    try:
+                        inertia = self.calculate_inertia(mesh_file)
+                        inertial = Inertial(0, inertia=inertia)
+                    except FaultyMesh:
+                        print(
+                            f'----Cannot calculate inetial_tensor for the link'
+                            f' {link.get("name")}'
+                        )
+                        inertia = {
+                            'ixx': 1,
+                            'ixy': 1,
+                            'iyy': 1,
+                            'ixz': 1,
+                            'iyz': 1,
+                            'izz': 1,
+                        }
+                        inertial = Inertial(0, inertia=inertia)
                 collision = Collision(geometry)
             else:
                 print(
                     f'No visual attributes for the link {link.get("name")}'
                 )
+                if not link.findall('inertial'):
+                    inertia = {
+                        'ixx': 1,
+                        'ixy': 1,
+                        'iyy': 1,
+                        'ixz': 1,
+                        'iyz': 1,
+                        'izz': 1,
+                    }
+                    inertial = Inertial(0, inertia=inertia)
 
             self.link_elements.append(
                 Link(
