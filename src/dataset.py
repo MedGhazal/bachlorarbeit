@@ -19,6 +19,69 @@ URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
 # BUFFER_SIZE = 32 * 2048 * 2048
 
 
+class Frame:
+
+    def __init__(
+        self,
+        timestep,
+        root_position,
+        root_rotation,
+        joints,
+        joint_positions,
+        joint_velocities,
+        joint_accelerations,
+    ):
+        self.timestep = timestep
+        self.joints = joints
+        self.root_position = root_position
+        self.root_rotation = root_rotation
+        self.joint_positions = joint_positions
+        self.joint_velocities = joint_velocities
+        self.joint_accelerations = joint_accelerations
+        self.parse()
+
+    def parse(self):
+        self.parse_root_position()
+        self.parse_root_rotation()
+        self.parse_joint_positions()
+        self.parse_joint_velocities()
+        self.parse_joint_accelerations()
+
+    @staticmethod
+    def _parse_list(lst):
+        return list(map(
+            lambda x: float(x),
+            lst.rstrip().split(' '),
+        ))
+
+    def parse_root_position(self):
+        self.root_position = self._parse_list(self.root_position)
+
+    def parse_root_rotation(self):
+        self.root_rotation = self._parse_list(self.root_rotation)
+
+    def parse_joint_positions(self):
+        self.joint_positions = {
+            joint: position
+            for joint, position
+            in zip(self.joints, self._parse_list(self.joint_positions))
+        }
+
+    def parse_joint_velocities(self):
+        self.joint_velocities = {
+            joint: velocity
+            for joint, velocity
+            in zip(self.joints, self._parse_list(self.joint_velocities))
+        }
+
+    def parse_joint_accelerations(self):
+        self.joint_accelerations = {
+            joint: acceleration
+            for joint, acceleration
+            in zip(self.joints, self._parse_list(self.joint_accelerations))
+        }
+
+
 class Motion:
 
     def __init__(self, format_, motion_file, meta=None, annotation=None):
@@ -27,38 +90,16 @@ class Motion:
         self.format_ = format_
         self.motion_file = motion_file
 
-    '''
-    The parsing section of this model is inspired by the code snippet
-    in https://motion-annotation.humanoids.kit.edu/dataset/
-    '''
-    def _parse_list(self, xml_elem, length, indexes=None):
-
-        if indexes is None:
-            indexes = range(length)
-
-        elems = [
-            float(x) for idx, x in enumerate(xml_elem.text.rstrip().split(' '))
-            if idx in indexes
-        ]
-
-        if len(elems) != length:
-            raise RuntimeError('invalid number of elements')
-
-        return elems
-
-    def _parse_frame(self, xml_frame, joint_indexes):
-        xml_joint_pos = xml_frame.find('JointPosition')
-
-        if xml_joint_pos is None:
-            raise RuntimeError('<JointPosition> not found')
-
-        joint_pos = self._parse_list(
-            xml_joint_pos,
-            len(joint_indexes),
-            joint_indexes,
+    def _parse_frame(self, xml_frame, joints):
+        return Frame(
+            float(xml_frame.find('Timestep').text),
+            xml_frame.find('RootPosition').text,
+            xml_frame.find('RootRotation').text,
+            joints,
+            xml_frame.find('JointPosition').text,
+            xml_frame.find('JointVelocity').text,
+            xml_frame.find('JointAcceleration').text,
         )
-
-        return joint_pos
 
     def _parse_motion(self, xml_motion):
         xml_joint_order = xml_motion.find('JointOrder')
@@ -66,34 +107,32 @@ class Motion:
         if xml_joint_order is None:
             raise RuntimeError('<JointOrder> not found')
 
-        joint_names = []
-        joint_indexes = []
+        joints = []
 
         for idx, xml_joint in enumerate(xml_joint_order.findall('Joint')):
             name = xml_joint.get('name')
             if name is None:
                 raise RuntimeError('<Joint> has no name')
-            joint_indexes.append(idx)
-            joint_names.append(name)
+            joints.append(name)
 
-        frames = []
+        self.frames = []
         xml_frames = xml_motion.find('MotionFrames')
 
         if xml_frames is None:
             raise RuntimeError('<MotionFrames> not found')
 
         for xml_frame in xml_frames.findall('MotionFrame'):
-            frames.append(self._parse_frame(xml_frame, joint_indexes))
+            self.frames.append(self._parse_frame(xml_frame, joints))
 
-        xml_config = xml_motion.findall('ModelProcessorConfig')
-        xml_model_height = xml_config[0].findall('Height')
-        xml_model_mass = xml_config[0].findall('Mass')
-        height = float(xml_model_height[0].text)
-        mass = float(xml_model_mass[0].text)
+        # xml_config = xml_motion.findall('ModelProcessorConfig')
+        # xml_model_height = xml_config[0].findall('Height')
+        # xml_model_mass = xml_config[0].findall('Mass')
+        # height = float(xml_model_height[0].text)
+        # mass = float(xml_model_mass[0].text)
         # self.robot = Robot(height, mass)
-        self.robot = Robot(1, mass)
+        # self.robot = Robot(1, mass)
 
-        return joint_names, frames
+        return joints, self.frames
 
     def parse(self):
         current_directory = os.getcwd()

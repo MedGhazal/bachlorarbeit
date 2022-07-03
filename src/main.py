@@ -21,30 +21,18 @@ if __name__ == '__main__':
             )
         )
     )
-    motion = motion_dataset.motions[next_motion]
-    motion.parse()
-    startPos = [0, 0, .55]
+    startPosition = [0, 0, .54]
     startOrientation = pb.getQuaternionFromEuler([0, 0, 0])
     boxId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(
                 'data/objects/Winter',
-                # 'mmm_modified.urdf',
-                'temporary.urdf'
+                'mmm.urdf',
             ),
         ),
-        startPos,
+        startPosition,
         startOrientation,
     )
-    # print(f'The number of joints is {pb.getNumJoints(boxId)}')
-    # print(
-        # f'The number of joints in the mmm-files is '
-        # f'{len(motion.motions[0][0])}'
-    # )
-    # print(
-        # f'The joints in the mmm-files are'
-        # f'{motion.motions[0][0]}'
-    # )
     joint_ids = {
         joint.decode(): id_
         for id_, joint in [
@@ -52,66 +40,46 @@ if __name__ == '__main__':
             in range(66)
         ]
     }
-    # print(f'The joints and their ids ind the simulation are {joint_ids}')
-    # initialPosition = .5
-    # for i in range(30):
-    #     pb.setJointMotorControl2(
-    #         boxId,
-    #         12,
-    #         joint_ids['jL5S1_rotz'],
-    #         targetPosition=initialPosition,
-    #     )
-    #     pb.stepSimulation()
-    #     time.sleep(1/100)
-    #     initialPosition += 1
+
     while True:
         motion = motion_dataset.motions[next_motion]
         motion.parse()
-        joints_not_mmm_conform = set()
-        positions = {joint: position for joint, position in zip(
-            motion.motions[0][0],
-            motion.motions[0][1][0],
-        )}
-        for joinId in range(len(joint_ids)):
-            try:
-                pb.setJointMotorControl2(
-                    boxId,
-                    pb.getJointInfo(boxId, joinId)[0],
-                    2,
-                    targetPosition=positions[
-                        pb.getJointInfo(boxId, joinId)[1].decode()
-                    ],
-                )
-            except KeyError:
-                joints_not_mmm_conform.add(
-                    pb.getJointInfo(boxId, joinId)[1].decode(),
-                )
-        pb.stepSimulation()
-        for _ in range(1):
-            for positions in motion.motions[0][1][1:]:
-                positions = {joint: position for joint, position in zip(
-                    motion.motions[0][0],
-                    positions,
-                )}
-                for jointId in range(pb.getNumJoints(boxId)):
-                    # print(
-                    #     f'Moving the link: {pb.getJointInfo(boxId, jointId)[1].decode()}'
-                    # )
-                    try:
-                        next_position = positions[
-                            pb.getJointInfo(boxId, jointId)[1].decode()
-                        ]
-                        pb.setJointMotorControl2(
-                            boxId,
-                            joinId,
-                            2,
-                            targetPosition=next_position,
-                        )
-                    except KeyError:
-                        continue
-                pb.stepSimulation()
-            time.sleep(1./10.)
-        print(f'The joint that aren\'t conform are {joints_not_mmm_conform}')
+        motion_time = 0
+
+        for frame in motion.frames:
+            root_position = frame.root_position
+            root_rotation = frame.root_rotation
+            joint_positions = frame.joint_positions
+            joint_velocities = frame.joint_velocities
+            joint_accelerations = frame.joint_accelerations
+            time_step = frame.timestep
+
+            for jointId in range(pb.getNumJoints(boxId)):
+                try:
+                    position = joint_positions[
+                        pb.getJointInfo(boxId, jointId)[1].decode()
+                    ]
+                    velocity = joint_velocities[
+                        pb.getJointInfo(boxId, jointId)[1].decode()
+                    ]
+                    acceleration = joint_accelerations[
+                        pb.getJointInfo(boxId, jointId)[1].decode()
+                    ]
+                    pb.setJointMotorControl2(
+                        boxId,
+                        jointId,
+                        pb.POSITION_CONTROL,
+                        targetVelocity=velocity,
+                        targetPosition=position/100,
+                        force=1,
+                    )
+                except KeyError:
+                    pass
+
+            pb.stepSimulation()
+            # time.sleep(time_step - motion_time)
+            frame_time = time_step
+
         continue_break = input(
             '0 to exit or enter next motion: '
         )
