@@ -2,6 +2,8 @@ from dataset import MotionDataset, DEFAULT_ROOT
 import pybullet as pb
 import time
 import os
+import math
+import numpy as np
 
 
 def parse_dataset(motion_dataset):
@@ -22,7 +24,7 @@ def load_urdf_models():
             )
         )
     )
-    startPosition = [0, 0, .54]
+    startPosition = [0, 0, .54 * 1.8]
     startOrientation = pb.getQuaternionFromEuler([0, 0, 0])
     boxId = pb.loadURDF(
         os.path.expanduser(
@@ -33,6 +35,8 @@ def load_urdf_models():
         ),
         startPosition,
         startOrientation,
+        # flags=pb.URDF_MERGE_FIXED_LINKS,
+        globalScaling=1.8,
     )
     return planeId, boxId
 
@@ -49,19 +53,19 @@ def get_joints_ids():
 
 
 def play_frame(frame, motion_time):
-    root_position = frame.root_position
+    root_position = np.array(frame.root_position)
     # root_rotation = frame.root_rotation
     pb.setJointMotorControlMultiDof(
         boxId,
         0,
         pb.POSITION_CONTROL,
-        targetPosition=root_position,
+        targetPosition=list(root_position / 1000),
         # force=[1, 1, 1],
     )
     joint_positions = frame.joint_positions
     joint_velocities = frame.joint_velocities
     # joint_accelerations = frame.joint_accelerations
-    # time_step = frame.timestep
+    time_step = frame.timestep
 
     for jointId in range(pb.getNumJoints(boxId)):
 
@@ -78,16 +82,21 @@ def play_frame(frame, motion_time):
             pb.setJointMotorControl2(
                 boxId,
                 jointId,
+                # pb.TORQUE_CONTROL,
                 pb.POSITION_CONTROL,
-                velocityGain=velocity,
-                positionGain=position,
+                # pb.VELOCITY_CONTROL,
+                targetVelocity=velocity,
+                targetPosition=position,
+                # positionGain=position,
+                # velocityGain=velocity,
+                # positionGain=math.degrees(position),
                 # force=1,
             )
         except KeyError:
             pass
 
-        # time.sleep(time_step - motion_time)
-        # motion_time = time_step
+        time.sleep((time_step - motion_time) / 1000)
+        motion_time = time_step
 
     pb.stepSimulation()
 
@@ -98,9 +107,8 @@ if __name__ == '__main__':
 
     next_motion = int(input('Choose motion: '))
     physicsClient = pb.connect(pb.GUI)
-    pb.setGravity(0, 0, -10)
+    pb.setGravity(0, 0, -9.81)
     planeId, boxId = load_urdf_models()
-    print(get_joints_ids())
 
     while True:
         motion = motion_dataset.motions[next_motion]
