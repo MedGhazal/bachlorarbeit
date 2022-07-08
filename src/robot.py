@@ -186,6 +186,7 @@ class Robot:
         current_directory = os.getcwd()
         os.chdir(os.path.expanduser('data/objects/Winter'))
         xml_tree = ET.parse('mmm.urdf')
+        # xml_tree = ET.parse('mmm_modified.urdf')
         xml_root = xml_tree.getroot()
         self.links = xml_root.findall('link')
         self.joints = xml_root.findall('joint')
@@ -217,7 +218,7 @@ class Robot:
     def get_limit(self, limit):
         return {
             'effort': limit.get('effort'),
-            'velocity': limit.get('velocity'),
+            'velocity': float(limit.get('velocity')) * 10,
             'lower': limit.get('lower'),
             'upper': limit.get('upper'),
         }
@@ -231,6 +232,14 @@ class Robot:
             axis = {}
             if joint.findall('axis'):
                 axis = self.get_axis(joint.find('axis'))
+            else:
+                axis = {}
+                if 'x' in joint.get('name'):
+                    axis['xyz'] = '1 0 0'
+                if 'y' in joint.get('name'):
+                    axis['xyz'] = '0 1 0'
+                if 'z' in joint.get('name'):
+                    axis['xyz'] = '0 0 1'
             limit = {}
             if joint.findall('limit'):
                 limit = self.get_limit(joint.find('limit'))
@@ -312,14 +321,14 @@ class Robot:
                 faulty_meshes += 1 if faulty else 0
             else:
                 inertia = {
-                    'ixx': 1,
-                    'ixy': 1,
-                    'iyy': 1,
-                    'ixz': 1,
-                    'iyz': 1,
-                    'izz': 1,
+                    'ixx': 0,
+                    'ixy': 0,
+                    'iyy': 0,
+                    'ixz': 0,
+                    'iyz': 0,
+                    'izz': 0,
                 }
-                inertial = Inertial(0, inertia=inertia)
+                inertial = Inertial(10 ** -10, inertia=inertia)
 
             if link.findall('visual'):
                 sound_meshes += 1
@@ -331,21 +340,21 @@ class Robot:
                 if not link.findall('inertial'):
                     try:
                         inertia = self.calculate_inertia(mesh_file)
-                        inertial = Inertial(0, inertia=inertia)
+                        inertial = Inertial(0.0001, inertia=inertia)
                     except FaultyMesh:
                         print(
                             f'----Cannot calculate inetial_tensor for the link'
                             f' {link.get("name")}'
                         )
                         inertia = {
-                            'ixx': 1,
-                            'ixy': 1,
-                            'iyy': 1,
-                            'ixz': 1,
-                            'iyz': 1,
-                            'izz': 1,
+                            'ixx': 0,
+                            'ixy': 0,
+                            'iyy': 0,
+                            'ixz': 0,
+                            'iyz': 0,
+                            'izz': 0,
                         }
-                        inertial = Inertial(0, inertia=inertia)
+                        inertial = Inertial(10 ** -10, inertia=inertia)
                 collision = Collision(geometry)
             else:
                 print(
@@ -353,14 +362,14 @@ class Robot:
                 )
                 if not link.findall('inertial'):
                     inertia = {
-                        'ixx': 1,
-                        'ixy': 1,
-                        'iyy': 1,
-                        'ixz': 1,
-                        'iyz': 1,
-                        'izz': 1,
+                        'ixx': 0,
+                        'ixy': 0,
+                        'iyy': 0,
+                        'ixz': 0,
+                        'iyz': 0,
+                        'izz': 0,
                     }
-                    inertial = Inertial(0, inertia=inertia)
+                    inertial = Inertial(10 ** -10, inertia=inertia)
 
             self.link_elements.append(
                 Link(

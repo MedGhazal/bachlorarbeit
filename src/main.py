@@ -24,8 +24,11 @@ def load_urdf_models():
         )
     )
     scale = motion_dataset.motions[next_motion].scale_factor
-    startPosition = [0, 0, .54 * scale]
-    startOrientation = pb.getQuaternionFromEuler([0, 0, 0])
+    # startPosition = [0, 0, .53 * scale]
+    initial_root_position = np.array(motion.get_initial_root_position()) / 1000
+    startOrientation = pb.getQuaternionFromEuler(
+        [0, 0, 0]
+    )
     boxId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(
@@ -33,9 +36,14 @@ def load_urdf_models():
                 'temporary.urdf',
             ),
         ),
-        startPosition,
+        # startPosition,
+        list(initial_root_position),
         startOrientation,
-        flags=pb.URDF_MERGE_FIXED_LINKS,
+        # useFixedBase=1,
+        flags=(
+            pb.URDF_MERGE_FIXED_LINKS
+            # | pb.URDF_USE_INERTIA_FROM_FILE
+        ),
         globalScaling=scale,
     )
     return planeId, boxId
@@ -54,21 +62,19 @@ def get_joints_ids():
 
 def play_frame(frame, motion_time):
     root_position = np.array(frame.root_position)
-    root_rotation = frame.root_rotation
     pb.setJointMotorControlMultiDof(
         boxId,
         0,
         pb.POSITION_CONTROL,
-        targetPosition=list(root_position / 1000),
-        # force=[1, 1, 1],
+        targetPosition=list(root_position),
     )
-    pb.setJointMotorControlMultiDof(
-        boxId,
-        0,
-        pb.POSITION_CONTROL,
-        targetPosition=root_rotation,
-        # force=[1, 1, 1],
-    )
+    # root_rotation = frame.root_rotation
+    # pb.setJointMotorControlMultiDof(
+    #     boxId,
+    #     0,
+    #     pb.POSITION_CONTROL,
+    #     targetPosition=root_rotation,
+    # )
     joint_positions = frame.joint_positions
     joint_velocities = frame.joint_velocities
     # joint_accelerations = frame.joint_accelerations
@@ -89,21 +95,19 @@ def play_frame(frame, motion_time):
             pb.setJointMotorControl2(
                 boxId,
                 jointId,
-                # pb.TORQUE_CONTROL,
                 pb.POSITION_CONTROL,
-                # pb.VELOCITY_CONTROL,
-                targetVelocity=velocity,
+                # targetVelocity=velocity,
                 targetPosition=position,
-                # positionGain=position,
-                # velocityGain=velocity,
-                # positionGain=math.degrees(position),
-                # force=1,
             )
         except KeyError:
             pass
 
-        time.sleep((time_step - motion_time) / 1000)
-        motion_time = time_step
+    contact_points_infos.append(
+        pb.getContactPoints(planeId, boxId,),
+    )
+
+    time.sleep((time_step - motion_time) / 1000)
+    motion_time = time_step
 
     pb.stepSimulation()
 
@@ -120,6 +124,7 @@ if __name__ == '__main__':
     motion.parse()
     planeId, boxId = load_urdf_models()
     motion_time = 0
+    contact_points_infos = []
 
     for frame in motion.frames:
         play_frame(frame, motion_time)

@@ -147,6 +147,9 @@ class Motion:
         for motion in self.xml_motions:
             self.motions.append(self._parse_motion(motion))
 
+    def get_initial_root_position(self):
+        return self.frames[0].root_position
+
 
 class MotionDataset:
     urls = [
