@@ -1,12 +1,16 @@
 import os
 import logging
-# import json
+import json
 import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
 from tqdm.auto import tqdm
 from robot import Robot
+from nltk import download
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.corpus import wordnet
 
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
@@ -84,6 +88,25 @@ class Motion:
         self.annotation = annotation
         self.format_ = format_
         self.motion_file = motion_file
+        # self.classify_motion()
+
+    def classify_motion(self, core_activity):
+        if 'walk' in ''.join(self.annotation):
+            core_activity['walk'].append(self)
+        elif 'jump' in ''.join(self.annotation):
+            core_activity['jump'].append(self)
+        elif 'run' in ''.join(self.annotation):
+            core_activity['run'].append(self)
+        elif 'dance' in ''.join(self.annotation):
+            core_activity['dance'].append(self)
+        elif 'sit' in ''.join(self.annotation):
+            core_activity['sit'].append(self)
+        elif 'swim' in ''.join(self.annotation):
+            core_activity['swim'].append(self)
+        elif 'standing up' in ''.join(self.annotation):
+            core_activity['standing up'].append(self)
+        else:
+            core_activity['none'].append(self)
 
     def _parse_frame(self, xml_frame, joints):
         return Frame(
@@ -202,19 +225,69 @@ class MotionDataset:
             sorted(os.listdir()),
         )
         ids = sorted(list(set(ids)))
+        self.core_activity = {
+            'walk': [],
+            'jump': [],
+            'run': [],
+            'dance': [],
+            'sit': [],
+            'swim': [],
+            'standing up': [],
+            'none': [],
+        }
 
         for id_ in ids:
-            with open(f'{id_}_annotations.json', 'r',) as file:
-                annotation = file.read()
+            if 'D' in id_:
+                continue
+            with open(f'{id_}_annotations.json', 'r') as file:
+                annotation = ''.join(json.load(file))
+                # print(' '.join(annotation))
             with open(f'{id_}_meta.json', 'r') as file:
                 meta = file.read()
-            self.motions.append(
-                Motion(
-                    format_,
-                    f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
-                    annotation=annotation,
-                    meta=meta,
-                )
+            motion = Motion(
+                format_,
+                f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
+                annotation=annotation,
+                meta=meta,
             )
+            motion.classify_motion(self.core_activity)
+            self.motions.append(motion)
 
         os.chdir(current_directory)
+
+
+def tokenize_annotation(annotation):
+    if not os.path.exists(
+        os.path.expanduser('~/nltk_data/tokenizers/punkt')
+    ):
+        download('punkt')
+    if not os.path.exists(
+        os.path.expanduser('~/nltk_data/corpora/stopwords')
+    ):
+        download('stopwords')
+    stop_words = set(stopwords.words('english'))
+    tokens = word_tokenize(annotation)
+    return [
+        token for token in tokens if token not in stop_words
+    ]
+
+
+if __name__ == '__main__':
+    dataset = MotionDataset()
+    dataset.parse()
+    for activity, motions in dataset.core_activity.items():
+        print(activity, len(motions))
+    annotations = [
+        ' '.join(
+            tokenize_annotation(motion.annotation)
+        ) for motion in dataset.motions
+    ]
+    percentage_annotated_motions = (
+        len(list(annotation for annotation in annotations if annotation)) /
+        len(annotations)
+    ) * 100
+    print(
+        f'{percentage_annotated_motions:.2f} is the percentatge of motions '
+        f'with annotations'
+    )
+    # print(annotations)
