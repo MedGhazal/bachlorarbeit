@@ -1,15 +1,15 @@
-from dataset import MotionDataset, DEFAULT_ROOT
+from dataset import MotionDataset
 import pybullet as pb
-import time
+# import time
 import os
 import numpy as np
 
 
 def parse_dataset(motion_dataset):
 
-    if os.path.exists(DEFAULT_ROOT):
+    try:
         motion_dataset.parse()
-    else:
+    except FileNotFoundError:
         motion_dataset.extract()
         motion_dataset.parse()
 
@@ -76,7 +76,7 @@ def play_frame(frame, motion_time):
     joint_positions = frame.joint_positions
     joint_velocities = frame.joint_velocities
     # joint_accelerations = frame.joint_accelerations
-    time_step = frame.timestep
+    # time_step = frame.timestep
 
     for jointId in range(pb.getNumJoints(boxId)):
 

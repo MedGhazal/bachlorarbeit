@@ -1,17 +1,19 @@
 import os
 from tqdm import tqdm
+from tqdm.auto import tqdm as download_wrapper
 import logging
 import json
 import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
-from tqdm.auto import tqdm
 from robot import Robot
 from nltk import download
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
+
+from utils import change_to
 
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
@@ -97,7 +99,6 @@ class Motion:
         self.annotation = annotation
         self.format_ = format_
         self.motion_file = motion_file
-        # self.classify_motion()
 
     def classify_motion(self, core_activity):
         if 'walk' in ''.join(self.annotation):
@@ -160,12 +161,9 @@ class Motion:
 
         return joints, self.frames
 
+    @change_to(DEFAULT_ROOT)
     def parse(self):
-        current_directory = os.getcwd()
-        print(f'The annotation of the motion is {self.annotation}')
-        os.chdir(DEFAULT_ROOT)
         xml_tree = ET.parse(self.motion_file)
-        os.chdir(current_directory)
         xml_root = xml_tree.getroot()
         self.xml_motions = xml_root.findall('Motion')
         self.motions = []
@@ -198,10 +196,11 @@ class MotionDataset:
 
         with requests.get(URL, stream=True) as request:
             dataset_size = int(request.headers.get('Content-Length'))
-            with tqdm.wrapattr(
+            with download_wrapper.wrapattr(
                 request.raw,
                 'read',
                 total=dataset_size,
+                ncols=100,
                 desc='',
             ) as raw_data:
                 with open(
@@ -216,19 +215,19 @@ class MotionDataset:
         dataset = self.download()
         os.makedirs(DEFAULT_ROOT)
         print('Extracting the dataset...')
-        with zipfile.ZipFile(dataset, 'r') as zip_file:
-            for file in tqdm(zip_file.infolist(), desc=''):
+        with zipfile.ZipFile(dataset.name, 'r') as zip_file:
+            for file in tqdm(zip_file.infolist(), desc='', ncols=100,):
                 zip_file.extract(
                     file,
                     os.path.expanduser(DEFAULT_ROOT),
                 )
-        os.remove(dataset)
+        dataset.close()
+        os.remove(dataset.name)
 
+    @change_to(DEFAULT_ROOT)
     def parse(self):
         print('Parsing the dataset, and extracting mmm-files...')
-        current_directory = os.getcwd()
         format_ = 'mmm'
-        os.chdir(DEFAULT_ROOT)
         ids = map(
             lambda x: x.split('_')[0],
             sorted(os.listdir()),
@@ -250,7 +249,6 @@ class MotionDataset:
                 continue
             with open(f'{id_}_annotations.json', 'r') as file:
                 annotation = ''.join(json.load(file))
-                # print(' '.join(annotation))
             with open(f'{id_}_meta.json', 'r') as file:
                 meta = file.read()
             motion = Motion(
@@ -262,7 +260,26 @@ class MotionDataset:
             motion.classify_motion(self.core_activity)
             self.motions.append(motion)
 
-        os.chdir(current_directory)
+    def classify_motions(self):
+        self.annotations_classification = {
+            key: list(
+                filter(
+                    lambda x: x,
+                    list(
+                        classify_annotation(
+                            motion.annotation,
+                            wordnet.synset(
+                                value,
+                            ),
+                        ) for motion in tqdm(
+                            self.motions,
+                            ncols=100,
+                            desc=f'Extracting for {key}',
+                        )
+                    ),
+                ),
+            ) for key, value in activities_dictionary.items()
+        }
 
 
 def tokenize_annotation(annotation):
@@ -319,45 +336,27 @@ def classify_annotation(
 
 if __name__ == '__main__':
     dataset = MotionDataset()
-    dataset.parse()
+
+    try:
+        dataset.parse()
+    except FileNotFoundError:
+        dataset.extract()
+        dataset.parse()
+
     for activity, motions in dataset.core_activity.items():
         print(activity, len(motions))
-    # annotations = [
-        # ' '.join(
-            # motion.annotation
-        # ) for motion in dataset.motions if motion.annotation
-    # ]
-    annotations_classification = {
-        key: list(
-            filter(
-                lambda x: x,
-                list(
-                    classify_annotation(
-                        motion.annotation,
-                        wordnet.synset(
-                            value,
-                        ),
-                    ) for motion in tqdm(
-                        dataset.motions,
-                        ncols=100,
-                        desc=f'Extracting for {key}',
-                    )
-                ),
-            ),
-        ) for key, value in activities_dictionary.items()
-    }
-    # percentage_annotated_motions = (
-        # len(list(annotation for annotation in annotations if annotation)) /
-        # len(annotations)
-    # ) * 100
-    # print(
-        # f'{percentage_annotated_motions:.2f} is the percentatge of motions '
-        # f'with annotations'
-    # )
+    annotations = [
+        ' '.join(
+            motion.annotation
+        ) for motion in dataset.motions
+    ]
+    # dataset.classify_motions()
+    # print(dataset.annotations_classification)
+    percentage_annotated_motions = (
+        len(list(annotation for annotation in annotations if annotation)) /
+        len(annotations)
+    ) * 100
     print(
-        list(
-            [activity, len(annotations)]
-            for activity, annotations
-            in annotations_classification.items()
-        )
+        f'{percentage_annotated_motions:.2f} is the percentatge of motions '
+        f'with annotations'
     )
