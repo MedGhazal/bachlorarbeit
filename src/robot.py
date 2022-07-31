@@ -1,5 +1,5 @@
 import xml.etree.cElementTree as ET
-import pymeshlab
+from calculate_inertia import get_inertia
 import os
 
 
@@ -186,7 +186,6 @@ class Robot:
         current_directory = os.getcwd()
         os.chdir(os.path.expanduser('data/objects/Winter'))
         xml_tree = ET.parse('mmm.urdf')
-        # xml_tree = ET.parse('mmm_modified.urdf')
         xml_root = xml_tree.getroot()
         self.links = xml_root.findall('link')
         self.joints = xml_root.findall('joint')
@@ -255,10 +254,9 @@ class Robot:
             self.joint_elements.append(joint)
 
     def calculate_inertia(self, mesh_file):
-        mesh_set = pymeshlab.MeshSet()
-        mesh_set.load_new_mesh(mesh_file)
-        geometric_measures = mesh_set.get_geometric_measures()
-        # mesh_set.show_polyscope()
+        geometric_measures = {
+            'inertia_tensor': get_inertia(mesh_file),
+        }
         try:
             return {
                 'ixx': geometric_measures['inertia_tensor'][0][0],
@@ -302,9 +300,6 @@ class Robot:
         sound_meshes = 0
         faulty_meshes = 0
         self.link_elements = []
-        # show_polyset = input('Show polyset?(y/n)')
-        # show_polyset = show_polyset == 'y'
-        # show_polyset = False
 
         for link in self.links:
 
@@ -399,3 +394,7 @@ class Robot:
         ])
         with open('data/objects/Winter/temporary.urdf', 'w') as xml_file:
             xml_file.write(urdf_file)
+
+
+if __name__ == '__main__':
+    pass

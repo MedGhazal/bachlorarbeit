@@ -1,4 +1,5 @@
 import os
+from tqdm import tqdm
 import logging
 import json
 import xml.etree.cElementTree as ET
@@ -15,6 +16,14 @@ from nltk.corpus import wordnet
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
+activities_dictionary = {
+    'walk': 'walk.v.01',
+    'dance': 'dance.v.01',
+    'swim': 'swim.v.01',
+    'stand': 'stand.v.01',
+    'run': 'run.v.01',
+    'jump': 'jump.v.01',
+}
 # BUFFER_SIZE = 32 * 2048 * 2048
 
 
@@ -236,7 +245,7 @@ class MotionDataset:
             'none': [],
         }
 
-        for id_ in ids:
+        for id_ in tqdm(ids, ncols=100,):
             if 'D' in id_:
                 continue
             with open(f'{id_}_annotations.json', 'r') as file:
@@ -272,22 +281,83 @@ def tokenize_annotation(annotation):
     ]
 
 
+def classify_annotation(
+    annotation,
+    activity,
+    similarity_threshhold=.6,
+    get_hits=False,
+):
+    tokens = tokenize_annotation(annotation)
+    similarities = []
+    if not os.path.exists(
+        os.path.expanduser('~/nltk_data/corpora')
+    ):
+        download('wordnet')
+    if not os.path.exists(
+        os.path.expanduser('~/nltk_data/corpora')
+    ):
+        download('omw-1.4')
+
+    for token in tokens:
+        synonyms = wordnet.synsets(token)
+        synonym_similarity = [
+            activity.wup_similarity(
+                synonym
+            ) for synonym in synonyms if activity.wup_similarity(
+                synonym
+            ) > similarity_threshhold
+        ]
+        try:
+            synonym_similarity = max(synonym_similarity)
+        except ValueError:
+            synonym_similarity = 0
+        similarities.append(synonym_similarity)
+
+    if sum(similarities) > .5:
+        return annotation
+
+
 if __name__ == '__main__':
     dataset = MotionDataset()
     dataset.parse()
     for activity, motions in dataset.core_activity.items():
         print(activity, len(motions))
-    annotations = [
-        ' '.join(
-            tokenize_annotation(motion.annotation)
-        ) for motion in dataset.motions
-    ]
-    percentage_annotated_motions = (
-        len(list(annotation for annotation in annotations if annotation)) /
-        len(annotations)
-    ) * 100
+    # annotations = [
+        # ' '.join(
+            # motion.annotation
+        # ) for motion in dataset.motions if motion.annotation
+    # ]
+    annotations_classification = {
+        key: list(
+            filter(
+                lambda x: x,
+                list(
+                    classify_annotation(
+                        motion.annotation,
+                        wordnet.synset(
+                            value,
+                        ),
+                    ) for motion in tqdm(
+                        dataset.motions,
+                        ncols=100,
+                        desc=f'Extracting for {key}',
+                    )
+                ),
+            ),
+        ) for key, value in activities_dictionary.items()
+    }
+    # percentage_annotated_motions = (
+        # len(list(annotation for annotation in annotations if annotation)) /
+        # len(annotations)
+    # ) * 100
+    # print(
+        # f'{percentage_annotated_motions:.2f} is the percentatge of motions '
+        # f'with annotations'
+    # )
     print(
-        f'{percentage_annotated_motions:.2f} is the percentatge of motions '
-        f'with annotations'
+        list(
+            [activity, len(annotations)]
+            for activity, annotations
+            in annotations_classification.items()
+        )
     )
-    # print(annotations)

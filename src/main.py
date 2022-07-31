@@ -24,7 +24,6 @@ def load_urdf_models():
         )
     )
     scale = motion_dataset.motions[next_motion].scale_factor
-    # startPosition = [0, 0, .53 * scale]
     initial_root_position = np.array(motion.get_initial_root_position()) / 1000
     startOrientation = pb.getQuaternionFromEuler(
         [0, 0, 0]
@@ -34,15 +33,14 @@ def load_urdf_models():
             os.path.join(
                 'data/objects/Winter',
                 'temporary.urdf',
+                # 'mmm.urdf',
             ),
         ),
-        # startPosition,
         list(initial_root_position),
         startOrientation,
-        # useFixedBase=1,
+        useFixedBase=1,
         flags=(
             pb.URDF_MERGE_FIXED_LINKS
-            # | pb.URDF_USE_INERTIA_FROM_FILE
         ),
         globalScaling=scale,
     )
@@ -61,7 +59,7 @@ def get_joints_ids():
 
 
 def play_frame(frame, motion_time):
-    root_position = np.array(frame.root_position)
+    root_position = np.array(frame.root_position) / 1000
     pb.setJointMotorControlMultiDof(
         boxId,
         0,
@@ -96,7 +94,7 @@ def play_frame(frame, motion_time):
                 boxId,
                 jointId,
                 pb.POSITION_CONTROL,
-                # targetVelocity=velocity,
+                targetVelocity=velocity,
                 targetPosition=position,
             )
         except KeyError:
@@ -106,10 +104,14 @@ def play_frame(frame, motion_time):
         pb.getContactPoints(planeId, boxId,),
     )
 
-    time.sleep((time_step - motion_time) / 1000)
-    motion_time = time_step
+    # time.sleep((time_step - motion_time) / 1000)
+    # motion_time = time_step
 
     pb.stepSimulation()
+
+
+def extract_normal_force(contact_points_info):
+    return contact_points_info[-1] if contact_points_info else 0
 
 
 if __name__ == '__main__':
@@ -125,9 +127,15 @@ if __name__ == '__main__':
     planeId, boxId = load_urdf_models()
     motion_time = 0
     contact_points_infos = []
+    print(motion.annotation)
 
     for frame in motion.frames:
         play_frame(frame, motion_time)
+
+    normal_forces = list(
+        map(extract_normal_force, contact_points_infos)
+    )
+    print(*normal_forces, sep='\n')
 
     cubePos, cubeOrn = pb.getBasePositionAndOrientation(boxId)
     pb.disconnect()
