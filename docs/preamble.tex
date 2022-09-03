@@ -1,0 +1,59 @@
+\documentclass[14pt, a4paper]{extreport}
+%\usepackage[11pt]{moresize}
+\usepackage{ifthen, geometry, csquotes, hyperref, url, lettrine, graphicx, xcolor, fancyhdr, titlesec, afterpage}
+\usepackage[backend=biber, sorting=nyvt]{biblatex}
+\usepackage{array}
+\usepackage[osf]{Alegreya,AlegreyaSans,FiraMono}
+%\usepackage[light,math]{kurier}
+%\usepackage[T1]{fontenc}
+%\usepackage{pdfrender}
+\usepackage{multirow}
+\usepackage{babel}
+\geometry{top=3cm, left=3cm, right=3cm, bottom=4cm}
+
+\pagestyle{empty}{
+    \chead{}\lhead{}\rhead{}\cfoot{}\lfoot{}\rfoot{}
+}
+
+\definecolor{gray75}{gray}{0.75}
+\newcommand{\hsp}{\hspace{20pt}}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{.1cm}
+\renewcommand{\baselinestretch}{2}
+
+\definecolor{titlepagecolor}{rgb}{0.61, 0.87, 1.0}
+\definecolor{namecolor}{rgb}{0.16, 0.32, 0.75}
+
+\addbibresource{bibliography.bib}
+
+\renewcommand{\baselinestretch}{1.5}
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+\fancyhead[L,C]{}
+ \fancyhead[R]{\textbf{\rightmark}}
+ \fancyhead[L]{}
+ \fancyfoot[L]{\leftmark}
+ \fancyfoot[C]{}
+ \fancyfoot[R]{\thepage}
+ \renewcommand{\headrulewidth }{1pt}
+ \renewcommand{\footrulewidth }{1pt}
+ 
+\makeatletter
+\setlength{\headheight}{38.0pt}
+\newenvironment{chapquote}[2][2em]
+{\setlength{\@tempdima}{#1}
+  \def\chapquote@author{#2}
+  \hfill\parshape 1 \@tempdima \dimexpr\textwidth-2\@tempdima\relax
+  \itshape}
+{\par\normalfont\hfill---\chapquote@author\hspace*{\@tempdima}\par\bigskip}
+    \newenvironment{normalquote}[2][2em]
+{\setlength{\@tempdima}{#1}
+  \def\chapquote@author{#2}
+  \hfill\parshape 1 \@tempdima \dimexpr\textwidth-.1\@tempdima\relax }
+{\par\normalfont\hfill---\chapquote@author\hspace*{\@tempdima}\par\bigskip}
+\makeatother
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
