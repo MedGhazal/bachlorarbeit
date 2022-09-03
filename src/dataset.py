@@ -7,11 +7,12 @@ import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
-from robot import Robot
 from nltk import download
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
+from nltk.stem import WordNetLemmatizer
+from string import punctuation
 
 from utils import change_to
 
@@ -156,8 +157,7 @@ class Motion:
         xml_model_height = xml_config[0].findall('Height')
         xml_model_mass = xml_config[0].findall('Mass')
         self.scale_factor = float(xml_model_height[0].text)
-        mass = float(xml_model_mass[0].text)
-        self.robot = Robot(mass)
+        self.mass = float(xml_model_mass[0].text)
 
         return joints, self.frames
 
@@ -334,6 +334,14 @@ def classify_annotation(
         return annotation
 
 
+def remove_ponctuations(annotation_text):
+    plain_text = ''
+    for word in tokenize_annotation(annotation_text):
+        if word not in punctuation:
+            plain_text += ' ' + word
+    return plain_text
+
+
 if __name__ == '__main__':
     dataset = MotionDataset()
 
@@ -360,3 +368,12 @@ if __name__ == '__main__':
         f'{percentage_annotated_motions:.2f} is the percentatge of motions '
         f'with annotations'
     )
+    motion_texts = ''
+    for motion in dataset.motions:
+        motion_texts += motion.annotation
+    tokanized_motion_texts = tokenize_annotation(remove_ponctuations(motion_texts))
+    lemmatizer = WordNetLemmatizer()
+    lemmatized_motion_texts = lemmatizer.lemmatize(
+        ' '.join(tokanized_motion_texts)
+    )
+    print(lemmatized_motion_texts)

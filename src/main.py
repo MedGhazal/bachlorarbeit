@@ -3,6 +3,7 @@ import pybullet as pb
 # import time
 import os
 import numpy as np
+from robot import Robot
 
 
 def parse_dataset(motion_dataset):
@@ -124,6 +125,7 @@ if __name__ == '__main__':
 
     motion = motion_dataset.motions[next_motion]
     motion.parse()
+    motion.robot = Robot(motion.mass)
     planeId, boxId = load_urdf_models()
     motion_time = 0
     contact_points_infos = []

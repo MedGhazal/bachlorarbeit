@@ -184,6 +184,7 @@ class Robot:
 
     def create_model(self):
         current_directory = os.getcwd()
+        print(os.getcwd())
         os.chdir(os.path.expanduser('data/objects/Winter'))
         xml_tree = ET.parse('mmm.urdf')
         xml_root = xml_tree.getroot()
@@ -281,17 +282,10 @@ class Robot:
         faulty_mesh = False
         if link.findall('visual'):
             mesh_file = self.get_mesh_file(link.find('visual'))
-            print(
-               f'---Processing the mesh of the link {link.get("name")}'
-            )
             try:
                 inertia = self.calculate_inertia(mesh_file)
             except FaultyMesh:
                 faulty_mesh = True
-                print(
-                    f'----Cannot calculate inetial_tensor for the link '
-                    f'{link.get("name")}'
-                )
                 inertia = inertial.find('inertia').attrib
         inertial = Inertial(mass, origin=origin, inertia=inertia)
         return inertial, faulty_mesh
@@ -337,10 +331,6 @@ class Robot:
                         inertia = self.calculate_inertia(mesh_file)
                         inertial = Inertial(0.0001, inertia=inertia)
                     except FaultyMesh:
-                        print(
-                            f'----Cannot calculate inetial_tensor for the link'
-                            f' {link.get("name")}'
-                        )
                         inertia = {
                             'ixx': 0,
                             'ixy': 0,
@@ -352,9 +342,6 @@ class Robot:
                         inertial = Inertial(10 ** -10, inertia=inertia)
                 collision = Collision(geometry)
             else:
-                print(
-                    f'No visual attributes for the link {link.get("name")}'
-                )
                 if not link.findall('inertial'):
                     inertia = {
                         'ixx': 0,
@@ -374,11 +361,6 @@ class Robot:
                     collision,
                 )
             )
-
-        print(
-            f'-------The percentage of faulty meshes is '
-            f'{faulty_meshes/sound_meshes*100}%.'
-        )
 
     def create_urdf_file(self):
         urdf_file = '\n'.join([
