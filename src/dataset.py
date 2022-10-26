@@ -7,12 +7,13 @@ import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
-from nltk import download
+from nltk import download, FreqDist, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
-from nltk.stem import WordNetLemmatizer
+from nltk.stem import WordNetLemmatizer, PorterStemmer
 from string import punctuation
+
 
 from utils import change_to
 
@@ -102,20 +103,25 @@ class Motion:
         self.motion_file = motion_file
 
     def classify_motion(self, core_activity):
-        if 'walk' in ''.join(self.annotation):
+        stemitized_annotation = stemetize_annotation(
+            tokenize_annotation(
+                self.annotation
+            )
+        )
+        if 'walk' in ''.join(stemitized_annotation):
             core_activity['walk'].append(self)
-        elif 'jump' in ''.join(self.annotation):
+        elif 'jump' in ''.join(stemitized_annotation):
             core_activity['jump'].append(self)
-        elif 'run' in ''.join(self.annotation):
+        elif 'run' in ''.join(stemitized_annotation):
             core_activity['run'].append(self)
-        elif 'dance' in ''.join(self.annotation):
+        elif 'dance' in ''.join(stemitized_annotation):
             core_activity['dance'].append(self)
-        elif 'sit' in ''.join(self.annotation):
+        elif 'sit' in ''.join(stemitized_annotation):
             core_activity['sit'].append(self)
-        elif 'swim' in ''.join(self.annotation):
+        elif 'swim' in ''.join(stemitized_annotation):
             core_activity['swim'].append(self)
-        elif 'standing up' in ''.join(self.annotation):
-            core_activity['standing up'].append(self)
+        elif 'standing up' in ''.join(stemitized_annotation):
+            core_activity['stand'].append(self)
         else:
             core_activity['none'].append(self)
 
@@ -240,7 +246,7 @@ class MotionDataset:
             'dance': [],
             'sit': [],
             'swim': [],
-            'standing up': [],
+            'stand': [],
             'none': [],
         }
 
@@ -248,7 +254,7 @@ class MotionDataset:
             if 'D' in id_:
                 continue
             with open(f'{id_}_annotations.json', 'r') as file:
-                annotation = ''.join(json.load(file))
+                annotation = ' '.join(json.load(file))
             with open(f'{id_}_meta.json', 'r') as file:
                 meta = file.read()
             motion = Motion(
@@ -339,7 +345,31 @@ def remove_ponctuations(annotation_text):
     for word in tokenize_annotation(annotation_text):
         if word not in punctuation:
             plain_text += ' ' + word
+    for punctuation_ in punctuation:
+        plain_text.replace(punctuation, ' ')
     return plain_text
+
+
+def stemetize_annotation(tokenized_annotation_text):
+    porterStemmer = PorterStemmer()
+    lemmatizer = WordNetLemmatizer()
+    return [
+        porterStemmer.stem(
+            lemmatizer.lemmatize(
+                remove_ponctuations(
+                    word
+                )
+            )
+        ) for word in tokenized_annotation_text
+    ]
+
+
+def word_tagger(tokenized_annotation_text):
+    if not os.path.exists(
+        os.path.expanduser('~/nltk_data/averaged_percepton_tagger')
+    ):
+        download('averaged_perceptron_tagger')
+    return pos_tag(tokenized_annotation_text)
 
 
 if __name__ == '__main__':
@@ -353,13 +383,13 @@ if __name__ == '__main__':
 
     for activity, motions in dataset.core_activity.items():
         print(activity, len(motions))
+
     annotations = [
         ' '.join(
             motion.annotation
         ) for motion in dataset.motions
     ]
-    # dataset.classify_motions()
-    # print(dataset.annotations_classification)
+
     percentage_annotated_motions = (
         len(list(annotation for annotation in annotations if annotation)) /
         len(annotations)
@@ -368,12 +398,19 @@ if __name__ == '__main__':
         f'{percentage_annotated_motions:.2f} is the percentatge of motions '
         f'with annotations'
     )
-    motion_texts = ''
-    for motion in dataset.motions:
-        motion_texts += motion.annotation
-    tokanized_motion_texts = tokenize_annotation(remove_ponctuations(motion_texts))
-    lemmatizer = WordNetLemmatizer()
-    lemmatized_motion_texts = lemmatizer.lemmatize(
-        ' '.join(tokanized_motion_texts)
+    motion_texts = ' '.join(
+        motion.annotation for motion in dataset.motions
     )
-    print(lemmatized_motion_texts)
+    set_ = set()
+    for item in FreqDist(
+        word_tagger(
+            tokenize_annotation(
+                motion_texts
+            )
+        )
+    ).most_common():
+        # print(item[0])
+        if item[0][1] in ['VBD', 'VBZ', 'VBG']:
+            # print(item[0][0], item[0][1])
+            set_.add(item[0][0])
+    print(set_)
