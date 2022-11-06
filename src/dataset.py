@@ -1,4 +1,5 @@
 import os
+import csv
 from tqdm import tqdm
 from tqdm.auto import tqdm as download_wrapper
 import logging
@@ -11,7 +12,7 @@ from nltk import download, FreqDist, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
-from nltk.stem import WordNetLemmatizer, PorterStemmer
+from nltk.stem import WordNetLemmatizer
 from string import punctuation
 
 
@@ -96,34 +97,23 @@ class Frame:
 
 class Motion:
 
-    def __init__(self, format_, motion_file, meta=None, annotation=None):
+    def __init__(self, format_, motion_file, id_, meta=None, annotation=None):
+        self.id_ = id_
         self.meta = meta
         self.annotation = annotation
         self.format_ = format_
         self.motion_file = motion_file
+        self.classification = None
 
-    def classify_motion(self, core_activity):
-        stemitized_annotation = stemetize_annotation(
-            tokenize_annotation(
-                self.annotation
-            )
-        )
-        if 'walk' in ''.join(stemitized_annotation):
-            core_activity['walk'].append(self)
-        elif 'jump' in ''.join(stemitized_annotation):
-            core_activity['jump'].append(self)
-        elif 'run' in ''.join(stemitized_annotation):
-            core_activity['run'].append(self)
-        elif 'dance' in ''.join(stemitized_annotation):
-            core_activity['dance'].append(self)
-        elif 'sit' in ''.join(stemitized_annotation):
-            core_activity['sit'].append(self)
-        elif 'swim' in ''.join(stemitized_annotation):
-            core_activity['swim'].append(self)
-        elif 'standing up' in ''.join(stemitized_annotation):
-            core_activity['stand'].append(self)
-        else:
-            core_activity['none'].append(self)
+    def classify_motion(self):
+        with open('mapping.csv', 'r') as csv_file:
+            mappings = dict(csv.reader(csv_file))
+            print(mappings)
+            try:
+                # TODO Multilabel classification
+                self.classification = mappings[self.id_.lstrip('0')]
+            except KeyError:
+                raise KeyError
 
     def _parse_frame(self, xml_frame, joints):
         return Frame(
@@ -250,8 +240,11 @@ class MotionDataset:
             'none': [],
         }
 
+        self.miss_classification = 0
         for id_ in tqdm(ids, ncols=100,):
             if 'D' in id_:
+                continue
+            if id_ == 'mapping.csv':
                 continue
             with open(f'{id_}_annotations.json', 'r') as file:
                 annotation = ' '.join(json.load(file))
@@ -260,32 +253,15 @@ class MotionDataset:
             motion = Motion(
                 format_,
                 f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
+                id_,
                 annotation=annotation,
                 meta=meta,
             )
-            motion.classify_motion(self.core_activity)
+            try:
+                motion.classify_motion()
+            except KeyError:
+                self.miss_classification += 1
             self.motions.append(motion)
-
-    def classify_motions(self):
-        self.annotations_classification = {
-            key: list(
-                filter(
-                    lambda x: x,
-                    list(
-                        classify_annotation(
-                            motion.annotation,
-                            wordnet.synset(
-                                value,
-                            ),
-                        ) for motion in tqdm(
-                            self.motions,
-                            ncols=100,
-                            desc=f'Extracting for {key}',
-                        )
-                    ),
-                ),
-            ) for key, value in activities_dictionary.items()
-        }
 
 
 def tokenize_annotation(annotation):
@@ -351,14 +327,11 @@ def remove_ponctuations(annotation_text):
 
 
 def stemetize_annotation(tokenized_annotation_text):
-    porterStemmer = PorterStemmer()
     lemmatizer = WordNetLemmatizer()
     return [
-        porterStemmer.stem(
-            lemmatizer.lemmatize(
-                remove_ponctuations(
-                    word
-                )
+        lemmatizer.lemmatize(
+            remove_ponctuations(
+                word
             )
         ) for word in tokenized_annotation_text
     ]
@@ -372,6 +345,35 @@ def word_tagger(tokenized_annotation_text):
     return pos_tag(tokenized_annotation_text)
 
 
+def get_most_common_verbs(annotation_text, number_verbs=0):
+    set_ = set()
+    if number_verbs == 0:
+        for item in FreqDist(
+            word_tagger(
+                stemetize_annotation(
+                    tokenize_annotation(
+                        annotation_text
+                    )
+                )
+            )
+        ).most_common():
+            if item[0][1] in ['VBD', 'VBZ', 'VBG']:
+                set_.add(item[0][0])
+    else:
+        for item in FreqDist(
+            word_tagger(
+                stemetize_annotation(
+                    tokenize_annotation(
+                        annotation_text
+                    )
+                )
+            )
+        ).most_common(number_verbs):
+            if item[0][1] in ['VBD', 'VBZ', 'VBG']:
+                set_.add(item[0][0])
+    return set_
+
+
 if __name__ == '__main__':
     dataset = MotionDataset()
 
@@ -381,11 +383,16 @@ if __name__ == '__main__':
         dataset.extract()
         dataset.parse()
 
-    for activity, motions in dataset.core_activity.items():
-        print(activity, len(motions))
+    print(
+        f'Classification miss-rate is '
+        f'{dataset.miss_classification / len(dataset.motions)}'
+    )
+    print(
+        f'The number of miss classification is {dataset.miss_classification}'
+    )
 
     annotations = [
-        ' '.join(
+        ''.join(
             motion.annotation
         ) for motion in dataset.motions
     ]
@@ -398,19 +405,5 @@ if __name__ == '__main__':
         f'{percentage_annotated_motions:.2f} is the percentatge of motions '
         f'with annotations'
     )
-    motion_texts = ' '.join(
-        motion.annotation for motion in dataset.motions
-    )
-    set_ = set()
-    for item in FreqDist(
-        word_tagger(
-            tokenize_annotation(
-                motion_texts
-            )
-        )
-    ).most_common():
-        # print(item[0])
-        if item[0][1] in ['VBD', 'VBZ', 'VBG']:
-            # print(item[0][0], item[0][1])
-            set_.add(item[0][0])
-    print(set_)
+    print(annotations[0])
+    print(get_most_common_verbs(' '.join(annotations)))

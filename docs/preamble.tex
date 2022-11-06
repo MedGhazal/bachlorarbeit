@@ -1,19 +1,14 @@
 \documentclass[14pt, a4paper]{extreport}
-%\usepackage[11pt]{moresize}
+
 \usepackage{ifthen, geometry, csquotes, hyperref, url, lettrine, graphicx, xcolor, fancyhdr, titlesec, afterpage}
 \usepackage[backend=biber, sorting=nyvt]{biblatex}
 \usepackage{array}
 \usepackage[osf]{Alegreya,AlegreyaSans,FiraMono}
-%\usepackage[light,math]{kurier}
-%\usepackage[T1]{fontenc}
-%\usepackage{pdfrender}
 \usepackage{multirow}
 \usepackage{babel}
 \geometry{top=3cm, left=3cm, right=3cm, bottom=4cm}
 
-\pagestyle{empty}{
-    \chead{}\lhead{}\rhead{}\cfoot{}\lfoot{}\rfoot{}
-}
+\pagestyle{empty}{ \chead{}\lhead{}\rhead{}\cfoot{}\lfoot{}\rfoot{} }
 
 \definecolor{gray75}{gray}{0.75}
 \newcommand{\hsp}{\hspace{20pt}}
@@ -44,16 +39,11 @@
 \makeatletter
 \setlength{\headheight}{38.0pt}
 \newenvironment{chapquote}[2][2em]
-{\setlength{\@tempdima}{#1}
-  \def\chapquote@author{#2}
-  \hfill\parshape 1 \@tempdima \dimexpr\textwidth-2\@tempdima\relax
-  \itshape}
-{\par\normalfont\hfill---\chapquote@author\hspace*{\@tempdima}\par\bigskip}
-    \newenvironment{normalquote}[2][2em]
-{\setlength{\@tempdima}{#1}
-  \def\chapquote@author{#2}
-  \hfill\parshape 1 \@tempdima \dimexpr\textwidth-.1\@tempdima\relax }
+{\setlength{\@tempdima}{#1} \def\chapquote@author{#2} \hfill\parshape 1 \@tempdima \dimexpr\textwidth-2\@tempdima\relax \itshape}
+{\par\normalfont\hfill---\chapquote@author\hspace*{\@tempdima}\par\bigskip} \newenvironment{normalquote}[2][2em]
+{\setlength{\@tempdima}{#1} \def\chapquote@author{#2} \hfill\parshape 1 \@tempdima \dimexpr\textwidth-.1\@tempdima\relax }
 {\par\normalfont\hfill---\chapquote@author\hspace*{\@tempdima}\par\bigskip}
 \makeatother
+
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}

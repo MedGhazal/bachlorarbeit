@@ -15,7 +15,7 @@ def parse_dataset(motion_dataset):
         motion_dataset.parse()
 
 
-def load_urdf_models():
+def load_urdf_models(motion):
     planeId = pb.loadURDF(
         os.path.expanduser(
             os.path.join(
@@ -24,7 +24,7 @@ def load_urdf_models():
             )
         )
     )
-    scale = motion_dataset.motions[next_motion].scale_factor
+    scale = motion.scale_factor
     initial_root_position = np.array(motion.get_initial_root_position()) / 1000
     startOrientation = pb.getQuaternionFromEuler(
         [0, 0, 0]
@@ -48,7 +48,7 @@ def load_urdf_models():
     return planeId, boxId
 
 
-def get_joints_ids():
+def get_joints_ids(model):
     joint_ids = {
         joint.decode(): id_
         for id_, joint in [
@@ -59,7 +59,7 @@ def get_joints_ids():
     return joint_ids
 
 
-def play_frame(frame, motion_time):
+def play_frame(frame, planeId, boxId, motion_time):
     root_position = np.array(frame.root_position) / 1000
     pb.setJointMotorControlMultiDof(
         boxId,
@@ -101,14 +101,14 @@ def play_frame(frame, motion_time):
         except KeyError:
             pass
 
-    contact_points_infos.append(
-        pb.getContactPoints(planeId, boxId,),
-    )
+    contact_points_infos = pb.getContactPoints(planeId, boxId)
 
     # time.sleep((time_step - motion_time) / 1000)
     # motion_time = time_step
 
     pb.stepSimulation()
+
+    return contact_points_infos
 
 
 def extract_normal_force(contact_points_info):
@@ -126,13 +126,13 @@ if __name__ == '__main__':
     motion = motion_dataset.motions[next_motion]
     motion.parse()
     motion.robot = Robot(motion.mass)
-    planeId, boxId = load_urdf_models()
+    planeId, boxId = load_urdf_models(motion)
     motion_time = 0
     contact_points_infos = []
     print(motion.annotation)
 
     for frame in motion.frames:
-        play_frame(frame, motion_time)
+        play_frame(frame, planeId, boxId, motion_time)
 
     normal_forces = list(
         map(extract_normal_force, contact_points_infos)

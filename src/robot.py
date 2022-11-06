@@ -184,7 +184,6 @@ class Robot:
 
     def create_model(self):
         current_directory = os.getcwd()
-        print(os.getcwd())
         os.chdir(os.path.expanduser('data/objects/Winter'))
         xml_tree = ET.parse('mmm.urdf')
         xml_root = xml_tree.getroot()
