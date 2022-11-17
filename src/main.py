@@ -1,6 +1,6 @@
 from dataset import MotionDataset
 import pybullet as pb
-# import time
+import time
 import os
 import numpy as np
 from robot import Robot
@@ -39,7 +39,7 @@ def load_urdf_models(motion):
         ),
         list(initial_root_position),
         startOrientation,
-        useFixedBase=1,
+        # useFixedBase=1,
         flags=(
             pb.URDF_MERGE_FIXED_LINKS
         ),
@@ -75,9 +75,10 @@ def play_frame(frame, planeId, boxId, motion_time):
     #     targetPosition=root_rotation,
     # )
     joint_positions = frame.joint_positions
-    joint_velocities = frame.joint_velocities
+    # NOTE: They are all zero
+    # joint_velocities = frame.joint_velocities
     # joint_accelerations = frame.joint_accelerations
-    # time_step = frame.timestep
+    time_step = frame.timestep
 
     for jointId in range(pb.getNumJoints(boxId)):
 
@@ -85,17 +86,10 @@ def play_frame(frame, planeId, boxId, motion_time):
             position = joint_positions[
                 pb.getJointInfo(boxId, jointId)[1].decode()
             ]
-            velocity = joint_velocities[
-                pb.getJointInfo(boxId, jointId)[1].decode()
-            ]
-            # acceleration = joint_accelerations[
-            #     pb.getJointInfo(boxId, jointId)[1].decode()
-            # ]
             pb.setJointMotorControl2(
                 boxId,
                 jointId,
                 pb.POSITION_CONTROL,
-                targetVelocity=velocity,
                 targetPosition=position,
             )
         except KeyError:
@@ -103,8 +97,8 @@ def play_frame(frame, planeId, boxId, motion_time):
 
     contact_points_infos = pb.getContactPoints(planeId, boxId)
 
-    # time.sleep((time_step - motion_time) / 1000)
-    # motion_time = time_step
+    time.sleep((time_step - motion_time) / 1000)
+    motion_time = time_step
 
     pb.stepSimulation()
 

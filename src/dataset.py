@@ -1,5 +1,8 @@
 import os
-import csv
+from enum import Enum
+from contextlib import redirect_stdout
+import gc
+import numpy as np
 from tqdm import tqdm
 from tqdm.auto import tqdm as download_wrapper
 import logging
@@ -13,23 +16,33 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
 from nltk.stem import WordNetLemmatizer
+from nltk.stem.snowball import EnglishStemmer
 from string import punctuation
-
-
 from utils import change_to
 
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
+# BUFFER_SIZE = 32 * 2048 * 2048
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
 activities_dictionary = {
-    'walk': 'walk.v.01',
-    'dance': 'dance.v.01',
-    'swim': 'swim.v.01',
-    'stand': 'stand.v.01',
-    'run': 'run.v.01',
-    'jump': 'jump.v.01',
+    'walk',
+    'turn',
+    'run',
+    'stand',
+    'jump',
+    'wave',
+    'stumbl',
+    'danc',
+    'throw',
+    'kneel',
+    'kick',
 }
-# BUFFER_SIZE = 32 * 2048 * 2048
+
+
+class Classification(Enum):
+    BASIC = 1
+    LABELED = 2
+    MULTI_LABELED = 3
 
 
 class Frame:
@@ -105,15 +118,67 @@ class Motion:
         self.motion_file = motion_file
         self.classification = None
 
-    def classify_motion(self):
-        with open('mapping.csv', 'r') as csv_file:
-            mappings = dict(csv.reader(csv_file))
-            print(mappings)
-            try:
-                # TODO Multilabel classification
-                self.classification = mappings[self.id_.lstrip('0')]
-            except KeyError:
-                raise KeyError
+    def get_label(self, stop_stems):
+        try:
+            words = word_tagger(word_tokenize(self.annotation))
+            for word_tag in words:
+                if word_tag[1] in ['VB', 'VBZ', 'VBG']:
+                    stem_ = stem(word_tag[0])
+                    if (
+                        stem_ not in stop_stems and
+                        stem_ in activities_dictionary
+                    ):
+                        self.classification = stem_
+        except KeyError:
+            # TODO create new Exception for unlabelable motions
+            raise KeyError
+
+    def get_extended_label(self, stop_stems, classes):
+        try:
+            words = word_tagger(
+                word_tokenize(
+                    self.annotation
+                )
+            )
+            verbs = set()
+            for word_tag in words:
+                if word_tag[1] in ['VB', 'VBZ', 'VBG']:
+                    stem_ = stem(word_tag[0])
+                    if stem_ not in stop_stems:
+                        verbs.add(stem(word_tag[0]))
+            # if self.annotation:
+            # print(f'{self.id_}', ' '.join(verbs), ':', self.annotation)
+            self.classification = ' '.join(verbs)
+            classes.add(' '.join(verbs))
+        except KeyError:
+            # TODO create new Exception for unlabelable motions
+            raise KeyError
+
+    def classify_motion(
+        self,
+        basic=False,
+        extended_labeling=False,
+        multilabeling=False,
+        classes=None,
+    ):
+        stop_stems = [
+            'is',
+            'go',
+            'keep',
+            'start',
+            'do',
+            'continu',
+            'get',
+            'perform',
+            'has',
+            'look',
+            'goe',
+        ]
+        if basic:
+            self.get_label(stop_stems)
+
+        elif extended_labeling:
+            self.get_extended_label(stop_stems, classes)
 
     def _parse_frame(self, xml_frame, joints):
         return Frame(
@@ -173,6 +238,38 @@ class Motion:
         for motion in self.xml_motions:
             self.motions.append(self._parse_motion(motion))
 
+    @change_to(DEFAULT_ROOT)
+    def matrixfy(self, frequency=1, max_length=None, min_length=None):
+        try:
+            position_matrix = np.loadtxt(
+                f'{self.id_}_joint_postions.txt',
+            )
+        except FileNotFoundError:
+            self.parse()
+            del self.frames
+            gc.collect()
+            position_matrix = []
+            for frame in self.frames:
+                position_matrix.append(
+                    list(frame.joint_positions.values())
+                )
+            self.position_matrix = np.array(position_matrix)
+            np.savetxt(
+                f'{self.id_}_joint_postions.txt',
+                self.position_matrix,
+            )
+        if max_length and position_matrix.shape[0] > max_length:
+            return position_matrix[:max_length:frequency], self.classification
+        if min_length and position_matrix.shape[0] < min_length:
+            padding = np.zeros(
+                (
+                    min_length - position_matrix.shape[0],
+                    position_matrix.shape[1],
+                )
+            )
+            position_matrix = np.vstack((position_matrix, padding))
+        return position_matrix[::frequency], self.classification
+
     def get_initial_root_position(self):
         return self.frames[0].root_position
 
@@ -182,10 +279,25 @@ class MotionDataset:
         'https://motion-annotation.humanoids.kit.edu/downloads/4/',
     ]
 
-    def __init__(self, root=DEFAULT_ROOT, train=False):
+    def __init__(
+        self,
+        root=DEFAULT_ROOT,
+        train=False,
+        classification=Classification(1),
+        matrixfy=False,
+        frequency=1,
+        max_length=None,
+        min_length=None,
+    ):
         self.root = os.path.expanduser(root)
         self.train = train
         self.motions = []
+        self.get_mappings()
+        self.classification = classification
+        self.matrixfy = matrixfy
+        self.frequency = frequency
+        self.max_length = max_length
+        self.min_length = min_length
 
     def download(self):
         print('Downloading the dataset...')
@@ -229,22 +341,12 @@ class MotionDataset:
             sorted(os.listdir()),
         )
         ids = sorted(list(set(ids)))
-        self.core_activity = {
-            'walk': [],
-            'jump': [],
-            'run': [],
-            'dance': [],
-            'sit': [],
-            'swim': [],
-            'stand': [],
-            'none': [],
-        }
-
         self.miss_classification = 0
+        self.classes = set()
+        self.matrix_represetations = []
+
         for id_ in tqdm(ids, ncols=100,):
-            if 'D' in id_:
-                continue
-            if id_ == 'mapping.csv':
+            if 'D' in id_ or id_ == 'mapping.csv':
                 continue
             with open(f'{id_}_annotations.json', 'r') as file:
                 annotation = ' '.join(json.load(file))
@@ -258,26 +360,62 @@ class MotionDataset:
                 meta=meta,
             )
             try:
-                motion.classify_motion()
+                if self.classification == Classification.BASIC:
+                    motion.classify_motion(basic=True, multilabeling=False)
+                elif self.classification == Classification.LABELED:
+                    motion.classify_motion(
+                        extended_labeling=True,
+                        classes=self.classes,
+                    )
             except KeyError:
                 self.miss_classification += 1
+
+            if self.matrixfy:
+                matrix_representation, label = motion.matrixfy(
+                    frequency=self.frequency,
+                    max_length=self.max_length,
+                    min_length=self.min_length,
+                )
+                if label:
+                    self.matrix_represetations.append(
+                        (matrix_representation, label)
+                    )
+
             self.motions.append(motion)
+
+    @change_to(DEFAULT_ROOT)
+    def get_mappings(self):
+        with open('mapping.csv', 'r') as csv_file:
+            mappings = csv_file.read().split('\n')
+            mappings = list(
+                map(
+                    lambda x: x.split(','),
+                    mappings,
+                )
+            )[1:-1]
+            self.multilabel_mapping = {}
+            for id_, label in mappings:
+                try:
+                    self.multilabel_mapping[id_].append(label)
+                except KeyError:
+                    self.multilabel_mapping[id_] = [label]
 
 
 def tokenize_annotation(annotation):
-    if not os.path.exists(
-        os.path.expanduser('~/nltk_data/tokenizers/punkt')
-    ):
-        download('punkt')
-    if not os.path.exists(
-        os.path.expanduser('~/nltk_data/corpora/stopwords')
-    ):
-        download('stopwords')
-    stop_words = set(stopwords.words('english'))
-    tokens = word_tokenize(annotation)
-    return [
-        token for token in tokens if token not in stop_words
-    ]
+    with redirect_stdout(open(os.devnull, "w")):
+        if not os.path.exists(
+            os.path.expanduser('~/nltk_data/tokenizers/punkt')
+        ):
+            download('punkt')
+        if not os.path.exists(
+            os.path.expanduser('~/nltk_data/corpora/stopwords')
+        ):
+            download('stopwords')
+        stop_words = set(stopwords.words('english'))
+        tokens = word_tokenize(annotation)
+        return [
+            token for token in tokens if token not in stop_words
+        ]
 
 
 def classify_annotation(
@@ -286,34 +424,35 @@ def classify_annotation(
     similarity_threshhold=.6,
     get_hits=False,
 ):
-    tokens = tokenize_annotation(annotation)
-    similarities = []
-    if not os.path.exists(
-        os.path.expanduser('~/nltk_data/corpora')
-    ):
-        download('wordnet')
-    if not os.path.exists(
-        os.path.expanduser('~/nltk_data/corpora')
-    ):
-        download('omw-1.4')
+    with redirect_stdout(open(os.devnull, "w")):
+        tokens = tokenize_annotation(annotation)
+        similarities = []
+        if not os.path.exists(
+            os.path.expanduser('~/nltk_data/corpora')
+        ):
+            download('wordnet')
+        if not os.path.exists(
+            os.path.expanduser('~/nltk_data/corpora')
+        ):
+            download('omw-1.4')
 
-    for token in tokens:
-        synonyms = wordnet.synsets(token)
-        synonym_similarity = [
-            activity.wup_similarity(
-                synonym
-            ) for synonym in synonyms if activity.wup_similarity(
-                synonym
-            ) > similarity_threshhold
-        ]
-        try:
-            synonym_similarity = max(synonym_similarity)
-        except ValueError:
-            synonym_similarity = 0
-        similarities.append(synonym_similarity)
+        for token in tokens:
+            synonyms = wordnet.synsets(token)
+            synonym_similarity = [
+                activity.wup_similarity(
+                    synonym
+                ) for synonym in synonyms if activity.wup_similarity(
+                    synonym
+                ) > similarity_threshhold
+            ]
+            try:
+                synonym_similarity = max(synonym_similarity)
+            except ValueError:
+                synonym_similarity = 0
+            similarities.append(synonym_similarity)
 
-    if sum(similarities) > .5:
-        return annotation
+        if sum(similarities) > .5:
+            return annotation
 
 
 def remove_ponctuations(annotation_text):
@@ -326,7 +465,7 @@ def remove_ponctuations(annotation_text):
     return plain_text
 
 
-def stemetize_annotation(tokenized_annotation_text):
+def lemmetize_annotation(tokenized_annotation_text):
     lemmatizer = WordNetLemmatizer()
     return [
         lemmatizer.lemmatize(
@@ -337,9 +476,14 @@ def stemetize_annotation(tokenized_annotation_text):
     ]
 
 
+def stem(word):
+    Stemmmer = EnglishStemmer()
+    return Stemmmer.stem(word)
+
+
 def word_tagger(tokenized_annotation_text):
     if not os.path.exists(
-        os.path.expanduser('~/nltk_data/averaged_percepton_tagger')
+        os.path.expanduser('~/nltk_data/taggers/averaged_perceptron_tagger')
     ):
         download('averaged_perceptron_tagger')
     return pos_tag(tokenized_annotation_text)
@@ -347,45 +491,39 @@ def word_tagger(tokenized_annotation_text):
 
 def get_most_common_verbs(annotation_text, number_verbs=0):
     set_ = set()
+    for item in FreqDist(
+        word_tagger(
+            word_tokenize(
+                annotation_text
+            )
+        )
+    ).most_common():
+        if item[0][1] in ['VB', 'VBD', 'VBZ', 'VBG']:
+            set_.add(item)
+    stemmed_verbs = [(stem(verb), frequency) for (verb, _), frequency in set_]
+    dict_stemmed_verbs = {}
+    for stem_, frequency in stemmed_verbs:
+        if stem_ in dict_stemmed_verbs.keys():
+            dict_stemmed_verbs[stem_] += frequency
+        else:
+            dict_stemmed_verbs[stem_] = frequency
     if number_verbs == 0:
-        for item in FreqDist(
-            word_tagger(
-                stemetize_annotation(
-                    tokenize_annotation(
-                        annotation_text
-                    )
-                )
-            )
-        ).most_common():
-            if item[0][1] in ['VBD', 'VBZ', 'VBG']:
-                set_.add(item[0][0])
+        # return set_
+        return dict_stemmed_verbs.keys()
     else:
-        for item in FreqDist(
-            word_tagger(
-                stemetize_annotation(
-                    tokenize_annotation(
-                        annotation_text
-                    )
-                )
-            )
-        ).most_common(number_verbs):
-            if item[0][1] in ['VBD', 'VBZ', 'VBG']:
-                set_.add(item[0][0])
-    return set_
+        # return sorted(
+        #     list(set_), key=lambda x: x[1], reverse=True,
+        # )[:number_verbs]
+        return sorted(
+            dict_stemmed_verbs.items(), key=lambda x: x[1], reverse=True,
+        )[:number_verbs]
 
 
-if __name__ == '__main__':
-    dataset = MotionDataset()
-
-    try:
-        dataset.parse()
-    except FileNotFoundError:
-        dataset.extract()
-        dataset.parse()
-
+def get_dataset_infos(dataset):
     print(
         f'Classification miss-rate is '
         f'{dataset.miss_classification / len(dataset.motions)}'
+        f'The number of classes is {len(dataset.classes)}',
     )
     print(
         f'The number of miss classification is {dataset.miss_classification}'
@@ -405,5 +543,52 @@ if __name__ == '__main__':
         f'{percentage_annotated_motions:.2f} is the percentatge of motions '
         f'with annotations'
     )
-    print(annotations[0])
-    print(get_most_common_verbs(' '.join(annotations)))
+    # print(' '.join(annotations))
+    print(get_most_common_verbs(' '.join(annotations), number_verbs=30))
+
+
+def get_number_infos_motions(dataset):
+    lengths = set()
+    number_compatible_motions = 0
+    number_motions_under_20 = 0
+    number_motions_under_10 = 0
+    number_motions_under_5 = 0
+
+    for motion in tqdm(dataset.motions, ncols=100,):
+        motion.parse()
+        motion.matrixfy()
+        duration = len(motion.frames)
+        lengths.add(duration)
+        del motion.frames
+        gc.collect()
+        if duration / 1000 > 20:
+            number_compatible_motions += 1
+        elif 10 < duration / 1000 <= 20:
+            number_motions_under_20 += 1
+        elif 5 < duration / 1000 <= 10:
+            number_motions_under_10 += 1
+        elif duration / 1000 <= 5:
+            number_motions_under_5 += 1
+
+    print(
+        f'Max length is {max(lengths)}',
+        f'Min length is {min(lengths)}',
+        f'The number of lengths of frames is {len(lengths)}',
+        f'The number of motions > 20 is {number_compatible_motions}',
+        f'The number of motions <= 20 is {number_motions_under_20}',
+        f'The number of motions <= 10 is {number_motions_under_10}',
+        f'The number of motions > 5 is {number_motions_under_5}',
+        sep='\n',
+    )
+
+
+if __name__ == '__main__':
+    dataset = MotionDataset()
+
+    try:
+        dataset.parse()
+    except FileNotFoundError:
+        dataset.extract()
+        dataset.parse()
+
+    get_dataset_infos(dataset)
