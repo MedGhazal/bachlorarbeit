@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch.nn import Module, Sequential
 from torch.nn import Conv2d, ReLU, MaxPool2d, Linear, Flatten
 from torch.utils.data.dataloader import DataLoader
-# from torch.utils.data import random_split
+from torch.utils.data import random_split
 
 from dataset import MotionDataset, activities_dictionary
 
@@ -112,11 +112,33 @@ if __name__ == '__main__':
         dataset.extract()
         dataset.parse()
 
-    data_loader = DataLoader(
-        dataset.matrix_represetations,
-        batch_size=128,
-    )
+    dataset = dataset.matrix_represetations
 
     model = CNN(len(activities_dictionary), 1000,)
+    print(
+        len(dataset),
+        [int(len(dataset)*.8), int(len(dataset)*.2)],
+        sum(
+            [int(len(dataset)*.8), int(len(dataset)*.2)],
+        ),
+    )
+    train_data_set, validation_data_set = random_split(
+        dataset,
+        [int(len(dataset)*.8)+1, int(len(dataset)*.2)],
+    )
+    train_loader= DataLoader(
+        train_data_set,
+        batch_size=128,
+        shuffle=True,
+        drop_last=True,
+        num_workers=8,
+    )
+    validation_loader= DataLoader(
+        validation_data_set,
+        batch_size=256,
+        drop_last=True,
+        num_workers=8,
+    )
+    history = model.fit(1, .1, train_loader, validation_loader)
 
     print('Training...')
