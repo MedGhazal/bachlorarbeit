@@ -1,11 +1,16 @@
+from tqdm import tqdm
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import Module, Sequential
-from torch.nn import Conv2d, ReLU, MaxPool2d, Linear, Flatten
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data import random_split
 
 from dataset import MotionDataset, activities_dictionary
+
+CLASSES_MAPPING = {
+    activity: number+1 for number, activity in enumerate(activities_dictionary)
+}
 
 
 class CNN(Module):
@@ -19,21 +24,21 @@ class CNN(Module):
     ):
         super().__init__()
         self.network = Sequential(
-            Conv2d(1, 16, kernel_size=4, padding=1),
-            ReLU(),
-            MaxPool2d(2, 2),
-            Conv2d(16, 32, kernel_size=4, padding=1),
-            ReLU(),
-            MaxPool2d(2, 2),
-            Conv2d(32, 64, kernel_size=4, padding=1),
-            ReLU(),
-            MaxPool2d(2, 2),
-            Conv2d(64, 128, kernel_size=4, padding=1),
-            ReLU(),
-            Flatten(),
-            Linear(128, 256),
-            ReLU(),
-            Linear(256, number_classes)
+            nn.Conv2d(1, 16, kernel_size=4, padding=1, dtype=float),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(16, 32, kernel_size=4, padding=1, dtype=float),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(32, 64, kernel_size=4, padding=1, dtype=float),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(64, 128, kernel_size=4, padding=1, dtype=float),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(128, 256, dtype=float),
+            nn.ReLU(),
+            nn.Linear(256, number_classes, dtype=float),
         )
         self.num_classes = number_classes
         self.loss_function = loss_function
@@ -44,7 +49,7 @@ class CNN(Module):
 
     def trainingStep(self, batch):
         motions, labels = batch
-        return self.loss_function(self(motions), labels)
+        return self.loss_function(motions, labels)
 
     def validationStep(self, batch):
         motions, labels = batch
@@ -75,8 +80,10 @@ class CNN(Module):
     def fit(self, epochs, learning_rate, train_loader, valuation_loader):
         history = []
         optimizer = self.optimizer(self.parameters(), learning_rate)
-        for epoch in range(epochs):
-            for batch in train_loader:
+        for epoch in tqdm(range(epochs), ncols=100,):
+            for batch in tqdm(train_loader, ncols=100,):
+                motion, class_ = batch
+                batch = [motion, torch.tensor([CLASSES_MAPPING[class_[0]]])]
                 loss = self.trainingStep(batch)
                 loss.backward()
                 optimizer.step()
@@ -113,6 +120,7 @@ if __name__ == '__main__':
         dataset.parse()
 
     dataset = dataset.matrix_represetations
+    print(torch.tensor(dataset[0][0].shape).size())
 
     model = CNN(len(activities_dictionary), 1000,)
     print(
@@ -126,16 +134,16 @@ if __name__ == '__main__':
         dataset,
         [int(len(dataset)*.8)+1, int(len(dataset)*.2)],
     )
-    train_loader= DataLoader(
+    train_loader = DataLoader(
         train_data_set,
-        batch_size=128,
+        batch_size=1,
         shuffle=True,
         drop_last=True,
         num_workers=8,
     )
-    validation_loader= DataLoader(
+    validation_loader = DataLoader(
         validation_data_set,
-        batch_size=256,
+        batch_size=1,
         drop_last=True,
         num_workers=8,
     )
