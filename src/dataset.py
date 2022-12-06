@@ -241,34 +241,38 @@ class Motion:
     @change_to(DEFAULT_ROOT)
     def matrixfy(self, frequency=1, max_length=None, min_length=None):
         try:
-            position_matrix = np.loadtxt(
+            self.position_matrix = np.loadtxt(
                 f'{self.id_}_joint_postions.txt',
             )
         except FileNotFoundError:
             self.parse()
-            del self.frames
-            gc.collect()
-            position_matrix = []
+            self.position_matrix = []
+            self.parse()
             for frame in self.frames:
-                position_matrix.append(
+                self.position_matrix.append(
                     list(frame.joint_positions.values())
                 )
-            self.position_matrix = np.array(position_matrix)
+            self.position_matrix = np.array(self.position_matrix)
             np.savetxt(
                 f'{self.id_}_joint_postions.txt',
                 self.position_matrix,
             )
-        if max_length and position_matrix.shape[0] > max_length:
-            return position_matrix[:max_length:frequency], self.classification
-        if min_length and position_matrix.shape[0] < min_length:
+            del self.frames
+            gc.collect()
+        if max_length and self.position_matrix.shape[0] > max_length:
+            return (
+                self.position_matrix[:max_length:frequency],
+                self.classification
+            )
+        if min_length and self.position_matrix.shape[0] < min_length:
             padding = np.zeros(
                 (
-                    min_length - position_matrix.shape[0],
-                    position_matrix.shape[1],
+                    min_length - self.position_matrix.shape[0],
+                    self.position_matrix.shape[1],
                 )
             )
-            position_matrix = np.vstack((position_matrix, padding))
-        return position_matrix[::frequency], self.classification
+            self.position_matrix = np.vstack((self.position_matrix, padding))
+        return self.position_matrix[::frequency], self.classification
 
     def get_initial_root_position(self):
         return self.frames[0].root_position
@@ -292,7 +296,6 @@ class MotionDataset:
         self.root = os.path.expanduser(root)
         self.train = train
         self.motions = []
-        self.get_mappings()
         self.classification = classification
         self.matrixfy = matrixfy
         self.frequency = frequency
@@ -382,23 +385,6 @@ class MotionDataset:
                     )
 
             self.motions.append(motion)
-
-    @change_to(DEFAULT_ROOT)
-    def get_mappings(self):
-        with open('mapping.csv', 'r') as csv_file:
-            mappings = csv_file.read().split('\n')
-            mappings = list(
-                map(
-                    lambda x: x.split(','),
-                    mappings,
-                )
-            )[1:-1]
-            self.multilabel_mapping = {}
-            for id_, label in mappings:
-                try:
-                    self.multilabel_mapping[id_].append(label)
-                except KeyError:
-                    self.multilabel_mapping[id_] = [label]
 
 
 def tokenize_annotation(annotation):
