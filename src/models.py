@@ -18,7 +18,6 @@ class CNN(Module):
     def __init__(
         self,
         number_classes,
-        number_frames,
         loss_function=F.cross_entropy,
         optimizer=torch.optim.SGD,
     ):
@@ -34,11 +33,12 @@ class CNN(Module):
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
             nn.Conv2d(64, 128, kernel_size=4, padding=1, dtype=float),
-            nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(128, 256, dtype=float),
             nn.ReLU(),
-            nn.Linear(256, number_classes, dtype=float),
+            nn.Linear(30, 128, dtype=float),
+            nn.ReLU(),
+            nn.Linear(128, 44, dtype=float),
+            nn.Linear(44, number_classes, dtype=float),
         )
         self.num_classes = number_classes
         self.loss_function = loss_function
@@ -49,6 +49,7 @@ class CNN(Module):
 
     def trainingStep(self, batch):
         motions, labels = batch
+        print(motions, labels, sep='\n')
         return self.loss_function(motions, labels)
 
     def validationStep(self, batch):
@@ -83,7 +84,9 @@ class CNN(Module):
         for epoch in tqdm(range(epochs), ncols=100,):
             for batch in tqdm(train_loader, ncols=100,):
                 motion, class_ = batch
-                batch = [motion, torch.tensor([CLASSES_MAPPING[class_[0]]])]
+                onehot_presentation = torch.zeros((1, len(CLASSES_MAPPING)))
+                onehot_presentation[0][CLASSES_MAPPING[class_[0]]] = 1
+                batch = [motion, onehot_presentation]
                 loss = self.trainingStep(batch)
                 loss.backward()
                 optimizer.step()
@@ -120,9 +123,9 @@ if __name__ == '__main__':
         dataset.parse()
 
     dataset = dataset.matrix_represetations
-    print(torch.tensor(dataset[0][0].shape).size())
+    print(torch.tensor(dataset[0][0].size))
 
-    model = CNN(len(activities_dictionary), 1000,)
+    model = CNN(len(activities_dictionary))
     print(
         len(dataset),
         [int(len(dataset)*.8), int(len(dataset)*.2)],
