@@ -224,19 +224,19 @@ class Motion:
 
     @change_to(DEFAULT_ROOT)
     def parse(self):
-        xml_tree = ET.parse(self.motion_file)
-        xml_root = xml_tree.getroot()
-        self.xml_motions = xml_root.findall('Motion')
-        self.motions = []
+        with ET.parse(self.motion_file) as xml_tree:
+            xml_root = xml_tree.getroot()
+            self.xml_motions = xml_root.findall('Motion')
+            self.motions = []
 
-        if len(self.xml_motions) > 1:
-            logging.warn(
-                'more than one <Motion> tag in file "%s", '
-                'only parsing the first one'
-            )
+            if len(self.xml_motions) > 1:
+                logging.warn(
+                    'more than one <Motion> tag in file "%s", '
+                    'only parsing the first one'
+                )
 
-        for motion in self.xml_motions:
-            self.motions.append(self._parse_motion(motion))
+            for motion in self.xml_motions:
+                self.motions.append(self._parse_motion(motion))
 
     @change_to(DEFAULT_ROOT)
     def matrixfy(self, frequency=1, max_length=None, min_length=None):
