@@ -1,7 +1,6 @@
 import os
 from enum import Enum
 from contextlib import redirect_stdout
-import gc
 import numpy as np
 from tqdm import tqdm
 from tqdm.auto import tqdm as download_wrapper
@@ -135,19 +134,13 @@ class Motion:
 
     def get_extended_label(self, stop_stems, classes):
         try:
-            words = word_tagger(
-                word_tokenize(
-                    self.annotation
-                )
-            )
+            words = word_tagger(word_tokenize(self.annotation))
             verbs = set()
             for word_tag in words:
                 if word_tag[1] in ['VB', 'VBZ', 'VBG']:
                     stem_ = stem(word_tag[0])
                     if stem_ not in stop_stems:
                         verbs.add(stem(word_tag[0]))
-            # if self.annotation:
-            # print(f'{self.id_}', ' '.join(verbs), ':', self.annotation)
             self.classification = ' '.join(verbs)
             classes.add(' '.join(verbs))
         except KeyError:
@@ -198,19 +191,16 @@ class Motion:
             raise RuntimeError('<JointOrder> not found')
 
         joints = []
-
         for idx, xml_joint in enumerate(xml_joint_order.findall('Joint')):
             name = xml_joint.get('name')
             if name is None:
                 raise RuntimeError('<Joint> has no name')
             joints.append(name)
 
-        self.frames = []
         xml_frames = xml_motion.find('MotionFrames')
-
         if xml_frames is None:
             raise RuntimeError('<MotionFrames> not found')
-
+        self.frames = []
         for xml_frame in xml_frames.findall('MotionFrame'):
             self.frames.append(self._parse_frame(xml_frame, joints))
 
@@ -220,11 +210,18 @@ class Motion:
         self.scale_factor = float(xml_model_height[0].text)
         self.mass = float(xml_model_mass[0].text)
 
+        del xml_config
+        del xml_joint_order
+        del xml_model_height
+        del xml_model_mass
+        del xml_frames
+
         return joints, self.frames
 
     @change_to(DEFAULT_ROOT)
     def parse(self):
-        with ET.parse(self.motion_file) as xml_tree:
+        with open(self.motion_file, 'r') as motion_file:
+            xml_tree = ET.parse(motion_file)
             xml_root = xml_tree.getroot()
             self.xml_motions = xml_root.findall('Motion')
             self.motions = []
@@ -237,28 +234,23 @@ class Motion:
 
             for motion in self.xml_motions:
                 self.motions.append(self._parse_motion(motion))
+            del xml_tree
+            del xml_root
+            del self.xml_motions
 
     @change_to(DEFAULT_ROOT)
-    def matrixfy(self, frequency=1, max_length=None, min_length=None):
+    def get_matrixified_frames(
+        self,
+        frequency=1,
+        max_length=None,
+        min_length=None,
+    ):
         try:
             self.position_matrix = np.loadtxt(
-                f'{self.id_}_joint_postions.txt',
+                f'{self.id_}_joint_positions.txt',
             )
         except FileNotFoundError:
-            self.parse()
-            self.position_matrix = []
-            self.parse()
-            for frame in self.frames:
-                self.position_matrix.append(
-                    list(frame.joint_positions.values())
-                )
-            self.position_matrix = np.array(self.position_matrix)
-            np.savetxt(
-                f'{self.id_}_joint_postions.txt',
-                self.position_matrix,
-            )
-            del self.frames
-            gc.collect()
+            self.matrixfy_all()
         if max_length and self.position_matrix.shape[0] > max_length:
             return (
                 self.position_matrix[:max_length:frequency],
@@ -274,21 +266,79 @@ class Motion:
             self.position_matrix = np.vstack((self.position_matrix, padding))
         return self.position_matrix[::frequency], self.classification
 
+    @change_to(DEFAULT_ROOT)
+    def get_matrixified_root_positions(
+        self,
+        frequency=1,
+        max_length=None,
+        min_length=None,
+    ):
+        try:
+            self.position_matrix = np.loadtxt(
+                f'{self.id_}_root_positions.txt',
+            )
+        except FileNotFoundError:
+            self.matrixfy_all()
+        if max_length and self.position_matrix.shape[0] > max_length:
+            return (
+                self.position_matrix[:max_length:frequency],
+                self.classification
+            )
+        if min_length and self.position_matrix.shape[0] < min_length:
+            padding = np.zeros(
+                (
+                    min_length - self.position_matrix.shape[0],
+                    self.position_matrix.shape[1],
+                )
+            )
+            self.position_matrix = np.vstack((self.position_matrix, padding))
+        return self.position_matrix[::frequency], self.classification
+
+    def matrixfy_all(self):
+        self.parse()
+        self.matrixfy_frames()
+        self.matrixfy_root_positions()
+        del self.position_matrix
+        del self.frames
+
+    def matrixfy_frames(self):
+        self.position_matrix = []
+        for frame in self.frames:
+            self.position_matrix.append(
+                list(frame.joint_positions.values())
+            )
+        self.position_matrix = np.array(self.position_matrix)
+        np.savetxt(
+            f'{self.id_}_joint_positions.txt',
+            self.position_matrix,
+        )
+
+    def matrixfy_root_positions(self):
+        self.position_matrix = []
+        for frame in self.frames:
+            self.position_matrix.append(
+                list(frame.root_position)
+            )
+        self.position_matrix = np.array(self.position_matrix)
+        np.savetxt(
+            f'{self.id_}_root_positions.txt',
+            self.position_matrix,
+        )
+
     def get_initial_root_position(self):
         return self.frames[0].root_position
 
 
 class MotionDataset:
-    urls = [
-        'https://motion-annotation.humanoids.kit.edu/downloads/4/',
-    ]
+    urls = ['https://motion-annotation.humanoids.kit.edu/downloads/4/']
 
     def __init__(
         self,
         root=DEFAULT_ROOT,
         train=False,
         classification=Classification(1),
-        matrixfy=False,
+        get_matrixified_root_positions=False,
+        get_matrixified_joint_positions=False,
         frequency=1,
         max_length=None,
         min_length=None,
@@ -297,10 +347,11 @@ class MotionDataset:
         self.train = train
         self.motions = []
         self.classification = classification
-        self.matrixfy = matrixfy
         self.frequency = frequency
         self.max_length = max_length
         self.min_length = min_length
+        self.get_matrixified_root_positions = get_matrixified_root_positions
+        self.get_matrixified_joint_positions = get_matrixified_joint_positions
 
     def download(self):
         print('Downloading the dataset...')
@@ -348,6 +399,7 @@ class MotionDataset:
         self.classes = set()
         self.matrix_represetations = []
 
+        process = []
         for id_ in tqdm(ids, ncols=100,):
             if 'D' in id_ or id_ == 'mapping.csv':
                 continue
@@ -362,6 +414,10 @@ class MotionDataset:
                 annotation=annotation,
                 meta=meta,
             )
+            if not os.path.exists(f'{id_}_joint_positions.txt',) or\
+               not os.path.exists(f'{id_}_root_positions.txt'):
+                print(f'Matrixifying Motion {id_}...')
+                motion.matrixfy_all()
             try:
                 if self.classification == Classification.BASIC:
                     motion.classify_motion(basic=True, multilabeling=False)
@@ -373,8 +429,18 @@ class MotionDataset:
             except KeyError:
                 self.miss_classification += 1
 
-            if self.matrixfy:
-                matrix_representation, label = motion.matrixfy(
+            if self.get_matrixified_joint_positions:
+                matrix_representation, label = motion.get_matrixified_joint_positions(
+                    frequency=self.frequency,
+                    max_length=self.max_length,
+                    min_length=self.min_length,
+                )
+                if label:
+                    self.matrix_represetations.append(
+                        (matrix_representation, label)
+                    )
+            if self.get_matrixified_root_positions:
+                matrix_representation, label = motion.get_matrixified_root_positions(
                     frequency=self.frequency,
                     max_length=self.max_length,
                     min_length=self.min_length,
@@ -546,7 +612,6 @@ def get_number_infos_motions(dataset):
         duration = len(motion.frames)
         lengths.add(duration)
         del motion.frames
-        gc.collect()
         if duration / 1000 > 20:
             number_compatible_motions += 1
         elif 10 < duration / 1000 <= 20:
