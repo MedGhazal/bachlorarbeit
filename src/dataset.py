@@ -239,7 +239,7 @@ class Motion:
             del self.xml_motions
 
     @change_to(DEFAULT_ROOT)
-    def get_matrixified_frames(
+    def get_matrixified_joint_positions(
         self,
         frequency=1,
         max_length=None,
@@ -386,6 +386,58 @@ class MotionDataset:
         dataset.close()
         os.remove(dataset.name)
 
+    def parse_motion(self, id_, format_):
+        if 'D' in id_ or id_ == 'mapping.csv':
+            return None
+        with open(f'{id_}_annotations.json', 'r') as file:
+            annotation = ' '.join(json.load(file))
+        with open(f'{id_}_meta.json', 'r') as file:
+            meta = file.read()
+        motion = Motion(
+            format_,
+            f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
+            id_,
+            annotation=annotation,
+            meta=meta,
+        )
+        if not os.path.exists(f'{id_}_joint_positions.txt',) or\
+            not os.path.exists(f'{id_}_root_positions.txt'):
+            print(f'Matrixifying Motion {id_}...')
+            motion.matrixfy_all()
+
+        try:
+            if self.classification == Classification.BASIC:
+                motion.classify_motion(basic=True, multilabeling=False)
+            elif self.classification == Classification.LABELED:
+                motion.classify_motion(
+                    extended_labeling=True,
+                    classes=self.classes,
+                )
+        except KeyError:
+            self.miss_classification += 1
+
+        if self.get_matrixified_joint_positions:
+            matrix_representation, label = motion.get_matrixified_joint_positions(
+                frequency=self.frequency,
+                max_length=self.max_length,
+                min_length=self.min_length,
+            )
+            if label:
+                self.matrix_represetations.append(
+                    (matrix_representation, label)
+                )
+        if self.get_matrixified_root_positions:
+            matrix_representation, label = motion.get_matrixified_root_positions(
+                frequency=self.frequency,
+                max_length=self.max_length,
+                min_length=self.min_length,
+            )
+            if label:
+                self.matrix_represetations.append(
+                    (matrix_representation, label)
+                )
+        return motion
+
     @change_to(DEFAULT_ROOT)
     def parse(self):
         print('Parsing the dataset, and extracting mmm-files...')
@@ -399,58 +451,10 @@ class MotionDataset:
         self.classes = set()
         self.matrix_represetations = []
 
-        process = []
         for id_ in tqdm(ids, ncols=100,):
-            if 'D' in id_ or id_ == 'mapping.csv':
-                continue
-            with open(f'{id_}_annotations.json', 'r') as file:
-                annotation = ' '.join(json.load(file))
-            with open(f'{id_}_meta.json', 'r') as file:
-                meta = file.read()
-            motion = Motion(
-                format_,
-                f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
-                id_,
-                annotation=annotation,
-                meta=meta,
-            )
-            if not os.path.exists(f'{id_}_joint_positions.txt',) or\
-               not os.path.exists(f'{id_}_root_positions.txt'):
-                print(f'Matrixifying Motion {id_}...')
-                motion.matrixfy_all()
-            try:
-                if self.classification == Classification.BASIC:
-                    motion.classify_motion(basic=True, multilabeling=False)
-                elif self.classification == Classification.LABELED:
-                    motion.classify_motion(
-                        extended_labeling=True,
-                        classes=self.classes,
-                    )
-            except KeyError:
-                self.miss_classification += 1
-
-            if self.get_matrixified_joint_positions:
-                matrix_representation, label = motion.get_matrixified_joint_positions(
-                    frequency=self.frequency,
-                    max_length=self.max_length,
-                    min_length=self.min_length,
-                )
-                if label:
-                    self.matrix_represetations.append(
-                        (matrix_representation, label)
-                    )
-            if self.get_matrixified_root_positions:
-                matrix_representation, label = motion.get_matrixified_root_positions(
-                    frequency=self.frequency,
-                    max_length=self.max_length,
-                    min_length=self.min_length,
-                )
-                if label:
-                    self.matrix_represetations.append(
-                        (matrix_representation, label)
-                    )
-
-            self.motions.append(motion)
+            motion = self.parse_motion(id_, format_)
+            if motion:
+                self.motions.append(motion)
 
 
 def tokenize_annotation(annotation):
