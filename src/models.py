@@ -7,29 +7,45 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import Module, Sequential
+from torch.optim import Adam
+from torch.nn.functional import mse_loss, normalize
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data import random_split, ConcatDataset
 
 from dataset import MotionDataset, activities_dictionary
 from plotters import plot
+from utils import (
+    Model,
+    CLASSES_MAPPING,
+    accuracy,
+    normatize_dataset,
+    to_device,
+)
 
-CLASSES_MAPPING = {
-    activity: number for number, activity in enumerate(activities_dictionary)
-}
 
+class MLP(Model):
 
-class MLP(nn.Module):
-
-    def __init__(self, num_classes=11, num_features=44, num_frames=1000):
-        super(MLP, self).__init__()
+    def __init__(
+        self,
+        num_classes=len(CLASSES_MAPPING),
+        num_features=None,
+        num_frames=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
         self.flatten = nn.Flatten()
-        self.input_layer = nn.Linear(num_features, 64)
+        self.relu = nn.ReLU()
+        self.input_layer = nn.Linear(self.num_features, 64)
         self.hidden1 = nn.Linear(64, 128)
         self.hidden2 = nn.Linear(128, 64)
-        self.relu = nn.ReLU()
-        self.output = nn.Linear(64 * num_frames, num_classes)
-        self.optimizer = torch.optim.Adam
-        self.loss_function = F.mse_loss
+        self.output = nn.Linear(64 * self.num_frames, self.num_classes)
 
     def forward(self, x):
         x = self.relu(self.input_layer(x))
@@ -40,66 +56,24 @@ class MLP(nn.Module):
         x = self.output(x)
         return x
 
-    def trainingStep(self, batch):
-        motions, labels = batch
-        targets = self.forward(motions)
-        return self.loss_function(labels, targets)
 
-    def validationStep(self, batch):
-        motions, labels = batch
-        output = self.forward(motions)
-        loss = self.trainingStep(batch)
-        return {'valueLoss': loss, 'valueAccuracy': accuracy(output, labels)}
-
-    def validationEpochEnd(self, outputs):
-        batch_losses = [x['valueLoss'] for x in outputs]
-        epoch_loss = torch.stack(batch_losses).mean()
-        batch_accs = [x['valueAccuracy'] for x in outputs]
-        epoch_acc = torch.stack(batch_accs).mean() * 100
-        return {
-            'valueLoss': epoch_loss.item(),
-            'valueAccuracy': epoch_acc.item(),
-        }
-
-    def epochEnd(self, epoch, result):
-        print(
-            f"{epoch}. epoch, the loss value: {result['valueLoss']:.2f}"
-            f" with model accuracy: {result['valueAccuracy']:.2f}%"
-        )
-
-    def evaluate(self, valuationSetLoader):
-        outputs = []
-        print('Evaluate...')
-        for batch in tqdm(valuationSetLoader, ncols=100):
-            outputs.append(self.validationStep(batch))
-        return self.validationEpochEnd(outputs)
-
-    def fit(self, epochs, learning_rate, train_loader, valuation_loader):
-        history = []
-        optimizer = self.optimizer(self.parameters(), learning_rate)
-        print('Training...')
-        for epoch in range(1, epochs):
-            for batch in tqdm(train_loader, ncols=100,):
-                loss = self.trainingStep(batch)
-                loss.backward()
-                optimizer.step()
-            result = self.evaluate(valuation_loader)
-            self.epochEnd(epoch, result)
-            history.append(result)
-        return history
-
-
-class CNN(Module):
+class CNN(Model):
 
     def __init__(
         self,
-        num_classes=11,
-        num_features=44,
-        num_frames=1000,
-        loss_function=F.mse_loss,
-        optimizer=torch.optim.ASGD,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        optimizer=None,
+        loss_function=None,
     ):
-        super().__init__()
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
         self.network = Sequential(
             nn.Conv1d(num_frames, 16, kernel_size=3, padding=1),
             nn.ReLU(),
@@ -124,80 +98,6 @@ class CNN(Module):
 
     def forward(self, input_):
         return self.network(input_)
-
-    def trainingStep(self, batch):
-        motions, labels = batch
-        targets = self.forward(motions)
-        return self.loss_function(labels, targets)
-
-    def validationStep(self, batch):
-        motions, labels = batch
-        outputs = self.forward(motions)
-        loss = self.trainingStep(batch)
-        return {'valueLoss': loss, 'valueAccuracy': accuracy(outputs, labels)}
-
-    def validationEpochEnd(self, outputs):
-        batch_losses = [x['valueLoss'] for x in outputs]
-        epoch_loss = torch.stack(batch_losses).mean()
-        batch_accs = [x['valueAccuracy'] for x in outputs]
-        epoch_acc = torch.stack(batch_accs).mean() * 100
-        return {
-            'valueLoss': epoch_loss.item(),
-            'valueAccuracy': epoch_acc.item(),
-        }
-
-    def epochEnd(self, epoch, result):
-        print(
-            f"{epoch}. epoch, the loss value: {result['valueLoss']:.2f}"
-            f" with model accuracy: {result['valueAccuracy']:.2f}%"
-        )
-
-    def evaluate(self, valuationSetLoader):
-        outputs = []
-        print('Evaluate...')
-        for batch in tqdm(valuationSetLoader, ncols=100):
-            outputs.append(self.validationStep(batch))
-        return self.validationEpochEnd(outputs)
-
-    def fit(self, epochs, learning_rate, train_loader, valuation_loader):
-        history = []
-        optimizer = self.optimizer(self.parameters(), learning_rate)
-        print('Training...')
-        for epoch in range(1, epochs):
-            for batch in tqdm(train_loader, ncols=100,):
-                loss = self.trainingStep(batch)
-                loss.backward()
-                optimizer.step()
-            result = self.evaluate(valuation_loader)
-            self.epochEnd(epoch, result)
-            history.append(result)
-        return history
-
-
-def accuracy(outputs, labels):
-    predictions = torch.argmax(outputs, dim=1)
-    labels = torch.argmax(labels, dim=1)
-    return torch.tensor(
-        torch.sum(predictions == labels).item() / len(predictions)
-    )
-
-
-def to_device(data, device):
-    if isinstance(data, (list, tuple)):
-        return [to_device(x, device) for x in data]
-    return data.to(device, non_blocking=True)
-
-
-def normatize_dataset(dataset):
-    normalized_dataset = []
-    for matrix_positions, label in dataset:
-        onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
-        onehot_presentation[CLASSES_MAPPING[label]] = 1
-        normalizes_positions = F.normalize(torch.tensor(matrix_positions))
-        normalized_dataset.append(
-            [normalizes_positions.float(), onehot_presentation]
-        )
-    return normalized_dataset
 
 
 if __name__ == '__main__':
@@ -226,15 +126,17 @@ if __name__ == '__main__':
     num_folds = 10
     folds = random_split(dataset, [1/num_folds]*num_folds)
     for i in range(num_folds):
-        print(f'Next fold {i+1} as validation set...')
         model = MLP(
             num_classes=len(activities_dictionary),
             num_features=44,
             # num_features=3,
-            num_frames=1000
+            num_frames=1000,
+            optimizer=Adam,
+            loss_function=mse_loss,
         )
+        print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
-            fold for index, fold in enumerate(folds) if index != 0
+            fold for index, fold in enumerate(folds) if index != i
         ])
         train_loader = DataLoader(
             train_dataset,
