@@ -17,25 +17,12 @@ from nltk.corpus import wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import EnglishStemmer
 from string import punctuation
-from utils import change_to
+from utils import change_to, activities_dictionary
 
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
 # BUFFER_SIZE = 32 * 2048 * 2048
 URL = 'https://motion-annotation.humanoids.kit.edu/downloads/4/'
-activities_dictionary = {
-    'walk',
-    'turn',
-    'run',
-    'stand',
-    'jump',
-    'wave',
-    'stumbl',
-    'danc',
-    'throw',
-    'kneel',
-    'kick',
-}
 
 
 class Classification(Enum):
