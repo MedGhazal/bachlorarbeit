@@ -1,9 +1,13 @@
+from collections import Counter
 from tqdm import tqdm
 import os
 from functools import wraps
 import torch
 import torch.nn as nn
-from torch.nn.functional import normalize
+from torch.nn.functional import normalize, cross_entropy
+from bokeh.io import show, output_file
+from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource
 
 
 activities_dictionary = {
@@ -72,13 +76,20 @@ class Model(nn.Module):
     def trainingStep(self, batch):
         motions, labels = batch
         targets = self.forward(motions)
-        return self.loss_function(labels, targets)
+        if self.loss_function == cross_entropy:
+            return self.loss_function(labels, targets, reduction='max')
+        else:
+            return self.loss_function(labels, targets)
 
     def validationStep(self, batch):
         motions, labels = batch
         output = self.forward(motions)
         loss = self.trainingStep(batch)
-        return {'valueLoss': loss, 'valueAccuracy': accuracy(output, labels)}
+        accuracy_ = accuracy(output, labels)
+        return {
+            'valueLoss': loss,
+            'valueAccuracy': accuracy_,
+        }
 
     def validationEpochEnd(self, outputs):
         batch_losses = [x['valueLoss'] for x in outputs]
@@ -92,16 +103,31 @@ class Model(nn.Module):
 
     def epochEnd(self, epoch, result):
         print(
-            f"{epoch}. epoch, the loss value: {result['valueLoss']:.2f}"
+            f"{epoch}. epoch, the loss value: {result['valueLoss']:.4f}"
             f" with model accuracy: {result['valueAccuracy']:.2f}%"
         )
 
     def evaluate(self, valuationSetLoader):
         outputs = []
         print('Evaluate...')
+        labels, predictions = None, None
         for batch in tqdm(valuationSetLoader, ncols=100):
             outputs.append(self.validationStep(batch))
-        return self.validationEpochEnd(outputs)
+            motions, batch_labels = batch
+            batch_outputs = self.forward(motions)
+            batch_predictions = torch.argmax(batch_outputs, dim=1)
+            batch_labels = torch.argmax(batch_labels, dim=1)
+            if labels is None and predictions is None:
+                labels = batch_labels
+                predictions = batch_predictions
+            else:
+                labels = torch.cat((labels, batch_labels))
+                predictions = torch.cat((predictions, batch_predictions))
+        return (
+            self.validationEpochEnd(outputs),
+            labels,
+            predictions,
+        )
 
     def fit(self, epochs, learning_rate, train_loader, valuation_loader):
         history = []
@@ -112,10 +138,10 @@ class Model(nn.Module):
                 loss = self.trainingStep(batch)
                 loss.backward()
                 optimizer.step()
-            result = self.evaluate(valuation_loader)
+            result, labels, predictions = self.evaluate(valuation_loader)
             self.epochEnd(epoch, result)
             history.append(result)
-        return history
+        return history, labels, predictions
 
 
 def accuracy(outputs, labels):
@@ -136,9 +162,39 @@ def normatize_dataset(dataset):
     normalized_dataset = []
     for matrix_positions, label in dataset:
         onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
-        onehot_presentation[CLASSES_MAPPING[label]] = 1
+        onehot_presentation[CLASSES_MAPPING[label]] = 1.0
         normalizes_positions = normalize(torch.tensor(matrix_positions))
         normalized_dataset.append(
             [normalizes_positions.float(), onehot_presentation]
         )
     return normalized_dataset
+
+
+def visualize_class_distribution(dataset):
+    output_file('plots/class_distribution.html')
+    label_frequency = Counter(label for _, label in dataset)
+    label_frequency = ColumnDataSource(
+        data=dict(
+            label=list(label_frequency.keys()),
+            count=list(label_frequency.values()),
+        )
+    )
+    figure_ = figure(
+        title='Label distribution',
+        y_range=list(activities_dictionary),
+    )
+    figure_.hbar(
+        y='label',
+        right='count',
+        left=0,
+        height=.5,
+        fill_color='#000000',
+        line_color='#000000',
+        source=label_frequency,
+    )
+    show(figure_)
+    return True
+
+
+def visualize_confusion_matrix(fold, cassifications):
+    pass

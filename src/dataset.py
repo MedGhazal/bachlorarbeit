@@ -12,11 +12,11 @@ import requests
 import zipfile
 from nltk import download, FreqDist, pos_tag
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.corpus import wordnet
+from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import EnglishStemmer
 from string import punctuation
+
 from utils import change_to, activities_dictionary
 
 # Change this to the path where you want to download the dataset to

@@ -24,6 +24,6 @@ data/objects/Winter/imgui.ini
 data/objects/Winter/temporary.urdf
 *.pdf
 sources/*
-PyMeshLab
 src/test.py
-dataset.pt
+*.pt
+plots/*

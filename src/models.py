@@ -1,4 +1,3 @@
-# import tracemalloc
 import os
 import sys
 import numpy as np
@@ -7,8 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import Module, Sequential
-from torch.optim import Adam
-from torch.nn.functional import mse_loss, normalize
+from torch.optim import Adam, SGD, ASGD
+from torch.nn.functional import mse_loss, normalize, cross_entropy, soft_margin_loss, nll_loss
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data import random_split, ConcatDataset
 
@@ -20,6 +19,7 @@ from utils import (
     accuracy,
     normatize_dataset,
     to_device,
+    visualize_class_distribution,
 )
 
 
@@ -100,6 +100,49 @@ class CNN(Model):
         return self.network(input_)
 
 
+class CNN_2d(Model):
+
+    def __init__(
+        self,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
+        self.network = Sequential(
+            nn.Conv2d(num_features, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(16, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(16, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv1d(16, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(16, 16, kernel_size=3, padding=1),
+            nn.Flatten(),
+            nn.Linear(16, num_classes),
+            nn.ReLU(),
+        )
+        self.num_classes = num_classes
+        self.loss_function = loss_function
+        self.optimizer = optimizer
+
+    def forward(self, input_):
+        return self.network(input_)
+
+
 if __name__ == '__main__':
     if not os.path.exists('dataset.pt'):
         dataset = MotionDataset(
@@ -116,6 +159,7 @@ if __name__ == '__main__':
             dataset.parse()
 
         dataset = dataset.matrix_represetations
+        visualize_class_distribution(dataset)
         dataset = normatize_dataset(dataset)
         torch.save(dataset, 'dataset.pt')
     else:
@@ -123,16 +167,20 @@ if __name__ == '__main__':
         dataset = torch.load('dataset.pt')
 
     accuracies, histories = [], []
-    num_folds = 10
+    num_folds = 2 # 10, 30, 2
     folds = random_split(dataset, [1/num_folds]*num_folds)
+    labels_, predictions_ = [], []
     for i in range(num_folds):
-        model = MLP(
+        model = CNN(
             num_classes=len(activities_dictionary),
             num_features=44,
             # num_features=3,
             num_frames=1000,
             optimizer=Adam,
+            # optimizer=SGD,
+            # optimizer=ASGD,
             loss_function=mse_loss,
+            # loss_function=cross_entropy,
         )
         print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
@@ -151,8 +199,15 @@ if __name__ == '__main__':
             drop_last=True,
             num_workers=8,
         )
-        history = model.fit(5, .0001, train_loader, validation_loader)
+        history, labels, predictions = model.fit(
+            3,
+            .0001,
+            train_loader,
+            validation_loader,
+        )
+        labels_.append(labels)
+        predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-    plot(histories)
+    plot('CNN', histories, labels_, predictions_)
     print(sum(accuracies)/len(accuracies))
