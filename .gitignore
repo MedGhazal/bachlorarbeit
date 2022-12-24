@@ -26,3 +26,4 @@ data/objects/Winter/temporary.urdf
 sources/*
 PyMeshLab
 src/test.py
+dataset.pt
