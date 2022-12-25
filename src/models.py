@@ -75,7 +75,7 @@ class CNN(Model):
             loss_function=loss_function,
         )
         self.network = Sequential(
-            nn.Conv1d(num_frames, 16, kernel_size=3, padding=1),
+            nn.Conv1d(num_features, 16, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(2),
             nn.Conv1d(16, 32, kernel_size=3, padding=1),
@@ -167,9 +167,12 @@ if __name__ == '__main__':
         dataset = torch.load('dataset.pt')
 
     accuracies, histories = [], []
-    num_folds = 2 # 10, 30, 2
-    folds = random_split(dataset, [1/num_folds]*num_folds)
-    labels_, predictions_ = [], []
+    num_folds = 10 # 10, 30, 2
+    if num_folds == 2:
+        folds = random_split(dataset, [.1, .9])
+    else:
+        folds = random_split(dataset, [1/num_folds]*num_folds)
+    labels_, predictions_, training_losses_ = [], [], []
     for i in range(num_folds):
         model = CNN(
             num_classes=len(activities_dictionary),
@@ -199,15 +202,17 @@ if __name__ == '__main__':
             drop_last=True,
             num_workers=8,
         )
-        history, labels, predictions = model.fit(
-            3,
-            .0001,
+        training_losses, history, labels, predictions = model.fit(
+            7,
+            .00001,
             train_loader,
             validation_loader,
         )
+        training_losses_.append(training_losses)
         labels_.append(labels)
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-    plot('CNN', histories, labels_, predictions_)
+    plot('CNN', histories, labels_, predictions_, training_losses_)
     print(sum(accuracies)/len(accuracies))
+    print(CLASSES_MAPPING)

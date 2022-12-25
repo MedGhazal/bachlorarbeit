@@ -3,9 +3,12 @@ import numpy as np
 from random import randrange
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
-from bokeh.layouts import grid, row
+from bokeh.layouts import grid, row, column
+from bokeh.palettes import Viridis
+from bokeh.models import ColumnDataSource, LinearColorMapper, ColorBar, BasicTicker
+from bokeh.transform import transform
 
-from utils import activities_dictionary
+from utils import activities_dictionary, CLASSES_MAPPING
 
 def get_random_hex():
     return hex(randrange(17, 255))[2:].upper()
@@ -37,16 +40,48 @@ def get_confusion_matrix(labels, predictions):
     return np.array(confusion_matrix)
 
 
-def visualize_confusion_matrix(labels, predictions, fold):
-    confusion_matrix = get_confusion_matrix(labels, predictions)
-    print(confusion_matrix)
-    data = {
-        'labels': labels,
-        'predictions': predictions,
-    }
-    data_frame = pd.DataFrame(data)
-    confusion_matrix = pd.crosstab(data['labels'], data['predictions'], rownames=['Labels'], colnames=['Predictions'])
-    print(confusion_matrix)
+def visualize_confusion_matrix(labels_, predictions_):
+    # output_file('plots/Confusion_Matrix.html')
+    figures = []
+    for fold, (labels, predictions) in enumerate(zip(labels_, predictions_)):
+        confusion_matrix = pd.DataFrame(
+            get_confusion_matrix(labels, predictions),
+            index=list(CLASSES_MAPPING.keys()),
+            columns=list(CLASSES_MAPPING.keys()),
+        )
+        confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
+        figure_ = figure(
+            # width=300,
+            # height=300,
+            title=f'Confusion matrices for fold {fold+1}',
+            x_range=list(CLASSES_MAPPING.keys()),
+            y_range=list(CLASSES_MAPPING.keys()),
+            # toolbar_location=None,
+            # tools='',
+            x_axis_location="above",
+        )
+        color_mapper = LinearColorMapper(
+            palette=Viridis[10],
+            low=confusion_matrix.value.min(),
+            high=confusion_matrix.value.max(),
+        )
+        color_bar = ColorBar(
+                color_mapper=color_mapper,
+                location=(0, 0),
+                ticker=BasicTicker(desired_num_ticks=10),
+        )
+        figure_.rect(
+            x='level_0',
+            y='level_1',
+            width=1,
+            height=1,
+            source=ColumnDataSource(confusion_matrix),
+            line_color=None,
+            fill_color=transform('value', color_mapper),
+        )
+        figure_.add_layout(color_bar, 'right')
+        figures.append(figure_)
+    return figures
 
 
 def visualize_losses(figure_losses, fold, loss_values, color):
@@ -69,11 +104,16 @@ def visualize_accuracies(figure_accuracies, fold, accuracy_values, color):
     )
 
 
-def plot(model, histories, labels, predictions):
+def plot(model, histories, labels_, predictions_, training_losses_):
     output_file('plots/Experiements.html')
     figures = []
-    figure_losses = figure(
-        title=f'The loss values the {model} over epochs',
+    figure_validation_losses = figure(
+        title=f'The validation loss values the {model} over epochs',
+        # width=300,
+        # height=300,
+    )
+    figure_training_losses = figure(
+        title=f'The training loss values the {model} over epochs',
         # width=300,
         # height=300,
     )
@@ -83,16 +123,24 @@ def plot(model, histories, labels, predictions):
         # height=300,
     )
     figures.append(figure_accuracies)
-    figures.append(figure_losses)
-    for fold, history in enumerate(histories):
+    figures.append(figure_validation_losses)
+    figures.append(figure_training_losses)
+    for fold, (history, training_losses) in enumerate(
+        zip(
+            histories,
+            training_losses_,
+        )
+    ):
         color = get_random_color()
         loss_values = [values['valueLoss'] for values in history]
         accuracy_values = [values['valueAccuracy'] for values in history]
         visualize_accuracies(figure_accuracies, fold+1, accuracy_values, color)
-        visualize_losses(figure_losses, fold+1, loss_values, color)
-    for fold, labels_, predictions_ in enumerate(zip(labels, predictions)):
-        visualize_confusion_matrix(labels, predictions, fold+1)
-    grid_ = grid(row(*figures))
+        visualize_losses(figure_training_losses, fold+1, training_losses, color)
+        visualize_losses(figure_validation_losses, fold+1, loss_values, color)
+    figures_confusion_matrices =  visualize_confusion_matrix(
+        labels_, predictions_
+    )
+    grid_ = grid(column(row(*figures), row(*figures_confusion_matrices)))
     show(grid_)
 
 

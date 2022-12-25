@@ -130,18 +130,19 @@ class Model(nn.Module):
         )
 
     def fit(self, epochs, learning_rate, train_loader, valuation_loader):
-        history = []
+        history, training_losses = [], []
         optimizer = self.optimizer(self.parameters(), learning_rate)
         print('Training...')
         for epoch in range(1, epochs):
             for batch in tqdm(train_loader, ncols=100,):
                 loss = self.trainingStep(batch)
+                training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
             result, labels, predictions = self.evaluate(valuation_loader)
             self.epochEnd(epoch, result)
             history.append(result)
-        return history, labels, predictions
+        return training_losses, history, labels, predictions
 
 
 def accuracy(outputs, labels):
