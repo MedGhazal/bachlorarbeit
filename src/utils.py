@@ -139,6 +139,7 @@ class Model(nn.Module):
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
+            adjust_learning_rate(optimizer, epoch)
             result, labels, predictions = self.evaluate(valuation_loader)
             self.epochEnd(epoch, result)
             history.append(result)
@@ -169,6 +170,12 @@ def normatize_dataset(dataset):
             [normalizes_positions.float(), onehot_presentation]
         )
     return normalized_dataset
+
+
+def adjust_learning_rate(optimizer, epoch):
+    learning_rate = .1 * (epoch / 1000)
+    for parameter_group in optimizer.param_groups:
+        parameter_group['lr'] = learning_rate
 
 
 def visualize_class_distribution(dataset):
