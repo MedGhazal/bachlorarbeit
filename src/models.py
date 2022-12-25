@@ -75,21 +75,18 @@ class CNN(Model):
             loss_function=loss_function,
         )
         self.network = Sequential(
-            nn.Conv1d(num_features, 16, kernel_size=3, padding=1),
+            nn.Conv1d(num_frames, num_features, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(2),
-            nn.Conv1d(16, 32, kernel_size=3, padding=1),
+            nn.Conv1d(num_features, num_features*2, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.Conv1d(32, 32, kernel_size=3, padding=1),
+            nn.MaxPool1d(4),
+            nn.Conv1d(num_features*2, num_features*2, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.Conv1d(32, 16, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.Conv1d(16, 8, kernel_size=3, padding=1),
+            nn.MaxPool1d(4),
+            nn.Conv1d(num_features*2, num_features, kernel_size=3, padding=1),
             nn.Flatten(),
-            nn.Linear(16, num_classes),
+            nn.Linear(num_features, num_classes),
             nn.ReLU(),
         )
         self.num_classes = num_classes
@@ -203,7 +200,7 @@ if __name__ == '__main__':
             num_workers=8,
         )
         training_losses, history, labels, predictions = model.fit(
-            7,
+            3,
             .00001,
             train_loader,
             validation_loader,
@@ -214,5 +211,5 @@ if __name__ == '__main__':
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
     plot('CNN', histories, labels_, predictions_, training_losses_)
-    print(sum(accuracies)/len(accuracies))
+    print(f'Average accuracy is {sum(accuracies)/len(accuracies)}:.2f')
     print(CLASSES_MAPPING)

@@ -4,7 +4,7 @@ from random import randrange
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.layouts import grid, row, column
-from bokeh.palettes import Viridis
+from bokeh.palettes import Viridis, Iridescent
 from bokeh.models import ColumnDataSource, LinearColorMapper, ColorBar, BasicTicker
 from bokeh.transform import transform
 
@@ -40,8 +40,7 @@ def get_confusion_matrix(labels, predictions):
     return np.array(confusion_matrix)
 
 
-def visualize_confusion_matrix(labels_, predictions_):
-    # output_file('plots/Confusion_Matrix.html')
+def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
     figures = []
     for fold, (labels, predictions) in enumerate(zip(labels_, predictions_)):
         confusion_matrix = pd.DataFrame(
@@ -49,19 +48,29 @@ def visualize_confusion_matrix(labels_, predictions_):
             index=list(CLASSES_MAPPING.keys()),
             columns=list(CLASSES_MAPPING.keys()),
         )
+        confusion_matrix.index.name = 'labels'
+        confusion_matrix.columns.name = 'predictions'
         confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
         figure_ = figure(
             # width=300,
             # height=300,
-            title=f'Confusion matrices for fold {fold+1}',
+            title=(
+                f'Confusion matrices for fold {fold+1} '
+                f'with accuracy {final_accuracy_values[fold]:.2f}'
+            ),
             x_range=list(CLASSES_MAPPING.keys()),
-            y_range=list(CLASSES_MAPPING.keys()),
-            # toolbar_location=None,
-            # tools='',
+            y_range=list(CLASSES_MAPPING.keys())[::-1],
+            x_axis_label='Predictions',
+            y_axis_label='Labels',
             x_axis_location="above",
+            tooltips=[
+                ('Num', '@value'),
+                ('Labels', '@labels'),
+                ('Predictions', '@predictions'),
+            ],
         )
         color_mapper = LinearColorMapper(
-            palette=Viridis[10],
+            palette=Iridescent[23][::-1],
             low=confusion_matrix.value.min(),
             high=confusion_matrix.value.max(),
         )
@@ -71,8 +80,8 @@ def visualize_confusion_matrix(labels_, predictions_):
                 ticker=BasicTicker(desired_num_ticks=10),
         )
         figure_.rect(
-            x='level_0',
-            y='level_1',
+            x='predictions',
+            y='labels',
             width=1,
             height=1,
             source=ColumnDataSource(confusion_matrix),
@@ -125,6 +134,7 @@ def plot(model, histories, labels_, predictions_, training_losses_):
     figures.append(figure_accuracies)
     figures.append(figure_validation_losses)
     figures.append(figure_training_losses)
+    final_accuracy_values = []
     for fold, (history, training_losses) in enumerate(
         zip(
             histories,
@@ -134,11 +144,12 @@ def plot(model, histories, labels_, predictions_, training_losses_):
         color = get_random_color()
         loss_values = [values['valueLoss'] for values in history]
         accuracy_values = [values['valueAccuracy'] for values in history]
+        final_accuracy_values.append(accuracy_values[-1])
         visualize_accuracies(figure_accuracies, fold+1, accuracy_values, color)
         visualize_losses(figure_training_losses, fold+1, training_losses, color)
         visualize_losses(figure_validation_losses, fold+1, loss_values, color)
     figures_confusion_matrices =  visualize_confusion_matrix(
-        labels_, predictions_
+        labels_, predictions_, final_accuracy_values
     )
     grid_ = grid(column(row(*figures), row(*figures_confusion_matrices)))
     show(grid_)
@@ -155,3 +166,43 @@ if __name__ == '__main__':
     data_frame = pd.DataFrame(data)
     confusion_matrix = pd.crosstab(data['labels'], data['predictions'], rownames=['Labels'], colnames=['Predictions'])
     print(confusion_matrix)
+    confusion_matrix = pd.DataFrame(
+        get_confusion_matrix(labels, predictions),
+        index=list(CLASSES_MAPPING.keys()),
+        columns=list(CLASSES_MAPPING.keys()),
+    )
+    confusion_matrix.index.name = 'labels'
+    confusion_matrix.columns.name = 'predictions'
+    print(confusion_matrix)
+    confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
+    print(confusion_matrix)
+    figure_ = figure(
+        # width=300,
+        # height=300,
+        title=f'Confusion matrices for fold {1}',
+        x_range=list(CLASSES_MAPPING.keys()),
+        y_range=list(CLASSES_MAPPING.keys())[::-1],
+        # toolbar_location=None,
+        # tools='',
+        x_axis_location="above",
+    )
+    color_mapper = LinearColorMapper(
+        palette=Iridescent[23][::-1],
+        low=confusion_matrix.value.min(),
+        high=confusion_matrix.value.max(),
+    )
+    color_bar = ColorBar(
+        color_mapper=color_mapper,
+        location=(0, 0),
+        ticker=BasicTicker(desired_num_ticks=10),
+    )
+    figure_.rect(
+        x='predictions',
+        y='labels',
+        width=1,
+        height=1,
+        source=ColumnDataSource(confusion_matrix),
+        line_color=None,
+        fill_color=transform('value', color_mapper),
+    )
+    show(figure_)

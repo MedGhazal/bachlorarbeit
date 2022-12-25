@@ -10,7 +10,7 @@ from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
 
 
-activities_dictionary = {
+activities_dictionary = [
     'walk',
     'turn',
     'run',
@@ -22,7 +22,7 @@ activities_dictionary = {
     'throw',
     'kneel',
     'kick',
-}
+]
 CLASSES_MAPPING = {
     activity: number for number, activity in enumerate(activities_dictionary)
 }
