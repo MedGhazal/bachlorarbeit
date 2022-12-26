@@ -52,11 +52,11 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
         confusion_matrix.columns.name = 'predictions'
         confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
         figure_ = figure(
-            # width=300,
-            # height=300,
+            width=500,
+            height=400,
             title=(
                 f'Confusion matrices for fold {fold+1} '
-                f'with accuracy {final_accuracy_values[fold]:.2f}'
+                f'with accuracy {final_accuracy_values[fold]:.2f}%'
             ),
             x_range=list(CLASSES_MAPPING.keys()),
             y_range=list(CLASSES_MAPPING.keys())[::-1],
@@ -85,8 +85,8 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
             width=1,
             height=1,
             source=ColumnDataSource(confusion_matrix),
-            line_color=None,
             fill_color=transform('value', color_mapper),
+            line_color=transform('value', color_mapper),
         )
         figure_.add_layout(color_bar, 'right')
         figures.append(figure_)

@@ -18,6 +18,9 @@ from nltk.stem.snowball import EnglishStemmer
 from string import punctuation
 
 from utils import change_to, activities_dictionary
+from utils import (
+    visualize_length_distribution,
+)
 
 # Change this to the path where you want to download the dataset to
 DEFAULT_ROOT = 'data/motion_data'
@@ -61,10 +64,7 @@ class Frame:
 
     @staticmethod
     def _parse_list(lst):
-        return list(map(
-            lambda x: float(x),
-            lst.rstrip().split(' '),
-        ))
+        return list(map(lambda x: float(x), lst.rstrip().split(' ')))
 
     def parse_root_position(self):
         self.root_position = self._parse_list(self.root_position)
@@ -261,9 +261,7 @@ class Motion:
         min_length=None,
     ):
         try:
-            self.position_matrix = np.loadtxt(
-                f'{self.id_}_root_positions.txt',
-            )
+            self.position_matrix = np.loadtxt(f'{self.id_}_root_positions.txt')
         except FileNotFoundError:
             self.matrixfy_all()
         if max_length and self.position_matrix.shape[0] > max_length:
@@ -289,28 +287,17 @@ class Motion:
         del self.frames
 
     def matrixfy_frames(self):
-        self.position_matrix = []
-        for frame in self.frames:
-            self.position_matrix.append(
-                list(frame.joint_positions.values())
-            )
+        self.position_matrix = [
+            list(frame.joint_positions.values())
+            for frame in self.frames
+        ]
         self.position_matrix = np.array(self.position_matrix)
-        np.savetxt(
-            f'{self.id_}_joint_positions.txt',
-            self.position_matrix,
-        )
+        np.savetxt(f'{self.id_}_joint_positions.txt', self.position_matrix)
 
     def matrixfy_root_positions(self):
-        self.position_matrix = []
-        for frame in self.frames:
-            self.position_matrix.append(
-                list(frame.root_position)
-            )
+        self.position_matrix = [frame.root_position for frame in self.frames]
         self.position_matrix = np.array(self.position_matrix)
-        np.savetxt(
-            f'{self.id_}_root_positions.txt',
-            self.position_matrix,
-        )
+        np.savetxt(f'{self.id_}_root_positions.txt', self.position_matrix)
 
     def get_initial_root_position(self):
         return self.frames[0].root_position
@@ -388,8 +375,7 @@ class MotionDataset:
             meta=meta,
         )
         if not os.path.exists(f'{id_}_joint_positions.txt',) or\
-            not os.path.exists(f'{id_}_root_positions.txt'):
-            print(f'Matrixifying Motion {id_}...')
+           not os.path.exists(f'{id_}_root_positions.txt'):
             motion.matrixfy_all()
 
         try:
@@ -456,9 +442,7 @@ def tokenize_annotation(annotation):
             download('stopwords')
         stop_words = set(stopwords.words('english'))
         tokens = word_tokenize(annotation)
-        return [
-            token for token in tokens if token not in stop_words
-        ]
+        return [token for token in tokens if token not in stop_words]
 
 
 def classify_annotation(
@@ -470,23 +454,18 @@ def classify_annotation(
     with redirect_stdout(open(os.devnull, "w")):
         tokens = tokenize_annotation(annotation)
         similarities = []
-        if not os.path.exists(
-            os.path.expanduser('~/nltk_data/corpora')
-        ):
+
+        if not os.path.exists(os.path.expanduser('~/nltk_data/corpora')):
             download('wordnet')
-        if not os.path.exists(
-            os.path.expanduser('~/nltk_data/corpora')
-        ):
+        if not os.path.exists(os.path.expanduser('~/nltk_data/corpora')):
             download('omw-1.4')
 
         for token in tokens:
             synonyms = wordnet.synsets(token)
             synonym_similarity = [
-                activity.wup_similarity(
-                    synonym
-                ) for synonym in synonyms if activity.wup_similarity(
-                    synonym
-                ) > similarity_threshhold
+                activity.wup_similarity(synonym)
+                for synonym in synonyms
+                if activity.wup_similarity(synonym) > similarity_threshhold
             ]
             try:
                 synonym_similarity = max(synonym_similarity)
@@ -535,11 +514,7 @@ def word_tagger(tokenized_annotation_text):
 def get_most_common_verbs(annotation_text, number_verbs=0):
     set_ = set()
     for item in FreqDist(
-        word_tagger(
-            word_tokenize(
-                annotation_text
-            )
-        )
+        word_tagger(word_tokenize(annotation_text))
     ).most_common():
         if item[0][1] in ['VB', 'VBD', 'VBZ', 'VBG']:
             set_.add(item)
@@ -551,12 +526,8 @@ def get_most_common_verbs(annotation_text, number_verbs=0):
         else:
             dict_stemmed_verbs[stem_] = frequency
     if number_verbs == 0:
-        # return set_
         return dict_stemmed_verbs.keys()
     else:
-        # return sorted(
-        #     list(set_), key=lambda x: x[1], reverse=True,
-        # )[:number_verbs]
         return sorted(
             dict_stemmed_verbs.items(), key=lambda x: x[1], reverse=True,
         )[:number_verbs]
@@ -571,13 +542,7 @@ def get_dataset_infos(dataset):
     print(
         f'The number of miss classification is {dataset.miss_classification}'
     )
-
-    annotations = [
-        ''.join(
-            motion.annotation
-        ) for motion in dataset.motions
-    ]
-
+    annotations = [''.join( motion.annotation) for motion in dataset.motions]
     percentage_annotated_motions = (
         len(list(annotation for annotation in annotations if annotation)) /
         len(annotations)
@@ -586,12 +551,11 @@ def get_dataset_infos(dataset):
         f'{percentage_annotated_motions:.2f} is the percentatge of motions '
         f'with annotations'
     )
-    # print(' '.join(annotations))
     print(get_most_common_verbs(' '.join(annotations), number_verbs=30))
 
 
 def get_number_infos_motions(dataset):
-    lengths = set()
+    lengths = []
     number_compatible_motions = 0
     number_motions_under_20 = 0
     number_motions_under_10 = 0
@@ -599,9 +563,8 @@ def get_number_infos_motions(dataset):
 
     for motion in tqdm(dataset.motions, ncols=100,):
         motion.parse()
-        motion.matrixfy()
         duration = len(motion.frames)
-        lengths.add(duration)
+        lengths.append(duration)
         del motion.frames
         if duration / 1000 > 20:
             number_compatible_motions += 1
@@ -612,6 +575,7 @@ def get_number_infos_motions(dataset):
         elif duration / 1000 <= 5:
             number_motions_under_5 += 1
 
+    visualize_length_distribution(lengths)
     print(
         f'Max length is {max(lengths)}',
         f'Min length is {min(lengths)}',
@@ -633,4 +597,4 @@ if __name__ == '__main__':
         dataset.extract()
         dataset.parse()
 
-    get_dataset_infos(dataset)
+    get_number_infos_motions(dataset)

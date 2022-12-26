@@ -33,7 +33,9 @@ def load_urdf_models(motion):
         os.path.expanduser(
             os.path.join(
                 'data/objects/Winter',
-                'temporary.urdf',
+                # 'temporary.urdf',
+                'mmm.urdf',
+                # 'data/objects',
                 # 'mmm.urdf',
             ),
         ),
@@ -128,9 +130,7 @@ if __name__ == '__main__':
     for frame in motion.frames:
         play_frame(frame, planeId, boxId, motion_time)
 
-    normal_forces = list(
-        map(extract_normal_force, contact_points_infos)
-    )
+    normal_forces = list(map(extract_normal_force, contact_points_infos))
     print(*normal_forces, sep='\n')
 
     cubePos, cubeOrn = pb.getBasePositionAndOrientation(boxId)

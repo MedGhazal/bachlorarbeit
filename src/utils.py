@@ -1,3 +1,5 @@
+from numpy import linspace, histogram
+from random import randrange
 from collections import Counter
 from tqdm import tqdm
 import os
@@ -73,19 +75,23 @@ class Model(nn.Module):
         self.optimizer = optimizer
         self.loss_function = loss_function
 
-    def trainingStep(self, batch):
+    def trainingStep(self, batch, device):
         motions, labels = batch
+        motions, labels = motions.to(device), labels.to(device)
         targets = self.forward(motions)
         if self.loss_function == cross_entropy:
-            return self.loss_function(labels, targets, reduction='max')
+            return self.loss_function(labels, targets, reduction='sum')
         else:
             return self.loss_function(labels, targets)
 
-    def validationStep(self, batch):
+    def validationStep(self, batch, device):
         motions, labels = batch
-        output = self.forward(motions)
-        loss = self.trainingStep(batch)
-        accuracy_ = accuracy(output, labels)
+        motions = motions.to(device)
+        labels = labels.to(device)
+        outputs = self.forward(motions)
+        with torch.no_grad():
+            loss = self.trainingStep(batch, device)
+        accuracy_ = accuracy(outputs, labels)
         return {
             'valueLoss': loss,
             'valueAccuracy': accuracy_,
@@ -107,13 +113,14 @@ class Model(nn.Module):
             f" with model accuracy: {result['valueAccuracy']:.2f}%"
         )
 
-    def evaluate(self, valuationSetLoader):
+    def evaluate(self, valuationSetLoader, device):
         outputs = []
         print('Evaluate...')
         labels, predictions = None, None
         for batch in tqdm(valuationSetLoader, ncols=100):
-            outputs.append(self.validationStep(batch))
+            outputs.append(self.validationStep(batch, device))
             motions, batch_labels = batch
+            motions = motions.to(device)
             batch_outputs = self.forward(motions)
             batch_predictions = torch.argmax(batch_outputs, dim=1)
             batch_labels = torch.argmax(batch_labels, dim=1)
@@ -129,18 +136,19 @@ class Model(nn.Module):
             predictions,
         )
 
-    def fit(self, epochs, learning_rate, train_loader, valuation_loader):
+    def fit(self, epochs, learning_rate, device, train_loader, valuation_loader):
         history, training_losses = [], []
         optimizer = self.optimizer(self.parameters(), learning_rate)
         print('Training...')
         for epoch in range(1, epochs):
             for batch in tqdm(train_loader, ncols=100,):
-                loss = self.trainingStep(batch)
+                # optimizer.zero_grad()
+                loss = self.trainingStep(batch, device)
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
-            adjust_learning_rate(optimizer, epoch)
-            result, labels, predictions = self.evaluate(valuation_loader)
+            # adjust_learning_rate(optimizer, epoch)
+            result, labels, predictions = self.evaluate(valuation_loader, device)
             self.epochEnd(epoch, result)
             history.append(result)
         return training_losses, history, labels, predictions
@@ -160,20 +168,33 @@ def to_device(data, device):
     return data.to(device, non_blocking=True)
 
 
-def normatize_dataset(dataset):
+def normalize_dataset(dataset):
     normalized_dataset = []
     for matrix_positions, label in dataset:
         onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
         onehot_presentation[CLASSES_MAPPING[label]] = 1.0
-        normalizes_positions = normalize(torch.tensor(matrix_positions))
+        normalized_positions = normalize(torch.tensor(matrix_positions))
         normalized_dataset.append(
-            [normalizes_positions.float(), onehot_presentation]
+            [normalized_positions.float(), onehot_presentation]
         )
     return normalized_dataset
 
 
+def prepare_dataset(dataset, normalize=False):
+    if normalize:
+        return normalize_dataset(dataset)
+    prepared_dataset = []
+    for matrix_positions, label in dataset:
+        onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
+        onehot_presentation[CLASSES_MAPPING[label]] = 10.0
+        prepared_dataset.append(
+            [torch.tensor(matrix_positions).float(), onehot_presentation]
+        )
+    return prepared_dataset
+
+
 def adjust_learning_rate(optimizer, epoch):
-    learning_rate = .1 * (epoch / 1000)
+    learning_rate = 1 ** (-epoch*2)
     for parameter_group in optimizer.param_groups:
         parameter_group['lr'] = learning_rate
 
@@ -204,5 +225,23 @@ def visualize_class_distribution(dataset):
     return True
 
 
-def visualize_confusion_matrix(fold, cassifications):
-    pass
+def visualize_length_distribution(lengths):
+    output_file('plots/length_distribution.html')
+    figure_ = figure(title='Frames length distribution',)
+    bins = linspace(min(lengths), max(lengths), 40)
+    histogram_, edges = histogram(lengths, density=True, bins=bins)
+    figure_.quad(
+        top=histogram_*len(lengths),
+        bottom=0,
+        left=edges[:-1],
+        right=edges[1:],
+        fill_color='#000000',
+        line_color='#ffffff',
+    )
+    show(figure_)
+    return True
+
+
+if __name__ == '__main__':
+    lengths = [randrange(100, 10000) for _ in range(1000)]
+    visualize_length_distribution(lengths)

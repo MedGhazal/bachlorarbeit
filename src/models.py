@@ -17,9 +17,10 @@ from utils import (
     Model,
     CLASSES_MAPPING,
     accuracy,
-    normatize_dataset,
+    prepare_dataset,
     to_device,
     visualize_class_distribution,
+    # visualize_length_distribution,
 )
 
 
@@ -77,17 +78,20 @@ class CNN(Model):
         self.network = Sequential(
             nn.Conv1d(num_frames, num_features, kernel_size=3, padding=1),
             nn.ReLU(),
+            nn.AvgPool1d(2),
+            nn.Conv1d(num_features, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(4),
+            nn.Conv1d(32, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.AvgPool1d(2),
+            nn.Conv1d(16, num_features, kernel_size=3, padding=1),
+            nn.ReLU(),
             nn.MaxPool1d(2),
-            nn.Conv1d(num_features, num_features*2, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(4),
-            nn.Conv1d(num_features*2, num_features*2, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(4),
-            nn.Conv1d(num_features*2, num_features, kernel_size=3, padding=1),
             nn.Flatten(),
             nn.Linear(num_features, num_classes),
-            nn.ReLU(),
+            nn.Softmax(0),
+            nn.Linear(num_classes, num_classes),
         )
         self.num_classes = num_classes
         self.loss_function = loss_function
@@ -115,21 +119,22 @@ class CNN_2d(Model):
             loss_function=loss_function,
         )
         self.network = Sequential(
-            nn.Conv2d(num_features, 16, kernel_size=3, padding=1),
+            nn.Conv2d(4, 4, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            nn.Conv2d(16, 16, kernel_size=3, padding=1),
+            nn.Conv2d(4, 4, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.AvgPool2d(3, 3),
+            nn.Conv2d(4, 4, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.AvgPool2d(3, 3),
+            nn.Conv2d(4, 4, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            nn.Conv2d(16, 16, kernel_size=3, padding=1),
+            nn.Conv2d(4, 4, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv1d(16, 16, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(16, 16, kernel_size=3, padding=1),
             nn.Flatten(),
-            nn.Linear(16, num_classes),
+            nn.Linear(277, num_classes),
             nn.ReLU(),
         )
         self.num_classes = num_classes
@@ -141,14 +146,23 @@ class CNN_2d(Model):
 
 
 if __name__ == '__main__':
+    if torch.cuda.is_available():
+        device = 'cuda'
+    elif torch.backends.mps.is_available():
+        device = 'mps'
+    else:
+        device = 'cpu'
+    frequency = 1
+    length = 10000
     if not os.path.exists('dataset.pt'):
         dataset = MotionDataset(
             # get_matrixified_root_positions=True,
             get_matrixified_joint_positions=True,
-            frequency=1,
-            max_length=1000,
-            min_length=1000,
+            frequency=frequency,
+            max_length=length,
+            min_length=length,
         )
+
         try:
             dataset.parse()
         except FileNotFoundError:
@@ -157,7 +171,7 @@ if __name__ == '__main__':
 
         dataset = dataset.matrix_represetations
         visualize_class_distribution(dataset)
-        dataset = normatize_dataset(dataset)
+        dataset = prepare_dataset(dataset, normalize=True)
         torch.save(dataset, 'dataset.pt')
     else:
         print('Loading the dataset...')
@@ -175,13 +189,13 @@ if __name__ == '__main__':
             num_classes=len(activities_dictionary),
             num_features=44,
             # num_features=3,
-            num_frames=1000,
+            num_frames=length//frequency,
             optimizer=Adam,
             # optimizer=SGD,
             # optimizer=ASGD,
             loss_function=mse_loss,
             # loss_function=cross_entropy,
-        )
+        ).to(device)
         print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
             fold for index, fold in enumerate(folds) if index != i
@@ -190,18 +204,20 @@ if __name__ == '__main__':
             train_dataset,
             batch_size=32,
             shuffle=True,
-            drop_last=True,
+            drop_last=False,
             num_workers=8,
         )
         validation_loader = DataLoader(
             folds[i],
             batch_size=16,
-            drop_last=True,
+            drop_last=False,
             num_workers=8,
         )
         training_losses, history, labels, predictions = model.fit(
-            3,
+            8,
             .00001,
+            # .01,
+            device,
             train_loader,
             validation_loader,
         )
@@ -210,6 +226,7 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
+        if i == 0:
+            break
     plot('CNN', histories, labels_, predictions_, training_losses_)
-    print(f'Average accuracy is {sum(accuracies)/len(accuracies)}:.2f')
-    print(CLASSES_MAPPING)
+    print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')
