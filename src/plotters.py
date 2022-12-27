@@ -52,7 +52,7 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
         confusion_matrix.columns.name = 'predictions'
         confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
         figure_ = figure(
-            width=500,
+            width=550,
             height=400,
             title=(
                 f'Confusion matrices for fold {fold+1} '

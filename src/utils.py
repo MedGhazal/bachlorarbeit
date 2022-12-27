@@ -78,9 +78,9 @@ class Model(nn.Module):
     def trainingStep(self, batch, device):
         motions, labels = batch
         motions, labels = motions.to(device), labels.to(device)
-        targets = self.forward(motions)
+        targets = self.forward(motions, device)
         if self.loss_function == cross_entropy:
-            return self.loss_function(labels, targets, reduction='sum')
+            return self.loss_function(labels, targets, reduction='mean')
         else:
             return self.loss_function(labels, targets)
 
@@ -88,7 +88,7 @@ class Model(nn.Module):
         motions, labels = batch
         motions = motions.to(device)
         labels = labels.to(device)
-        outputs = self.forward(motions)
+        outputs = self.forward(motions, device)
         with torch.no_grad():
             loss = self.trainingStep(batch, device)
         accuracy_ = accuracy(outputs, labels)
@@ -121,7 +121,7 @@ class Model(nn.Module):
             outputs.append(self.validationStep(batch, device))
             motions, batch_labels = batch
             motions = motions.to(device)
-            batch_outputs = self.forward(motions)
+            batch_outputs = self.forward(motions, device)
             batch_predictions = torch.argmax(batch_outputs, dim=1)
             batch_labels = torch.argmax(batch_labels, dim=1)
             if labels is None and predictions is None:
@@ -130,11 +130,7 @@ class Model(nn.Module):
             else:
                 labels = torch.cat((labels, batch_labels))
                 predictions = torch.cat((predictions, batch_predictions))
-        return (
-            self.validationEpochEnd(outputs),
-            labels,
-            predictions,
-        )
+        return self.validationEpochEnd(outputs), labels, predictions
 
     def fit(self, epochs, learning_rate, device, train_loader, valuation_loader):
         history, training_losses = [], []
@@ -142,12 +138,12 @@ class Model(nn.Module):
         print('Training...')
         for epoch in range(1, epochs):
             for batch in tqdm(train_loader, ncols=100,):
-                # optimizer.zero_grad()
+                optimizer.zero_grad()
                 loss = self.trainingStep(batch, device)
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
-            # adjust_learning_rate(optimizer, epoch)
+            adjust_learning_rate(optimizer, epoch, learning_rate)
             result, labels, predictions = self.evaluate(valuation_loader, device)
             self.epochEnd(epoch, result)
             history.append(result)
@@ -186,15 +182,15 @@ def prepare_dataset(dataset, normalize=False):
     prepared_dataset = []
     for matrix_positions, label in dataset:
         onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
-        onehot_presentation[CLASSES_MAPPING[label]] = 10.0
+        onehot_presentation[CLASSES_MAPPING[label]] = 1.0
         prepared_dataset.append(
             [torch.tensor(matrix_positions).float(), onehot_presentation]
         )
     return prepared_dataset
 
 
-def adjust_learning_rate(optimizer, epoch):
-    learning_rate = 1 ** (-epoch*2)
+def adjust_learning_rate(optimizer, epoch, base_learning_rate):
+    learning_rate = base_learning_rate / epoch
     for parameter_group in optimizer.param_groups:
         parameter_group['lr'] = learning_rate
 
