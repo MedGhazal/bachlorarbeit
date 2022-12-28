@@ -1,3 +1,5 @@
+import gc
+import sys
 import os
 from enum import Enum
 from contextlib import redirect_stdout
@@ -10,6 +12,7 @@ import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
+from multiprocessing import Pool
 from nltk import download, FreqDist, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords, wordnet
@@ -96,9 +99,8 @@ class Frame:
 
 class Motion:
 
-    def __init__(self, format_, motion_file, id_, meta=None, annotation=None):
+    def __init__(self, format_, motion_file, id_, annotation=None):
         self.id_ = id_
-        self.meta = meta
         self.annotation = annotation
         self.format_ = format_
         self.motion_file = motion_file
@@ -119,15 +121,19 @@ class Motion:
             # TODO create new Exception for unlabelable motions
             raise KeyError
 
-    def get_extended_label(self, stop_stems, classes):
+    def get_extended_label(self, stop_stems, classes, collect_all=False):
         try:
             words = word_tagger(word_tokenize(self.annotation))
             verbs = set()
             for word_tag in words:
                 if word_tag[1] in ['VB', 'VBZ', 'VBG']:
                     stem_ = stem(word_tag[0])
-                    if stem_ not in stop_stems:
-                        verbs.add(stem(word_tag[0]))
+                    if collect_all:
+                        if stem_ not in stop_stems:
+                            verbs.add(stem(word_tag[0]))
+                    else:
+                        if stem_ not in stop_stems and stem_ in activities_dictionary:
+                            verbs.add(stem(word_tag[0]))
             self.classification = ' '.join(verbs)
             classes.add(' '.join(verbs))
         except KeyError:
@@ -138,7 +144,6 @@ class Motion:
         self,
         basic=False,
         extended_labeling=False,
-        multilabeling=False,
         classes=None,
     ):
         stop_stems = [
@@ -188,7 +193,9 @@ class Motion:
         if xml_frames is None:
             raise RuntimeError('<MotionFrames> not found')
         self.frames = []
-        for xml_frame in xml_frames.findall('MotionFrame'):
+        for index, xml_frame in enumerate(xml_frames.findall('MotionFrame')):
+            if index > 10001:
+                break
             self.frames.append(self._parse_frame(xml_frame, joints))
 
         xml_config = xml_motion.findall('ModelProcessorConfig')
@@ -233,9 +240,7 @@ class Motion:
         min_length=None,
     ):
         try:
-            self.position_matrix = np.loadtxt(
-                f'{self.id_}_joint_positions.txt',
-            )
+            self.position_matrix = np.load(f'{self.id_}_joint_positions.npy')
         except FileNotFoundError:
             self.matrixfy_all()
         if max_length and self.position_matrix.shape[0] > max_length:
@@ -261,7 +266,7 @@ class Motion:
         min_length=None,
     ):
         try:
-            self.position_matrix = np.loadtxt(f'{self.id_}_root_positions.txt')
+            self.position_matrix = np.load(f'{self.id_}_root_positions.npy')
         except FileNotFoundError:
             self.matrixfy_all()
         if max_length and self.position_matrix.shape[0] > max_length:
@@ -276,28 +281,32 @@ class Motion:
                     self.position_matrix.shape[1],
                 )
             )
-            self.position_matrix = np.vstack((self.position_matrix, padding))
+            self.position_matrix = np.vstack(
+                (self.position_matrix, padding)
+            )
         return self.position_matrix[::frequency], self.classification
 
     def matrixfy_all(self):
         self.parse()
         self.matrixfy_frames()
         self.matrixfy_root_positions()
-        del self.position_matrix
         del self.frames
 
     def matrixfy_frames(self):
-        self.position_matrix = [
-            list(frame.joint_positions.values())
-            for frame in self.frames
-        ]
-        self.position_matrix = np.array(self.position_matrix)
-        np.savetxt(f'{self.id_}_joint_positions.txt', self.position_matrix)
+        np.save(
+            f'{self.id_}_joint_positions.npy',
+            np.array(
+                [list(frame.joint_positions.values()) for frame in self.frames]
+            ),
+        )
 
     def matrixfy_root_positions(self):
-        self.position_matrix = [frame.root_position for frame in self.frames]
-        self.position_matrix = np.array(self.position_matrix)
-        np.savetxt(f'{self.id_}_root_positions.txt', self.position_matrix)
+        np.save(
+            f'{self.id_}_root_positions.npy',
+            np.array(
+                [frame.root_position for frame in self.frames]
+            ),
+        )
 
     def get_initial_root_position(self):
         return self.frames[0].root_position
@@ -329,7 +338,6 @@ class MotionDataset:
 
     def download(self):
         print('Downloading the dataset...')
-
         with requests.get(URL, stream=True) as request:
             dataset_size = int(request.headers.get('Content-Length'))
             with download_wrapper.wrapattr(
@@ -344,7 +352,6 @@ class MotionDataset:
                     'wb'
                 ) as dataset:
                     shutil.copyfileobj(raw_data, dataset)
-
         return dataset
 
     def extract(self):
@@ -360,19 +367,24 @@ class MotionDataset:
         dataset.close()
         os.remove(dataset.name)
 
-    def parse_motion(self, id_, format_):
+    def parse_motion(self, id_, format_='mmm'):
         if 'D' in id_ or id_ == 'mapping.csv':
             return None
-        with open(f'{id_}_annotations.json', 'r') as file:
-            annotation = ' '.join(json.load(file))
-        with open(f'{id_}_meta.json', 'r') as file:
-            meta = file.read()
+        json_file = open(f'{id_}_annotations.json', 'r')
+        annotation = ' '.join(json.load(json_file))
+        if annotation == '':
+            json_file.close()
+            os.remove(f'{id_}_meta.json')
+            os.remove(f'{id_}_annotations.json')
+            os.remove(f'{id_}_mmm.xml')
+            os.remove(f'{id_}_raw.c3d')
+            return None
+        json_file.close()
         motion = Motion(
             format_,
             f'{id_}_{"mmm.xml" if format_ == "mmm" else "raw.c3d"}',
             id_,
             annotation=annotation,
-            meta=meta,
         )
         if not os.path.exists(f'{id_}_joint_positions.txt',) or\
            not os.path.exists(f'{id_}_root_positions.txt'):
@@ -380,7 +392,7 @@ class MotionDataset:
 
         try:
             if self.classification == Classification.BASIC:
-                motion.classify_motion(basic=True, multilabeling=False)
+                motion.classify_motion(basic=True)
             elif self.classification == Classification.LABELED:
                 motion.classify_motion(
                     extended_labeling=True,
@@ -413,17 +425,42 @@ class MotionDataset:
 
     @change_to(DEFAULT_ROOT)
     def parse(self):
-        print('Parsing the dataset, and extracting mmm-files...')
         format_ = 'mmm'
-        ids = map(
-            lambda x: x.split('_')[0],
-            sorted(os.listdir()),
+        if os.listdir('.') == []:
+            self.extract()
+        print(
+            'Parsing the dataset, removing motions without annotations '
+            'and extracting mmm-files...'
         )
-        ids = sorted(list(set(ids)))
+        ids = sorted(
+            list(
+                set(
+                    map(
+                        lambda x: x.split('_')[0],
+                        sorted(os.listdir()),
+                    )
+                )
+            )
+        )
         self.miss_classification = 0
         self.classes = set()
         self.matrix_represetations = []
 
+        # TODO: Complete multiprocessing for parsing motions
+        # with Pool(processes=8) as pool:
+        #     self.motions = list(
+        #         tqdm(
+        #             pool.imap_unordered(
+        #                 self.parse_motion,
+        #                 ids,
+        #                 chunksize=10,
+        #             ),
+        #             total=len(ids),
+        #             ncols=100,
+        #         )
+        #     )
+        # len(self.motions)
+        # self.motions = [motion for motion in self.motions if motion]
         for id_ in tqdm(ids, ncols=100,):
             motion = self.parse_motion(id_, format_)
             if motion:

@@ -6,6 +6,7 @@ import os
 from functools import wraps
 import torch
 import torch.nn as nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.nn.functional import normalize, cross_entropy
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
@@ -75,29 +76,32 @@ class Model(nn.Module):
         self.optimizer = optimizer
         self.loss_function = loss_function
 
-    def trainingStep(self, batch, device):
+    def training_step(self, batch, device, weights=None):
         motions, labels = batch
         motions, labels = motions.to(device), labels.to(device)
         targets = self.forward(motions, device)
         if self.loss_function == cross_entropy:
-            return self.loss_function(labels, targets, reduction='mean')
+            if weights:
+                return self.loss_function(labels, targets, reduction='mean')
+            else:
+                raise ValueError('Weights for cross_entropy must be set')
         else:
             return self.loss_function(labels, targets)
 
-    def validationStep(self, batch, device):
+    def validation_step(self, batch, device):
         motions, labels = batch
         motions = motions.to(device)
         labels = labels.to(device)
         outputs = self.forward(motions, device)
         with torch.no_grad():
-            loss = self.trainingStep(batch, device)
+            loss = self.training_step(batch, device)
         accuracy_ = accuracy(outputs, labels)
         return {
             'valueLoss': loss,
             'valueAccuracy': accuracy_,
         }
 
-    def validationEpochEnd(self, outputs):
+    def validation_epoch_end(self, outputs):
         batch_losses = [x['valueLoss'] for x in outputs]
         epoch_loss = torch.stack(batch_losses).mean()
         batch_accs = [x['valueAccuracy'] for x in outputs]
@@ -107,7 +111,7 @@ class Model(nn.Module):
             'valueAccuracy': epoch_acc.item(),
         }
 
-    def epochEnd(self, epoch, result):
+    def epoch_end(self, epoch, result):
         print(
             f"{epoch}. epoch, the loss value: {result['valueLoss']:.4f}"
             f" with model accuracy: {result['valueAccuracy']:.2f}%"
@@ -118,7 +122,7 @@ class Model(nn.Module):
         print('Evaluate...')
         labels, predictions = None, None
         for batch in tqdm(valuationSetLoader, ncols=100):
-            outputs.append(self.validationStep(batch, device))
+            outputs.append(self.validation_step(batch, device))
             motions, batch_labels = batch
             motions = motions.to(device)
             batch_outputs = self.forward(motions, device)
@@ -130,22 +134,23 @@ class Model(nn.Module):
             else:
                 labels = torch.cat((labels, batch_labels))
                 predictions = torch.cat((predictions, batch_predictions))
-        return self.validationEpochEnd(outputs), labels, predictions
+        return self.validation_epoch_end(outputs), labels, predictions
 
     def fit(self, epochs, learning_rate, device, train_loader, valuation_loader):
         history, training_losses = [], []
         optimizer = self.optimizer(self.parameters(), learning_rate)
+        learning_scheduler = ReduceLROnPlateau(optimizer, patience=2,)
         print('Training...')
         for epoch in range(1, epochs):
             for batch in tqdm(train_loader, ncols=100,):
-                optimizer.zero_grad()
-                loss = self.trainingStep(batch, device)
+                loss = self.training_step(batch, device)
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
-            adjust_learning_rate(optimizer, epoch, learning_rate)
+            # adjust_learning_rate(optimizer, epoch, learning_rate)
             result, labels, predictions = self.evaluate(valuation_loader, device)
-            self.epochEnd(epoch, result)
+            self.epoch_end(epoch, result)
+            learning_scheduler.step(result['valueLoss'])
             history.append(result)
         return training_losses, history, labels, predictions
 
@@ -167,12 +172,16 @@ def to_device(data, device):
 def normalize_dataset(dataset):
     normalized_dataset = []
     for matrix_positions, label in dataset:
-        onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
-        onehot_presentation[CLASSES_MAPPING[label]] = 1.0
-        normalized_positions = normalize(torch.tensor(matrix_positions))
-        normalized_dataset.append(
-            [normalized_positions.float(), onehot_presentation]
-        )
+        if label in CLASSES_MAPPING.keys():
+            onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
+            onehot_presentation[CLASSES_MAPPING[label]] = 1.0
+            normalized_positions = normalize(torch.tensor(matrix_positions))
+            normalized_dataset.append(
+                [
+                    normalized_positions.float().transpose(0, 1),
+                    onehot_presentation,
+                ]
+            )
     return normalized_dataset
 
 
@@ -181,11 +190,15 @@ def prepare_dataset(dataset, normalize=False):
         return normalize_dataset(dataset)
     prepared_dataset = []
     for matrix_positions, label in dataset:
-        onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
-        onehot_presentation[CLASSES_MAPPING[label]] = 1.0
-        prepared_dataset.append(
-            [torch.tensor(matrix_positions).float(), onehot_presentation]
-        )
+        if label in CLASSES_MAPPING.keys():
+            onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
+            onehot_presentation[CLASSES_MAPPING[label]] = 1.0
+            prepared_dataset.append(
+                [
+                    torch.tensor(matrix_positions).float().transpose(0, 1),
+                    onehot_presentation,
+                ]
+            )
     return prepared_dataset
 
 
@@ -198,6 +211,7 @@ def adjust_learning_rate(optimizer, epoch, base_learning_rate):
 def visualize_class_distribution(dataset):
     output_file('plots/class_distribution.html')
     label_frequency = Counter(label for _, label in dataset)
+    labels = list(label_frequency.keys())
     label_frequency = ColumnDataSource(
         data=dict(
             label=list(label_frequency.keys()),
@@ -206,7 +220,11 @@ def visualize_class_distribution(dataset):
     )
     figure_ = figure(
         title='Label distribution',
-        y_range=list(activities_dictionary),
+        y_range=labels,
+        tooltips=[
+            ('Num', '@count'),
+            ('Label', '@label'),
+        ],
     )
     figure_.hbar(
         y='label',

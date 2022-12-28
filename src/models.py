@@ -11,7 +11,7 @@ from torch.nn.functional import mse_loss, normalize, cross_entropy, soft_margin_
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data import random_split, ConcatDataset
 
-from dataset import MotionDataset, activities_dictionary
+from dataset import MotionDataset, activities_dictionary, Classification
 from plotters import plot
 from utils import (
     Model,
@@ -44,18 +44,19 @@ class MLP(Model):
         self.flatten = nn.Flatten()
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(0)
-        self.input_layer = nn.Linear(self.num_features, 64)
-        self.hidden1 = nn.Linear(64, 128)
-        self.hidden2 = nn.Linear(128, 64)
-        self.output = nn.Linear(64 * self.num_frames, self.num_classes)
+        self.input_layer = nn.Linear(num_features * num_frames, 16)
+        self.hidden1 = nn.Linear(16, 32)
+        self.hidden2 = nn.Linear(32, 64)
+        self.output = nn.Linear(64, self.num_classes)
 
     def forward(self, input_, device):
-        x = self.relu(self.input_layer(input_))
+        x = self.relu(self.input_layer(self.flatten(input_)))
         x = self.relu(self.hidden1(x))
         x = self.relu(self.hidden2(x))
         x = self.flatten(F.normalize(x))
         x = self.softmax(x)
         x = self.output(x)
+        x = self.softmax(x)
         return x
 
 
@@ -77,22 +78,25 @@ class CNN(Model):
             loss_function=loss_function,
         )
         self.network = Sequential(
-            nn.Conv1d(num_frames, num_features, kernel_size=3, padding=1),
+            nn.Conv1d(num_features, 16, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.AvgPool1d(2),
-            nn.Conv1d(num_features, 32, kernel_size=3, padding=1),
+            nn.AvgPool1d(4),
+            nn.Conv1d(16, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(4),
+            nn.Conv1d(16, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.AvgPool1d(4),
+            nn.Conv1d(32, 32, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(4),
             nn.Conv1d(32, 16, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.AvgPool1d(2),
-            nn.Conv1d(16, num_features, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
+            nn.AvgPool1d(4),
             nn.Flatten(),
-            nn.Linear(num_features, num_classes),
+            nn.Linear(144, num_classes),
             nn.Softmax(0),
-            nn.Linear(num_classes, num_classes),
+            # nn.Linear(num_classes, num_classes),
         )
         self.num_classes = num_classes
         self.loss_function = loss_function
@@ -168,7 +172,7 @@ class RNN(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.rnn = nn.RNN(
-            num_features,
+            num_frames,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -176,10 +180,87 @@ class RNN(Model):
         self.linear = nn.Linear(hidden_size, num_classes)
 
     def forward(self, input_, device):
-        h_0 = torch.zeros(
+        initial_hidden_state = torch.zeros(
             self.num_layers, input_.size(0), self.hidden_size,
         ).to(device)
-        output, _ = self.rnn(input_, h_0)
+        output, _ = self.rnn(input_, initial_hidden_state)
+        return self.linear(output[:, -1, :])
+
+
+class GRU(Model):
+
+    def __init__(
+        self,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        num_layers=None,
+        hidden_size=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
+        self.gru = nn.GRU(
+            num_frames,
+            hidden_size,
+            num_layers,
+            batch_first=True,
+        )
+        self.linear = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, input_, device):
+        initial_hidden_state = torch.zeros(
+            self.num_layers, input_.size(0), self.hidden_size,
+        ).to(device)
+        output, _ = self.gru(input_, initial_hidden_state)
+        return self.linear(output[:, -1, :])
+
+
+class LSTM(Model):
+
+    def __init__(
+        self,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        num_layers=None,
+        hidden_size=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
+        self.lstm = nn.LSTM(
+            num_frames,
+            hidden_size,
+            num_layers,
+            batch_first=True,
+        )
+        self.linear = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, input_, device):
+        initial_hidden_state = torch.zeros(
+            self.num_layers, input_.size(0), self.hidden_size,
+        ).to(device)
+        initial_cell_state = torch.zeros(
+            self.num_layers, input_.size(0), self.hidden_size,
+        ).to(device)
+        output, _ = self.lstm(input_, (initial_hidden_state, initial_cell_state))
         return self.linear(output[:, -1, :])
 
 
@@ -190,10 +271,13 @@ if __name__ == '__main__':
         device = 'mps'
     else:
         device = 'cpu'
+    device = 'cpu'
     frequency = 1
     length = 10000
     if not os.path.exists('dataset.pt'):
+
         dataset = MotionDataset(
+            classification=Classification(2),
             # get_matrixified_root_positions=True,
             get_matrixified_joint_positions=True,
             frequency=frequency,
@@ -223,7 +307,7 @@ if __name__ == '__main__':
         folds = random_split(dataset, [1/num_folds]*num_folds)
     labels_, predictions_, training_losses_ = [], [], []
     for i in range(num_folds):
-        model = RNN(
+        model = CNN(
             num_classes=len(activities_dictionary),
             num_features=44,
             # num_features=3,
@@ -233,8 +317,8 @@ if __name__ == '__main__':
             # optimizer=ASGD,
             loss_function=mse_loss,
             # loss_function=cross_entropy,
-            num_layers=10,
-            hidden_size=10,
+            # num_layers=10,
+            # hidden_size=10,
         ).to(device)
         print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
@@ -254,8 +338,8 @@ if __name__ == '__main__':
             num_workers=8,
         )
         training_losses, history, labels, predictions = model.fit(
-            15,
-            .001,
+            30,
+            .0001,
             # .01,
             device,
             train_loader,
@@ -266,7 +350,7 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-        if i == 2:
+        if i == 3:
             break
     plot('MLP', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')
