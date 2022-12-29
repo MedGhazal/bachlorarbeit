@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import numpy as np
 from tqdm import tqdm
 import torch
@@ -178,13 +179,14 @@ class RNN(Model):
             batch_first=True,
         )
         self.linear = nn.Linear(hidden_size, num_classes)
+        self.softmax = nn.Softmax(1)
 
     def forward(self, input_, device):
         initial_hidden_state = torch.zeros(
             self.num_layers, input_.size(0), self.hidden_size,
         ).to(device)
         output, _ = self.rnn(input_, initial_hidden_state)
-        return self.linear(output[:, -1, :])
+        return self.softmax(self.linear(output[:, -1, :]))
 
 
 class GRU(Model):
@@ -215,13 +217,14 @@ class GRU(Model):
             batch_first=True,
         )
         self.linear = nn.Linear(hidden_size, num_classes)
+        self.softmax = nn.Softmax(1)
 
     def forward(self, input_, device):
         initial_hidden_state = torch.zeros(
             self.num_layers, input_.size(0), self.hidden_size,
         ).to(device)
         output, _ = self.gru(input_, initial_hidden_state)
-        return self.linear(output[:, -1, :])
+        return self.softmax(self.linear(output[:, -1, :]))
 
 
 class LSTM(Model):
@@ -252,6 +255,7 @@ class LSTM(Model):
             batch_first=True,
         )
         self.linear = nn.Linear(hidden_size, num_classes)
+        self.softmax = nn.Softmax(1)
 
     def forward(self, input_, device):
         initial_hidden_state = torch.zeros(
@@ -261,7 +265,7 @@ class LSTM(Model):
             self.num_layers, input_.size(0), self.hidden_size,
         ).to(device)
         output, _ = self.lstm(input_, (initial_hidden_state, initial_cell_state))
-        return self.linear(output[:, -1, :])
+        return self.softmax(self.linear(output[:, -1, :]))
 
 
 if __name__ == '__main__':
@@ -292,12 +296,29 @@ if __name__ == '__main__':
             dataset.parse()
 
         dataset = dataset.matrix_represetations
-        visualize_class_distribution(dataset)
+        label_frequency = visualize_class_distribution(dataset)
+        num_classified_motions = len(dataset)
+        label_ratio = {
+            label: frequency / num_classified_motions
+            for label, frequency in label_frequency.items()
+        }
+        with open('label_ratio.json', 'w') as json_file:
+            json.dump(label_ratio, json_file)
+        weights = [
+            ratio for label, ratio in label_ratio.items()
+            if label in activities_dictionary
+        ]
         dataset = prepare_dataset(dataset, normalize=True)
         torch.save(dataset, 'dataset.pt')
     else:
         print('Loading the dataset...')
         dataset = torch.load('dataset.pt')
+        with open('label_ratio.json', 'r') as json_file:
+            label_ratio = json.load(json_file)
+        weights = [
+            ratio for label, ratio in label_ratio.items()
+            if label in activities_dictionary
+        ]
 
     accuracies, histories = [], []
     num_folds = 10 # 10, 30, 2
@@ -307,7 +328,7 @@ if __name__ == '__main__':
         folds = random_split(dataset, [1/num_folds]*num_folds)
     labels_, predictions_, training_losses_ = [], [], []
     for i in range(num_folds):
-        model = CNN(
+        model = LSTM(
             num_classes=len(activities_dictionary),
             num_features=44,
             # num_features=3,
@@ -315,10 +336,10 @@ if __name__ == '__main__':
             optimizer=Adam,
             # optimizer=SGD,
             # optimizer=ASGD,
-            loss_function=mse_loss,
-            # loss_function=cross_entropy,
-            # num_layers=10,
-            # hidden_size=10,
+            # loss_function=mse_loss,
+            loss_function=cross_entropy,
+            num_layers=10,
+            hidden_size=10,
         ).to(device)
         print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
@@ -326,7 +347,7 @@ if __name__ == '__main__':
         ])
         train_loader = DataLoader(
             train_dataset,
-            batch_size=32,
+            batch_size=16,
             shuffle=True,
             drop_last=False,
             num_workers=8,
@@ -338,19 +359,20 @@ if __name__ == '__main__':
             num_workers=8,
         )
         training_losses, history, labels, predictions = model.fit(
-            30,
-            .0001,
+            50,
+            .00001,
             # .01,
             device,
             train_loader,
             validation_loader,
+            weights=torch.tensor(weights),
         )
         training_losses_.append(training_losses)
         labels_.append(labels)
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-        if i == 3:
+        if i == 0:
             break
     plot('MLP', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')

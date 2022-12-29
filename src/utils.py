@@ -81,20 +81,20 @@ class Model(nn.Module):
         motions, labels = motions.to(device), labels.to(device)
         targets = self.forward(motions, device)
         if self.loss_function == cross_entropy:
-            if weights:
-                return self.loss_function(labels, targets, reduction='mean')
+            if weights is None:
+                return self.loss_function(labels, targets, reduction='mean', weight=weights)
             else:
-                raise ValueError('Weights for cross_entropy must be set')
+                return self.loss_function(labels, targets, reduction='mean')
         else:
             return self.loss_function(labels, targets)
 
-    def validation_step(self, batch, device):
+    def validation_step(self, batch, device, weights=None):
         motions, labels = batch
         motions = motions.to(device)
         labels = labels.to(device)
         outputs = self.forward(motions, device)
         with torch.no_grad():
-            loss = self.training_step(batch, device)
+            loss = self.training_step(batch, device, weights=weights)
         accuracy_ = accuracy(outputs, labels)
         return {
             'valueLoss': loss,
@@ -117,12 +117,12 @@ class Model(nn.Module):
             f" with model accuracy: {result['valueAccuracy']:.2f}%"
         )
 
-    def evaluate(self, valuationSetLoader, device):
+    def evaluate(self, valuationSetLoader, device, weights=None):
         outputs = []
         print('Evaluate...')
         labels, predictions = None, None
         for batch in tqdm(valuationSetLoader, ncols=100):
-            outputs.append(self.validation_step(batch, device))
+            outputs.append(self.validation_step(batch, device, weights=weights))
             motions, batch_labels = batch
             motions = motions.to(device)
             batch_outputs = self.forward(motions, device)
@@ -136,19 +136,19 @@ class Model(nn.Module):
                 predictions = torch.cat((predictions, batch_predictions))
         return self.validation_epoch_end(outputs), labels, predictions
 
-    def fit(self, epochs, learning_rate, device, train_loader, valuation_loader):
+    def fit(self, epochs, learning_rate, device, train_loader, valuation_loader, weights=None):
         history, training_losses = [], []
         optimizer = self.optimizer(self.parameters(), learning_rate)
         learning_scheduler = ReduceLROnPlateau(optimizer, patience=2,)
         print('Training...')
         for epoch in range(1, epochs):
             for batch in tqdm(train_loader, ncols=100,):
-                loss = self.training_step(batch, device)
+                loss = self.training_step(batch, device, weights=weights)
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
             # adjust_learning_rate(optimizer, epoch, learning_rate)
-            result, labels, predictions = self.evaluate(valuation_loader, device)
+            result, labels, predictions = self.evaluate(valuation_loader, device, weights=weights)
             self.epoch_end(epoch, result)
             learning_scheduler.step(result['valueLoss'])
             history.append(result)
@@ -212,7 +212,7 @@ def visualize_class_distribution(dataset):
     output_file('plots/class_distribution.html')
     label_frequency = Counter(label for _, label in dataset)
     labels = list(label_frequency.keys())
-    label_frequency = ColumnDataSource(
+    label_frequency_source = ColumnDataSource(
         data=dict(
             label=list(label_frequency.keys()),
             count=list(label_frequency.values()),
@@ -233,10 +233,10 @@ def visualize_class_distribution(dataset):
         height=.5,
         fill_color='#000000',
         line_color='#000000',
-        source=label_frequency,
+        source=label_frequency_source,
     )
     show(figure_)
-    return True
+    return label_frequency
 
 
 def visualize_length_distribution(lengths):

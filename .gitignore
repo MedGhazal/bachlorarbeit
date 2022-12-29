@@ -27,3 +27,4 @@ sources/*
 src/test.py
 *.pt
 plots/*
+*.json
