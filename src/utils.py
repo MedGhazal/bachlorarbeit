@@ -82,9 +82,18 @@ class Model(nn.Module):
         targets = self.forward(motions, device)
         if self.loss_function == cross_entropy:
             if weights is None:
-                return self.loss_function(labels, targets, reduction='mean', weight=weights)
+                return self.loss_function(
+                    labels,
+                    targets,
+                    reduction='mean',
+                )
             else:
-                return self.loss_function(labels, targets, reduction='mean')
+                return self.loss_function(
+                    labels,
+                    targets,
+                    reduction='mean',
+                    weight=weights,
+                )
         else:
             return self.loss_function(labels, targets)
 
@@ -96,20 +105,14 @@ class Model(nn.Module):
         with torch.no_grad():
             loss = self.training_step(batch, device, weights=weights)
         accuracy_ = accuracy(outputs, labels)
-        return {
-            'valueLoss': loss,
-            'valueAccuracy': accuracy_,
-        }
+        return {'valueLoss': loss, 'valueAccuracy': accuracy_}
 
     def validation_epoch_end(self, outputs):
         batch_losses = [x['valueLoss'] for x in outputs]
         epoch_loss = torch.stack(batch_losses).mean()
         batch_accs = [x['valueAccuracy'] for x in outputs]
         epoch_acc = torch.stack(batch_accs).mean() * 100
-        return {
-            'valueLoss': epoch_loss.item(),
-            'valueAccuracy': epoch_acc.item(),
-        }
+        return {'valueLoss': epoch_loss.item(), 'valueAccuracy': epoch_acc.item()}
 
     def epoch_end(self, epoch, result):
         print(
@@ -147,10 +150,10 @@ class Model(nn.Module):
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
-            # adjust_learning_rate(optimizer, epoch, learning_rate)
+            adjust_learning_rate(optimizer, epoch, learning_rate)
             result, labels, predictions = self.evaluate(valuation_loader, device, weights=weights)
             self.epoch_end(epoch, result)
-            learning_scheduler.step(result['valueLoss'])
+            # learning_scheduler.step(training_losses[-1])
             history.append(result)
         return training_losses, history, labels, predictions
 
@@ -161,12 +164,6 @@ def accuracy(outputs, labels):
     return torch.tensor(
         torch.sum(predictions == labels).item() / len(predictions)
     )
-
-
-def to_device(data, device):
-    if isinstance(data, (list, tuple)):
-        return [to_device(x, device) for x in data]
-    return data.to(device, non_blocking=True)
 
 
 def normalize_dataset(dataset):
@@ -221,10 +218,7 @@ def visualize_class_distribution(dataset):
     figure_ = figure(
         title='Label distribution',
         y_range=labels,
-        tooltips=[
-            ('Num', '@count'),
-            ('Label', '@label'),
-        ],
+        tooltips=[('Num', '@count'), ('Label', '@label')],
     )
     figure_.hbar(
         y='label',
@@ -237,23 +231,6 @@ def visualize_class_distribution(dataset):
     )
     show(figure_)
     return label_frequency
-
-
-def visualize_length_distribution(lengths):
-    output_file('plots/length_distribution.html')
-    figure_ = figure(title='Frames length distribution',)
-    bins = linspace(min(lengths), max(lengths), 40)
-    histogram_, edges = histogram(lengths, density=True, bins=bins)
-    figure_.quad(
-        top=histogram_*len(lengths),
-        bottom=0,
-        left=edges[:-1],
-        right=edges[1:],
-        fill_color='#000000',
-        line_color='#ffffff',
-    )
-    show(figure_)
-    return True
 
 
 if __name__ == '__main__':

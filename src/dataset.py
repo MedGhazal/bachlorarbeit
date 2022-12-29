@@ -21,7 +21,7 @@ from nltk.stem.snowball import EnglishStemmer
 from string import punctuation
 
 from utils import change_to, activities_dictionary
-from utils import (
+from plotters import (
     visualize_length_distribution,
 )
 
@@ -194,8 +194,6 @@ class Motion:
             raise RuntimeError('<MotionFrames> not found')
         self.frames = []
         for index, xml_frame in enumerate(xml_frames.findall('MotionFrame')):
-            if index > 10001:
-                break
             self.frames.append(self._parse_frame(xml_frame, joints))
 
         xml_config = xml_motion.findall('ModelProcessorConfig')
@@ -347,10 +345,7 @@ class MotionDataset:
                 ncols=100,
                 desc='',
             ) as raw_data:
-                with open(
-                    f'{os.path.basename(request.url)}',
-                    'wb'
-                ) as dataset:
+                with open(f'{os.path.basename(request.url)}', 'wb') as dataset:
                     shutil.copyfileobj(raw_data, dataset)
         return dataset
 
@@ -592,16 +587,18 @@ def get_dataset_infos(dataset):
 
 
 def get_number_infos_motions(dataset):
-    lengths = []
+    lengths = {}
     number_compatible_motions = 0
     number_motions_under_20 = 0
     number_motions_under_10 = 0
     number_motions_under_5 = 0
 
+    dataset.parse()
+    print('Get the lengths of the frames...')
     for motion in tqdm(dataset.motions, ncols=100,):
         motion.parse()
         duration = len(motion.frames)
-        lengths.append(duration)
+        lengths[motion.id_] = duration
         del motion.frames
         if duration / 1000 > 20:
             number_compatible_motions += 1
@@ -627,11 +624,4 @@ def get_number_infos_motions(dataset):
 
 if __name__ == '__main__':
     dataset = MotionDataset()
-
-    try:
-        dataset.parse()
-    except FileNotFoundError:
-        dataset.extract()
-        dataset.parse()
-
     get_number_infos_motions(dataset)

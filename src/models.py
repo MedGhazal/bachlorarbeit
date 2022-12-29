@@ -19,9 +19,7 @@ from utils import (
     CLASSES_MAPPING,
     accuracy,
     prepare_dataset,
-    to_device,
     visualize_class_distribution,
-    # visualize_length_distribution,
 )
 
 
@@ -179,7 +177,7 @@ class RNN(Model):
             batch_first=True,
         )
         self.linear = nn.Linear(hidden_size, num_classes)
-        self.softmax = nn.Softmax(1)
+        self.softmax = nn.Softmax(0)
 
     def forward(self, input_, device):
         initial_hidden_state = torch.zeros(
@@ -217,7 +215,7 @@ class GRU(Model):
             batch_first=True,
         )
         self.linear = nn.Linear(hidden_size, num_classes)
-        self.softmax = nn.Softmax(1)
+        self.softmax = nn.Softmax(0)
 
     def forward(self, input_, device):
         initial_hidden_state = torch.zeros(
@@ -255,7 +253,7 @@ class LSTM(Model):
             batch_first=True,
         )
         self.linear = nn.Linear(hidden_size, num_classes)
-        self.softmax = nn.Softmax(1)
+        self.softmax = nn.Softmax(0)
 
     def forward(self, input_, device):
         initial_hidden_state = torch.zeros(
@@ -277,7 +275,7 @@ if __name__ == '__main__':
         device = 'cpu'
     device = 'cpu'
     frequency = 1
-    length = 10000
+    length = 2000
     if not os.path.exists('dataset.pt'):
 
         dataset = MotionDataset(
@@ -297,18 +295,21 @@ if __name__ == '__main__':
 
         dataset = dataset.matrix_represetations
         label_frequency = visualize_class_distribution(dataset)
-        num_classified_motions = len(dataset)
+        num_datapoints = sum(
+            frequency for label, frequency in label_frequency.items()
+            if label in activities_dictionary
+        )
         label_ratio = {
-            label: frequency / num_classified_motions
+            label: frequency / num_datapoints
             for label, frequency in label_frequency.items()
+            if label in activities_dictionary
         }
         with open('label_ratio.json', 'w') as json_file:
             json.dump(label_ratio, json_file)
         weights = [
             ratio for label, ratio in label_ratio.items()
-            if label in activities_dictionary
         ]
-        dataset = prepare_dataset(dataset, normalize=True)
+        dataset = prepare_dataset(dataset, normalize=False)
         torch.save(dataset, 'dataset.pt')
     else:
         print('Loading the dataset...')
@@ -317,7 +318,6 @@ if __name__ == '__main__':
             label_ratio = json.load(json_file)
         weights = [
             ratio for label, ratio in label_ratio.items()
-            if label in activities_dictionary
         ]
 
     accuracies, histories = [], []
@@ -338,8 +338,8 @@ if __name__ == '__main__':
             # optimizer=ASGD,
             # loss_function=mse_loss,
             loss_function=cross_entropy,
-            num_layers=10,
-            hidden_size=10,
+            num_layers=4,
+            hidden_size=512,
         ).to(device)
         print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
@@ -347,25 +347,26 @@ if __name__ == '__main__':
         ])
         train_loader = DataLoader(
             train_dataset,
-            batch_size=16,
+            batch_size=32,
             shuffle=True,
             drop_last=False,
-            num_workers=8,
+            num_workers=0,
         )
         validation_loader = DataLoader(
             folds[i],
             batch_size=16,
             drop_last=False,
-            num_workers=8,
+            num_workers=0,
         )
+        weights = torch.tensor(weights).to(device)
         training_losses, history, labels, predictions = model.fit(
-            50,
+            40,
             .00001,
             # .01,
             device,
             train_loader,
             validation_loader,
-            weights=torch.tensor(weights),
+            weights=weights,
         )
         training_losses_.append(training_losses)
         labels_.append(labels)
@@ -374,5 +375,5 @@ if __name__ == '__main__':
         histories.append(history)
         if i == 0:
             break
-    plot('MLP', histories, labels_, predictions_, training_losses_)
+    plot('LSTM', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')

@@ -155,54 +155,35 @@ def plot(model, histories, labels_, predictions_, training_losses_):
     show(grid_)
 
 
-if __name__ == '__main__':
-    labels = [4, 1, 1, 3, 7, 9, 1, 7, 7, 6, 1, 6, 1, 4, 0, 4, 1, 1, 1, 1, 1, 1, 7, 1, 7, 7, 3, 1, 7, 2, 2, 4]
-    predictions = [4, 1, 1, 3, 7, 9, 1, 7, 7, 6, 1, 6, 1, 4, 0, 4, 1, 1, 1, 1, 1, 1, 7, 1, 7, 7, 3, 1, 7, 2, 2, 4]
-    print(get_confusion_matrix(labels, predictions))
-    data = {
-        'labels': labels,
-        'predictions': predictions,
-    }
-    data_frame = pd.DataFrame(data)
-    confusion_matrix = pd.crosstab(data['labels'], data['predictions'], rownames=['Labels'], colnames=['Predictions'])
-    print(confusion_matrix)
-    confusion_matrix = pd.DataFrame(
-        get_confusion_matrix(labels, predictions),
-        index=list(CLASSES_MAPPING.keys()),
-        columns=list(CLASSES_MAPPING.keys()),
+def visualize_length_distribution(motions_lengths):
+    output_file('plots/length_distribution.html')
+    figures = [
+        figure(title='Frames length distribution'),
+        figure(
+            title='Length of frames',
+            tooltips=[('Motion', '$y'),('Length', '$x')],
+        )
+    ]
+    lengths = list(motions_lengths.values())
+    bins = np.linspace(min(lengths), max(lengths), 40)
+    histogram_, edges = np.histogram(lengths, density=True, bins=bins)
+    figures[0].quad(
+        top=histogram_*len(lengths),
+        bottom=0,
+        left=edges[:-1],
+        right=edges[1:],
+        fill_color='#000000',
+        line_color='#ffffff',
     )
-    confusion_matrix.index.name = 'labels'
-    confusion_matrix.columns.name = 'predictions'
-    print(confusion_matrix)
-    confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
-    print(confusion_matrix)
-    figure_ = figure(
-        # width=300,
-        # height=300,
-        title=f'Confusion matrices for fold {1}',
-        x_range=list(CLASSES_MAPPING.keys()),
-        y_range=list(CLASSES_MAPPING.keys())[::-1],
-        # toolbar_location=None,
-        # tools='',
-        x_axis_location="above",
+    figures[1].scatter(
+        x=lengths,
+        y=list(map(lambda x: int(x), motions_lengths.keys())),
+        fill_color='#000000',
+        line_color='#000000',
+        fill_alpha=.3,
+        line_alpha=.4,
+        size=10,
     )
-    color_mapper = LinearColorMapper(
-        palette=Iridescent[23][::-1],
-        low=confusion_matrix.value.min(),
-        high=confusion_matrix.value.max(),
-    )
-    color_bar = ColorBar(
-        color_mapper=color_mapper,
-        location=(0, 0),
-        ticker=BasicTicker(desired_num_ticks=10),
-    )
-    figure_.rect(
-        x='predictions',
-        y='labels',
-        width=1,
-        height=1,
-        source=ColumnDataSource(confusion_matrix),
-        line_color=None,
-        fill_color=transform('value', color_mapper),
-    )
-    show(figure_)
+    grid_ = grid(row(*figures))
+    show(grid_)
+    return figures
