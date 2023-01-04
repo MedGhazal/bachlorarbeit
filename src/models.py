@@ -77,69 +77,24 @@ class CNN(Model):
             loss_function=loss_function,
         )
         self.network = Sequential(
-            nn.Conv1d(num_features, 16, kernel_size=3, padding=1),
+            nn.Conv1d(num_features, 9, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.AvgPool1d(4),
-            nn.Conv1d(16, 16, kernel_size=3, padding=1),
+            nn.Conv1d(9, 9, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(4),
-            nn.Conv1d(16, 32, kernel_size=3, padding=1),
+            nn.Conv1d(9, 9, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.AvgPool1d(4),
-            nn.Conv1d(32, 32, kernel_size=3, padding=1),
+            nn.Conv1d(9, 9, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(4),
-            nn.Conv1d(32, 16, kernel_size=3, padding=1),
+            nn.Conv1d(9, 9, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.AvgPool1d(4),
             nn.Flatten(),
-            nn.Linear(144, num_classes),
+            nn.Linear(81, num_classes),
             nn.Softmax(0),
-            # nn.Linear(num_classes, num_classes),
-        )
-        self.num_classes = num_classes
-        self.loss_function = loss_function
-        self.optimizer = optimizer
-
-    def forward(self, input_, device):
-        return self.network(input_)
-
-
-class CNN_2d(Model):
-
-    def __init__(
-        self,
-        num_classes=None,
-        num_features=None,
-        num_frames=None,
-        optimizer=None,
-        loss_function=None,
-    ):
-        super().__init__(
-            num_classes=num_classes,
-            num_features=num_features,
-            num_frames=num_frames,
-            optimizer=optimizer,
-            loss_function=loss_function,
-        )
-        self.network = Sequential(
-            nn.Conv2d(4, 4, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(4, 4, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.AvgPool2d(3, 3),
-            nn.Conv2d(4, 4, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.AvgPool2d(3, 3),
-            nn.Conv2d(4, 4, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(4, 4, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Flatten(),
-            nn.Linear(277, num_classes),
-            nn.ReLU(),
         )
         self.num_classes = num_classes
         self.loss_function = loss_function
@@ -266,6 +221,61 @@ class LSTM(Model):
         return self.softmax(self.linear(output[:, -1, :]))
 
 
+class CNN_LSTM(Model):
+
+    def __init__(
+        self,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        num_layers=None,
+        hidden_size=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
+        padding, kernel_size, stride, dilation = [1, 2, 1, 1]
+        self.conv1d = nn.Conv1d(
+            num_features,
+            16,
+            kernel_size=kernel_size,
+            padding=padding,
+            dilation=dilation,
+            stride=stride,
+        )
+        shape_out = num_frames + 2 * padding - dilation * (kernel_size - 1) - 1
+        shape_out /= stride
+        shape_out += 1
+        shape_out = int(shape_out)
+        self.lstm = nn.LSTM(
+            shape_out,
+            hidden_size,
+            num_layers,
+            batch_first=True,
+        )
+        self.linear = nn.Linear(hidden_size, num_classes)
+        self.softmax = nn.Softmax(0)
+
+    def forward(self, input_, device):
+        initial_hidden_state = torch.zeros(
+            self.num_layers, input_.size(0), self.hidden_size,
+        ).to(device)
+        cnn_output = self.conv1d(input_)
+        initial_cell_state = torch.zeros(
+            self.num_layers, input_.size(0), self.hidden_size,
+        ).to(device)
+        output, _ = self.lstm(cnn_output, (initial_hidden_state, initial_cell_state))
+        return self.softmax(self.linear(output[:, -1, :]))
+
+
 if __name__ == '__main__':
     if torch.cuda.is_available():
         device = 'cuda'
@@ -275,24 +285,21 @@ if __name__ == '__main__':
         device = 'cpu'
     device = 'cpu'
     frequency = 1
-    length = 2000
+    length = 10000
     if not os.path.exists('dataset.pt'):
-
         dataset = MotionDataset(
             classification=Classification(2),
-            # get_matrixified_root_positions=True,
-            get_matrixified_joint_positions=True,
+            get_matrixified_root_infomation=True,
+            # get_matrixified_joint_positions=True,
             frequency=frequency,
             max_length=length,
             min_length=length,
         )
-
         try:
             dataset.parse()
         except FileNotFoundError:
             dataset.extract()
             dataset.parse()
-
         dataset = dataset.matrix_represetations
         label_frequency = visualize_class_distribution(dataset)
         num_datapoints = sum(
@@ -306,19 +313,15 @@ if __name__ == '__main__':
         }
         with open('label_ratio.json', 'w') as json_file:
             json.dump(label_ratio, json_file)
-        weights = [
-            ratio for label, ratio in label_ratio.items()
-        ]
-        dataset = prepare_dataset(dataset, normalize=False)
+        weights = [ratio for label, ratio in label_ratio.items()]
+        dataset = prepare_dataset(dataset, normalize=True)
         torch.save(dataset, 'dataset.pt')
     else:
         print('Loading the dataset...')
         dataset = torch.load('dataset.pt')
         with open('label_ratio.json', 'r') as json_file:
             label_ratio = json.load(json_file)
-        weights = [
-            ratio for label, ratio in label_ratio.items()
-        ]
+        weights = [ratio for label, ratio in label_ratio.items()]
 
     accuracies, histories = [], []
     num_folds = 10 # 10, 30, 2
@@ -327,11 +330,12 @@ if __name__ == '__main__':
     else:
         folds = random_split(dataset, [1/num_folds]*num_folds)
     labels_, predictions_, training_losses_ = [], [], []
+    weights = torch.tensor(weights).to(device)
     for i in range(num_folds):
-        model = LSTM(
+        model = CNN_LSTM(
             num_classes=len(activities_dictionary),
-            num_features=44,
-            # num_features=3,
+            # num_features=44,
+            num_features=6,
             num_frames=length//frequency,
             optimizer=Adam,
             # optimizer=SGD,
@@ -339,7 +343,7 @@ if __name__ == '__main__':
             # loss_function=mse_loss,
             loss_function=cross_entropy,
             num_layers=4,
-            hidden_size=512,
+            hidden_size=1024,
         ).to(device)
         print(f'Next fold {i+1} as validation set...')
         train_dataset = ConcatDataset([
@@ -358,10 +362,9 @@ if __name__ == '__main__':
             drop_last=False,
             num_workers=0,
         )
-        weights = torch.tensor(weights).to(device)
         training_losses, history, labels, predictions = model.fit(
-            40,
-            .00001,
+            8,
+            .0001,
             # .01,
             device,
             train_loader,
@@ -373,7 +376,7 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-        if i == 0:
+        if i == 1:
             break
     plot('LSTM', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')

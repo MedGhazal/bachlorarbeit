@@ -257,16 +257,20 @@ class Motion:
         return self.position_matrix[::frequency], self.classification
 
     @change_to(DEFAULT_ROOT)
-    def get_matrixified_root_positions(
+    def get_matrixified_root_infomation(
         self,
         frequency=1,
         max_length=None,
         min_length=None,
     ):
         try:
-            self.position_matrix = np.load(f'{self.id_}_root_positions.npy')
+            root_positions = np.load(f'{self.id_}_root_positions.npy')
+            root_rotations = np.load(f'{self.id_}_root_rotations.npy')
         except FileNotFoundError:
             self.matrixfy_all()
+        self.position_matrix = np.hstack(
+            (root_positions, root_rotations)
+        )
         if max_length and self.position_matrix.shape[0] > max_length:
             return (
                 self.position_matrix[:max_length:frequency],
@@ -288,6 +292,7 @@ class Motion:
         self.parse()
         self.matrixfy_frames()
         self.matrixfy_root_positions()
+        self.matrixfy_root_rotations()
         del self.frames
 
     def matrixfy_frames(self):
@@ -306,6 +311,14 @@ class Motion:
             ),
         )
 
+    def matrixfy_root_rotations(self):
+        np.save(
+            f'{self.id_}_root_rotations.npy',
+            np.array(
+                [frame.root_rotation for frame in self.frames]
+            ),
+        )
+
     def get_initial_root_position(self):
         return self.frames[0].root_position
 
@@ -318,7 +331,7 @@ class MotionDataset:
         root=DEFAULT_ROOT,
         train=False,
         classification=Classification(1),
-        get_matrixified_root_positions=False,
+        get_matrixified_root_infomation=False,
         get_matrixified_joint_positions=False,
         frequency=1,
         max_length=None,
@@ -331,7 +344,7 @@ class MotionDataset:
         self.frequency = frequency
         self.max_length = max_length
         self.min_length = min_length
-        self.get_matrixified_root_positions = get_matrixified_root_positions
+        self.get_matrixified_root_infomation = get_matrixified_root_infomation
         self.get_matrixified_joint_positions = get_matrixified_joint_positions
 
     def download(self):
@@ -382,6 +395,7 @@ class MotionDataset:
             annotation=annotation,
         )
         if not os.path.exists(f'{id_}_joint_positions.txt',) or\
+           not os.path.exists(f'{id_}_joint_rotations.txt',) or\
            not os.path.exists(f'{id_}_root_positions.txt'):
             motion.matrixfy_all()
 
@@ -406,8 +420,8 @@ class MotionDataset:
                 self.matrix_represetations.append(
                     (matrix_representation, label)
                 )
-        if self.get_matrixified_root_positions:
-            matrix_representation, label = motion.get_matrixified_root_positions(
+        if self.get_matrixified_root_infomation:
+            matrix_representation, label = motion.get_matrixified_root_infomation(
                 frequency=self.frequency,
                 max_length=self.max_length,
                 min_length=self.min_length,
