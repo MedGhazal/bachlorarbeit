@@ -1,12 +1,30 @@
 \documentclass[14pt, a4paper]{extreport}
 
-\usepackage{ifthen, geometry, csquotes, hyperref, url, lettrine, graphicx, xcolor, fancyhdr, titlesec, afterpage}
-\usepackage[backend=biber, sorting=nyvt]{biblatex}
-\usepackage{array}
-\usepackage[osf]{Alegreya,AlegreyaSans,FiraMono}
-\usepackage{multirow}
-\usepackage{babel}
-\geometry{top=3cm, left=3cm, right=3cm, bottom=4cm}
+\usepackage{
+	ifthen,
+	geometry,
+	hyperref,
+	url,
+	graphicx,
+	xcolor,
+	fancyhdr,
+	titlesec,
+	afterpage,
+	subcaption,
+	array,
+	multirow,
+	caption,
+	wrapfig,
+}
+\geometry{top=2cm, left=2cm, right=3cm, bottom=3cm}
+\usepackage[style=english]{csquotes}
+\usepackage[english]{babel}
+
+\usepackage[backend=biber, sorting=nyvt, style=phys, biblabel=brackets]{biblatex}
+\addbibresource{bibliography.bib}
+
+\AtBeginBibliography{\urlstyle{rm}}
+% \usepackage[osf]{Alegreya,AlegreyaSans,FiraMono}
 
 \pagestyle{empty}{ \chead{}\lhead{}\rhead{}\cfoot{}\lfoot{}\rfoot{} }
 
@@ -21,7 +39,6 @@
 \definecolor{titlepagecolor}{rgb}{0.61, 0.87, 1.0}
 \definecolor{namecolor}{rgb}{0.16, 0.32, 0.75}
 
-\addbibresource{bibliography.bib}
 
 \renewcommand{\baselinestretch}{1.5}
 \setcounter{tocdepth}{3}

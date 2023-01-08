@@ -1,7 +1,51 @@
 \chapter{Theoretische Grundlagen}
 In this section the theoretical foundation of this thesis will be laid to understand the problem and the components used to solve it. First the dataset KIT-Motion Dataset combines both the motion themselves as xml-Data in the mmm-format, and to each motion a textual annotation has been assigned. Thus making it semantically rich and allowing natural language processing to be used to solve the problem.
-\section{Word2vec}
-\section{RNNs und LSTMs}
+\section{Natural Language Processing}
+Natural language processing began 1950 as the intersection of artificial intelligence and linguistics. At first it was very distinguishable from test information retrieval, where researchers employed highly scalable statistical techniques to index and search large volumes of text in an efficient manner\cite{nadkarni2011natural}. Nowadays the two domains converged to create the new NLP field of study, where researchers are required to borrow from other fields to create new methods of analysing and interpreting information in a textual or spoken from.\newline
+With Chomskey's 1956 theoretical analysis of language grammars an estimate the complexity of the problems in NLP was provided, and influenced the creation of the Backus-Naur Form. This notation specified context-free grammars and is the base of programming language representations. In addition to that Chomskey found more restrictive Grammars, regular grammars, which are used to specify text-search patterns\cite{nadkarni2011natural}. These constructs were first the base of the first logical programming language Prolog, which syntax was conceived to suite writing grammars.\newline
+These approaches in the early days relied heavily on symbolic and hand-crafted rules, and didn't contribute to the semantic analysis, i.e. extracting the meaning, but were used to syntactically analyse text and to check the syntactic consistency of programs. Nevertheless these formal grammars can specify the relationship between text units, and the can be extended semantically by expanding sub-categorization and adding more rules and constrains. However this leads to an explosion of the number of rules and leading to an unmanageable and unpredictable interactions\cite{nadkarni2011natural}.\newline
+In the 1980s, NLP pivoted drastically into a statistical approach outlined by Klein\cite{kleincs}, where using simple and robust approximations ans outlined above was replaced by deep analysis with leaning machines, e.g. Transformers..., which used probabilities and were trained by large and annotated corpora. More so, the evaluation of the trained learning machines was more diligent and precise\cite{nadkarni2011natural}. This birthed the model statistical NLP, where the hand-crafted rules were replaced by broader rules having a probabilities determined through the trained machine learning\cite{kleincs}. In the practical part of this thesis some low-level NLP tasks will be used to extract and determine the class of each motion with its annotation. Tokenizers are an example to a low-level NLP task, where the individual tokens, i.e. words and punctuations, are identified. To achieve this a lexer is used to divide the text into lists of subtexts, that are then used in the next steps of the syntactical and semantic analysis of the text.\newline
+\subsection{Word taggers}\label{subsec:wordtaggers}
+A central task in this thesis is the syntactic analysis of texts ans speech and assign to each identified token a tag, i.e. the position and the role in the sentence\cite{nadkarni2011natural}. To this end Matthew Honnibal implemented a part of speech tagger to tag tokens in a sentence, where he used an averaged perceptron. Here a table of data is provided, but the last column, i.e. the position of each token in the sentence. \cite{honnibal_2013} 
+% TODO Complete the NLP section with base https://explosion.ai/blog/part-of-speech-pos-tagger-in-python
+\subsection{Stemmer}\label{subsec:stemmer}
+\section{Classification of Time Series}
+Time series are of ubiquitous nature and occur in nature in a multitude of ways, such as weather patterns and physiological signals, and also in human activities, such as financial recording. This makes their classification a cross domain task, with a very string baseline. Understanding this problem and solving it may influence the domain of machine learning in a significant way\cite{wang2017time}. Recently, it has been demonstrated that data-driven approaches is pivotal for data mining tasks by using deep learning methods and algorithms. A typically used learning machine for this is the ANN(Artificial Neural Network), which has proven to be capable of matching complicated functions leading to its popularity. A very special kind of ANNs is the CNN(Convolutional Neural Network), which has been primarily used for the task of image classification for its ability of extracting spatial features. However, the use of CNNs for the task of classification of time series remain very limited and challenging. On the other hand, RNN(Recurrent Neural Networks) are suitable for this task as it effectively uses the temporal nature of time series.\cite{yang2019time}
+\subsection{Deep neural networks}
+In the paper \cite{yang2019time} a standard baseline is established to exploit deep neural networks for end-to-end time series classification without the need of preprocessing and feature engineering. The authors evaluated a suite of learning machines:
+\begin{itemize}
+	\item MLP(Multilayer Perception).
+	\item FCN(Fully convolutional Network).
+	\item ResNet(Residual Network).
+\end{itemize}
+The conclusion of this comparative study is that ResNets and FCNs in a pure end-to-end training achieved better performance than COTE(Collective of Transformation-Based Ensembles)\cite{2015TSClassificationCOTE}. In addition to that, the use of global average pooling in the convolution layers in the models in the study enabled the exploitation of CAM(Class Activation Map). Thus finding our the contributing regions in the time series to the specific class\cite{wang2017time}. In the fig\ref{fig:wang2017time} the used architectures are illustrated.
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{0.25\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/mlp.pdf}
+		\caption{MLP}
+		\label{fig:wang2017timemlp}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.25\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/fcn.pdf}
+		\caption{FCN}
+		\label{fig:wang2017timefcn}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/resnet.pdf}
+		\caption{ResNet}
+		\label{fig:wang2017timeresnet}
+	\end{subfigure}
+	\caption{The network structure of three tested neural networks. Dash line indicates the operation of dropout\cite{wang2017time}.}
+	\label{fig:wang2017time}
+\end{figure}
+% TODO continue with wang2017time
+\subsection{RNNs und LSTMs}
 \section{Decoder-Encoders}
 \section{Transformers}
 \section{Multi-head self-attention}
