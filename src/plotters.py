@@ -158,15 +158,21 @@ def plot(model, histories, labels_, predictions_, training_losses_):
 def visualize_length_distribution(motions_lengths):
     output_file('plots/length_distribution.html')
     figures = [
-        figure(title='Frames length distribution'),
+        figure(
+            title='Frames length distribution',
+            x_axis_label='Number of motions',
+            y_axis_label='Number of frames',
+        ),
         figure(
             title='Length of frames',
+            y_axis_label='Motion ID',
+            x_axis_label='Number of frames',
             tooltips=[('Motion', '$y'),('Length', '$x')],
         )
     ]
     lengths = list(motions_lengths.values())
     bins = np.linspace(min(lengths), max(lengths), 40)
-    histogram_, edges = np.histogram(lengths, density=True, bins=bins)
+    histogram_, edges = np.histogram(lengths, density=True, bins='auto')
     figures[0].quad(
         top=histogram_*len(lengths),
         bottom=0,
@@ -180,8 +186,8 @@ def visualize_length_distribution(motions_lengths):
         y=list(map(lambda x: int(x), motions_lengths.keys())),
         fill_color='#000000',
         line_color='#000000',
-        fill_alpha=.3,
-        line_alpha=.4,
+        fill_alpha=.2,
+        line_alpha=.3,
         size=10,
     )
     grid_ = grid(row(*figures))

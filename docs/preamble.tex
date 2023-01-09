@@ -1,4 +1,4 @@
-\documentclass[14pt, a4paper]{extreport}
+\documentclass[14pt, a4paper, twoside]{extreport}
 
 \usepackage{
 	ifthen,
@@ -24,7 +24,7 @@
 \addbibresource{bibliography.bib}
 
 \AtBeginBibliography{\urlstyle{rm}}
-% \usepackage[osf]{Alegreya,AlegreyaSans,FiraMono}
+\usepackage[osf]{Alegreya,AlegreyaSans,FiraMono}
 
 \pagestyle{empty}{ \chead{}\lhead{}\rhead{}\cfoot{}\lfoot{}\rfoot{} }
 
@@ -44,9 +44,10 @@
 \setcounter{tocdepth}{3}
 \setcounter{secnumdepth}{3}
 
+\pagestyle{fancy}
 \fancyhead[L,C]{}
  \fancyhead[R]{\textbf{\rightmark}}
- \fancyhead[L]{}
+ \fancyhead[L]{\textsc{M. Ghazal}}
  \fancyfoot[L]{\leftmark}
  \fancyfoot[C]{}
  \fancyfoot[R]{\thepage}

@@ -1,5 +1,17 @@
 \chapter{Theoretische Grundlagen}
 In this section the theoretical foundation of this thesis will be laid to understand the problem and the components used to solve it. First the dataset KIT-Motion Dataset combines both the motion themselves as xml-Data in the mmm-format, and to each motion a textual annotation has been assigned. Thus making it semantically rich and allowing natural language processing to be used to solve the problem.
+\section{Human activity recognition}\label{sec:HAR}
+In the fields of medicine, surveillance and sports human activity recognition plays a great role. Applications of HAR are intra-disciplined and range from surveillance of the elderly, high-performance sport and quantifying the calorie consumption based on the performed human activities. To implement this, it might be very helpful to use sensors to know the relative position of a body part, its speed and it acceleration, which is also the base for this thesis. This approach is very promising, due to the prevalent nature of wearables capable of capturing these information. Here, some of the methods used in practice are outlined and the difficulties encountered by researchers to have a picture of the state of the art in HAR and how it was achieved. First, the shape-based methods have received a lot of attention since the 2000s, where the human body is described in 2D space as rectangular patches and as volumetric shapes in 3D spaces. In other words, the human body is reduced to a silhouette consisting of limbs jointly connected to each other. This approach is relevant in classifying human motions captured in videos\cite{vrigkas2015review}. This makes classifying motion captured on videos feasible and proves that temporal-spacial input for classifying motions is relevant for this task. However, the identification of the body parts contribute the most to the task of activity recognition remain challenging and requiring the use of hierarchical composition model such as in \cite{lillo2014discriminative}. Lillo et al. showed that hierarchical compositional models reach a high level of precision in determining, which actions are performed by a person and the relevant part for it. In addition to that, their model could determine, if a person is performing multiple tasks at the same time, i.g. walking while having a phone call, and could discriminate between actions that can't be performed at the same time. In other words, their model builds a discriminative dictionary of body pose primitives, which are combined to compose atomic actions at a low level. Consequentially, these atomic actions are combined to compose complex activities at the top level\cite{lillo2014discriminative}. Another approach is using the multimodal methods, which were the focus of recent studies and attempts to tackle this problem. Here, events are seen as ensemble of of values of some descriptors, i.e. the position of the arm ans its velocity, in a moment. Thus providing the model with more useful information. However, the collected information should be be somehow fused together in a meaningful way, and making feature fusion a necessary tool to achieve this. One can differentiate between two extreme strategies: early and late fusion, though a hybrid approaches exists, such as slow fusion and single frame as illustrated in fig \ref{fig:feature_fusion} and explained in more details in \ref{subsec:feature-fusion}.
+% TODO the intro to HAR lacks the oomph
+In the literature it belongs to the shape based methods, which received a lot of attention from researchers since the 2000s. In these methods the human body is 
+\subsection{Feature Fusion}\label{subsec:feature-fusion}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{img/feature_fusion.pdf}
+	\caption{Representation of fusion of information as shown in \cite{karpathy2014large}}
+	\label{fig:feature_fusion}
+\end{figure}
+\subsection{Inherent Problems with HAR}\label{subsec:probHAR}
 \section{Natural Language Processing}
 Natural language processing began 1950 as the intersection of artificial intelligence and linguistics. At first it was very distinguishable from test information retrieval, where researchers employed highly scalable statistical techniques to index and search large volumes of text in an efficient manner\cite{nadkarni2011natural}. Nowadays the two domains converged to create the new NLP field of study, where researchers are required to borrow from other fields to create new methods of analysing and interpreting information in a textual or spoken from.\newline
 With Chomskey's 1956 theoretical analysis of language grammars an estimate the complexity of the problems in NLP was provided, and influenced the creation of the Backus-Naur Form. This notation specified context-free grammars and is the base of programming language representations. In addition to that Chomskey found more restrictive Grammars, regular grammars, which are used to specify text-search patterns\cite{nadkarni2011natural}. These constructs were first the base of the first logical programming language Prolog, which syntax was conceived to suite writing grammars.\newline
@@ -46,9 +58,9 @@ The conclusion of this comparative study is that ResNets and FCNs in a pure end-
 \end{figure}
 % TODO continue with wang2017time
 \subsection{RNNs und LSTMs}
-\section{Decoder-Encoders}
-\section{Transformers}
-\section{Multi-head self-attention}
-\section{positional encoder}
-\section{BERT}
-\section{Embedding Models}
+% \section{Decoder-Encoders}
+% \section{Transformers}
+% \section{Multi-head self-attention}
+% \section{positional encoder}
+% \section{BERT}
+% \section{Embedding Models}

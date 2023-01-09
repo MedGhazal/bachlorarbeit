@@ -12,12 +12,12 @@ The goal of this project is to extract the necessary information out of each mot
 	\vspace{-1.5cm}
 	\begin{center}
 		\includegraphics[width=.25\textwidth]{img/mmm-model.png}
-		\label{fig:mmm-model}
 		\caption{The base of the mmm model as in \cite{Plappert2016}}
+		\label{fig:mmm-model}
 	\end{center}
 \end{wrapfigure}
 As mentioned in the introductory part of this chapter, the KIT-Motion dataset\cite{Plappert2016} will be used, and in this section the relevant information about the dataset will be discussed. This dataset was first assembled to link human motions to the natural language, which is of huge interest for the generation of semantic presentations of human activities. In addition to that, this dataset would be instrumental in implementing leaning machines capable of generating robot activities based on natural language input\cite{Plappert2016}. The team responsible of KIT Motion Database has developed the tools to aggregate the data from multiple motion capture databases and included the results in their database using a unified representation outlined in \ref{subsec:mmm-notation}. According to the team the dataset contains a total of 3911 motions totaling 11.23 hours motion capturing duration\cite{Plappert2016}.
-\subsection{mm-Notation} \label{subsec:mmm-notation}
+\subsection{mmm-Notation} \label{subsec:mmm-notation}
 The information about the motions in this dataset are persistently stored as xml-files using the mmm-notation ensuring the ease of reusability and the portability of these files. For this notation the mmm(Master Motor Map) was developed which is a framework and toolkit for capturing, representing and reproducing human motion. In this thesis only the representing part is relevant for extracting the information about the position of the joints the velocity and the root joint position for example\cite{mmm2014}. The xml-based mmm-notation is made of two parts. First, the setup on the model with the necessary information to recreate the motion itself, such as the height and the mass of the human, which are stored in the xml-element \texttt{ModelProcessorConfig}. In addition to that the joints are defined in the xml-element \texttt{JointOrder} and its child elements. Relevant here are the motion frames stored as \texttt{MotionFrames}, where the informations about the frames of the motions are stored as the children the \texttt{MotionFrames} xml-element:
 \begin{itemize}
 	\item The time step of the frame in \texttt{Timestep} xml-element.
@@ -65,5 +65,6 @@ The result is a sequence of vectors containing the information, that is then use
 First, a very simple MLP(Multilayer Perceptron) was implemented. To experiment with it, it has been trained using the three cases as outlined before. This will demonstrate, if the models would perform better with more features. The architecture of the model is illustrated in fig. \ref{fig:wang2017timemlp}. As a base line, a CNN(Convolutional Neural Network) was also used. These models proved to be good varying degrees, and the results of their training will be discussed in \ref{sec:evaluation}. Next, more suitable models for the 
 % TODO: Explain the recurrent models used and add illustration of them, based on the theoretical past of this thesis
 \section{Training}\label{section:training}
+Now, the models can be trained, but a inherent problem of HAR(Human Activity Recognition) comes to light as outlined in \ref{subsec:probHAR}
 \section{Evaluation}\label{sec:evaluation}
 \section{Verbesserungsvorschläge}

@@ -43,10 +43,10 @@ class MLP(Model):
         self.flatten = nn.Flatten()
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(0)
-        self.input_layer = nn.Linear(num_features * num_frames, 16)
-        self.hidden1 = nn.Linear(16, 32)
-        self.hidden2 = nn.Linear(32, 64)
-        self.output = nn.Linear(64, self.num_classes)
+        self.input_layer = nn.Linear(num_features * num_frames, 128)
+        self.hidden1 = nn.Linear(128, 128)
+        self.hidden2 = nn.Linear(128, 265)
+        self.output = nn.Linear(265, self.num_classes)
 
     def forward(self, input_, device):
         x = self.relu(self.input_layer(self.flatten(input_)))
@@ -77,23 +77,29 @@ class CNN(Model):
             loss_function=loss_function,
         )
         self.network = Sequential(
-            nn.Conv1d(num_features, 9, kernel_size=3, padding=1),
+            nn.Conv1d(num_features, 27, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.AvgPool1d(4),
-            nn.Conv1d(9, 9, kernel_size=3, padding=1),
+            nn.BatchNorm1d(27),
+            # nn.AvgPool1d(4),
+            nn.Conv1d(27, 9, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(4),
-            nn.Conv1d(9, 9, kernel_size=3, padding=1),
+            nn.BatchNorm1d(9),
+            # nn.MaxPool1d(4),
+            nn.Conv1d(9, 3, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.AvgPool1d(4),
-            nn.Conv1d(9, 9, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(4),
-            nn.Conv1d(9, 9, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.AvgPool1d(4),
+            nn.BatchNorm1d(3),
+            # nn.AvgPool1d(4),
+            # nn.Conv1d(9, 9, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.BatchNorm1d(9),
+            # # nn.MaxPool1d(4),
+            # nn.Conv1d(9, 9, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.BatchNorm1d(9),
+            nn.Conv1d(3, num_classes, kernel_size=3, padding=1),
+            # nn.AvgPool1d(4),
             nn.Flatten(),
-            nn.Linear(81, num_classes),
+            nn.Linear(44000, num_classes),
             nn.Softmax(0),
         )
         self.num_classes = num_classes
@@ -126,7 +132,7 @@ class RNN(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.rnn = nn.RNN(
-            num_frames,
+            num_features,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -138,6 +144,7 @@ class RNN(Model):
         initial_hidden_state = torch.zeros(
             self.num_layers, input_.size(0), self.hidden_size,
         ).to(device)
+        input_ = torch.transpose(input_, 1, 2)
         output, _ = self.rnn(input_, initial_hidden_state)
         return self.softmax(self.linear(output[:, -1, :]))
 
@@ -202,7 +209,7 @@ class LSTM(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.lstm = nn.LSTM(
-            num_frames,
+            num_features,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -217,6 +224,7 @@ class LSTM(Model):
         initial_cell_state = torch.zeros(
             self.num_layers, input_.size(0), self.hidden_size,
         ).to(device)
+        input_ = torch.transpose(input_, 1, 2)
         output, _ = self.lstm(input_, (initial_hidden_state, initial_cell_state))
         return self.softmax(self.linear(output[:, -1, :]))
 
@@ -283,14 +291,16 @@ if __name__ == '__main__':
         device = 'mps'
     else:
         device = 'cpu'
+
     device = 'cpu'
-    frequency = 1
-    length = 10000
+    frequency = 5
+    length = 4000
     if not os.path.exists('dataset.pt'):
         dataset = MotionDataset(
             classification=Classification(2),
-            get_matrixified_root_infomation=True,
+            # get_matrixified_root_infomation=True,
             # get_matrixified_joint_positions=True,
+            get_matrixified_all=True,
             frequency=frequency,
             max_length=length,
             min_length=length,
@@ -324,31 +334,37 @@ if __name__ == '__main__':
         weights = [ratio for label, ratio in label_ratio.items()]
 
     accuracies, histories = [], []
-    num_folds = 10 # 10, 30, 2
-    if num_folds == 2:
+    num_folds = 1 # 10, 30, 2, 1
+    if num_folds == 1:
+        folds = [dataset]
+    elif num_folds == 2:
         folds = random_split(dataset, [.1, .9])
     else:
         folds = random_split(dataset, [1/num_folds]*num_folds)
     labels_, predictions_, training_losses_ = [], [], []
     weights = torch.tensor(weights).to(device)
     for i in range(num_folds):
-        model = CNN_LSTM(
+        model = LSTM(
             num_classes=len(activities_dictionary),
+            num_features=44 + 6,
+            # num_features=6,
             # num_features=44,
-            num_features=6,
             num_frames=length//frequency,
             optimizer=Adam,
             # optimizer=SGD,
             # optimizer=ASGD,
             # loss_function=mse_loss,
             loss_function=cross_entropy,
-            num_layers=4,
-            hidden_size=1024,
+            num_layers=3,
+            hidden_size=512,
         ).to(device)
         print(f'Next fold {i+1} as validation set...')
-        train_dataset = ConcatDataset([
-            fold for index, fold in enumerate(folds) if index != i
-        ])
+        if num_folds == 1:
+            train_dataset = dataset
+        else:
+            train_dataset = ConcatDataset([
+                fold for index, fold in enumerate(folds) if index != i
+            ])
         train_loader = DataLoader(
             train_dataset,
             batch_size=32,
@@ -356,19 +372,21 @@ if __name__ == '__main__':
             drop_last=False,
             num_workers=0,
         )
-        validation_loader = DataLoader(
-            folds[i],
-            batch_size=16,
-            drop_last=False,
-            num_workers=0,
-        )
+        if num_folds > 1:
+            validation_loader = DataLoader(
+                folds[i],
+                batch_size=32,
+                drop_last=False,
+                num_workers=0,
+            )
         training_losses, history, labels, predictions = model.fit(
-            8,
-            .0001,
+           10,
+            .001,
             # .01,
             device,
             train_loader,
-            validation_loader,
+            # validation_loader,
+            train_loader,
             weights=weights,
         )
         training_losses_.append(training_losses)
@@ -376,7 +394,7 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-        if i == 1:
-            break
-    plot('LSTM', histories, labels_, predictions_, training_losses_)
+        # if i == 2:
+        #     break
+    plot('MLP', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')

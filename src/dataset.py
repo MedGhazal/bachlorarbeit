@@ -288,6 +288,39 @@ class Motion:
             )
         return self.position_matrix[::frequency], self.classification
 
+    @change_to(DEFAULT_ROOT)
+    def get_matrixified_all(
+        self,
+        frequency=1,
+        max_length=None,
+        min_length=None,
+    ):
+        try:
+            root_positions = np.load(f'{self.id_}_root_positions.npy')
+            root_rotations = np.load(f'{self.id_}_root_rotations.npy')
+            joint_positions = np.load(f'{self.id_}_joint_positions.npy')
+        except FileNotFoundError:
+            self.matrixfy_all()
+        self.position_matrix = np.hstack(
+            (root_positions, root_rotations, joint_positions)
+        )
+        if max_length and self.position_matrix.shape[0] > max_length:
+            return (
+                self.position_matrix[:max_length:frequency],
+                self.classification
+            )
+        if min_length and self.position_matrix.shape[0] < min_length:
+            padding = np.zeros(
+                (
+                    min_length - self.position_matrix.shape[0],
+                    self.position_matrix.shape[1],
+                )
+            )
+            self.position_matrix = np.vstack(
+                (self.position_matrix, padding)
+            )
+        return self.position_matrix[::frequency], self.classification
+
     def matrixfy_all(self):
         self.parse()
         self.matrixfy_frames()
@@ -333,6 +366,7 @@ class MotionDataset:
         classification=Classification(1),
         get_matrixified_root_infomation=False,
         get_matrixified_joint_positions=False,
+        get_matrixified_all=False,
         frequency=1,
         max_length=None,
         min_length=None,
@@ -346,6 +380,7 @@ class MotionDataset:
         self.min_length = min_length
         self.get_matrixified_root_infomation = get_matrixified_root_infomation
         self.get_matrixified_joint_positions = get_matrixified_joint_positions
+        self.get_matrixified_all = get_matrixified_all
 
     def download(self):
         print('Downloading the dataset...')
@@ -430,6 +465,17 @@ class MotionDataset:
                 self.matrix_represetations.append(
                     (matrix_representation, label)
                 )
+        if self.get_matrixified_all:
+            matrix_representation, label = motion.get_matrixified_all(
+                frequency=self.frequency,
+                max_length=self.max_length,
+                min_length=self.min_length,
+            )
+            if label:
+                self.matrix_represetations.append(
+                    (matrix_representation, label)
+                )
+
         return motion
 
     @change_to(DEFAULT_ROOT)
