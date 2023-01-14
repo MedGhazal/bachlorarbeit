@@ -110,6 +110,58 @@ class CNN(Model):
         return self.network(input_)
 
 
+class ResNetBlock(nn.Module):
+
+    def __init__(self, shape_in=None, shape_out=None,):
+        super().__init__()
+        self.network = Sequential(
+            nn.Conv1d(shape_in, 9, 1),
+            nn.ReLU(),
+            nn.BatchNorm1d(9),
+            nn.Conv1d(9, 18, 1),
+            nn.ReLU(),
+            nn.BatchNorm1d(18),
+            nn.Conv1d(18, shape_out, 1),
+            nn.ReLU(),
+            nn.BatchNorm1d(shape_out),
+        )
+
+    def forward(self, input_, device):
+        return self.network(input_)
+
+
+class ResNet(Model):
+
+    def __init__(
+        self,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
+        self.block_1 = ResNetBlock(num_features, num_features)
+        self.block_2 = ResNetBlock(num_features, num_features)
+        self.block_3 = ResNetBlock(num_features, num_features)
+        self.flatten = nn.Flatten()
+        self.linear = nn.Linear(176000, num_classes)
+        self.softmax = nn.Softmax(0)
+
+    def forward(self, motion, device):
+        output_block_1 = self.block_1(motion, device)
+        output_block_2 = self.block_1(output_block_1 + motion, device)
+        output_block_3 = self.block_1(output_block_1 + output_block_2, device)
+        return self.softmax(self.linear(self.flatten(output_block_3)))
+
+
+
 class RNN(Model):
 
     def __init__(
@@ -171,7 +223,7 @@ class GRU(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.gru = nn.GRU(
-            num_frames,
+            num_features,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -285,25 +337,26 @@ class CNN_LSTM(Model):
 
 
 if __name__ == '__main__':
-    if torch.cuda.is_available():
-        device = 'cuda'
-    elif torch.backends.mps.is_available():
+    if torch.backends.mps.is_available():
         device = 'mps'
+    elif torch.cuda.is_available():
+        device = 'cuda'
     else:
         device = 'cpu'
 
-    device = 'cpu'
-    frequency = 5
-    length = 4000
+    # device = 'cpu'
+    print(f'Using {device} as a backend')
+    frequency = 1
+    min_length, max_length = [4000, 4000]
     if not os.path.exists('dataset.pt'):
         dataset = MotionDataset(
             classification=Classification(2),
             # get_matrixified_root_infomation=True,
-            # get_matrixified_joint_positions=True,
-            get_matrixified_all=True,
+            get_matrixified_joint_positions=True,
+            # get_matrixified_all=True,
             frequency=frequency,
-            max_length=length,
-            min_length=length,
+            max_length=max_length,
+            min_length=min_length,
         )
         try:
             dataset.parse()
@@ -312,14 +365,18 @@ if __name__ == '__main__':
             dataset.parse()
         dataset = dataset.matrix_represetations
         label_frequency = visualize_class_distribution(dataset)
+        power = 4
         num_datapoints = sum(
             frequency for label, frequency in label_frequency.items()
             if label in activities_dictionary
-        )
+        ) ** power
         label_ratio = {
-            label: frequency / num_datapoints
+            label: frequency ** power / num_datapoints
             for label, frequency in label_frequency.items()
             if label in activities_dictionary
+        }
+        label_ratio = {
+            label: label_ratio[label] for label in activities_dictionary
         }
         with open('label_ratio.json', 'w') as json_file:
             json.dump(label_ratio, json_file)
@@ -334,7 +391,7 @@ if __name__ == '__main__':
         weights = [ratio for label, ratio in label_ratio.items()]
 
     accuracies, histories = [], []
-    num_folds = 1 # 10, 30, 2, 1
+    num_folds = 5 # 10, 30, 2, 1
     if num_folds == 1:
         folds = [dataset]
     elif num_folds == 2:
@@ -344,19 +401,19 @@ if __name__ == '__main__':
     labels_, predictions_, training_losses_ = [], [], []
     weights = torch.tensor(weights).to(device)
     for i in range(num_folds):
-        model = LSTM(
+        model = ResNet(
             num_classes=len(activities_dictionary),
-            num_features=44 + 6,
+            # num_features=44 + 6,
             # num_features=6,
-            # num_features=44,
-            num_frames=length//frequency,
+            num_features=44,
+            num_frames=max_length//frequency,
             optimizer=Adam,
             # optimizer=SGD,
             # optimizer=ASGD,
             # loss_function=mse_loss,
             loss_function=cross_entropy,
-            num_layers=3,
-            hidden_size=512,
+            # num_layers=3,
+            # hidden_size=1024,
         ).to(device)
         print(f'Next fold {i+1} as validation set...')
         if num_folds == 1:
@@ -368,25 +425,27 @@ if __name__ == '__main__':
         train_loader = DataLoader(
             train_dataset,
             batch_size=32,
+            # batch_size=1,
             shuffle=True,
             drop_last=False,
             num_workers=0,
         )
+        validation_loader = None
         if num_folds > 1:
             validation_loader = DataLoader(
                 folds[i],
                 batch_size=32,
+                # batch_size=1,
                 drop_last=False,
                 num_workers=0,
             )
         training_losses, history, labels, predictions = model.fit(
-           10,
-            .001,
+            20,
+            .0001,
             # .01,
             device,
             train_loader,
-            # validation_loader,
-            train_loader,
+            validation_loader if validation_loader else train_loader,
             weights=weights,
         )
         training_losses_.append(training_losses)
@@ -394,7 +453,7 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-        # if i == 2:
-        #     break
+        if i == 2:
+            break
     plot('MLP', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')
