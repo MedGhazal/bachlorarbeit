@@ -150,7 +150,7 @@ class Model(nn.Module):
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
-            adjust_learning_rate(optimizer, epoch, learning_rate)
+            # adjust_learning_rate(optimizer, epoch, learning_rate)
             result, labels, predictions = self.evaluate(valuation_loader, device, weights=weights)
             self.epoch_end(epoch, result)
             # learning_scheduler.step(training_losses[-1])

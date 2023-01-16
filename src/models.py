@@ -43,20 +43,71 @@ class MLP(Model):
         self.flatten = nn.Flatten()
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(0)
-        self.input_layer = nn.Linear(num_features * num_frames, 128)
-        self.hidden1 = nn.Linear(128, 128)
-        self.hidden2 = nn.Linear(128, 265)
-        self.output = nn.Linear(265, self.num_classes)
+        self.input_layer = nn.Linear(num_features * num_frames, 1024)
+        self.hidden1 = nn.Linear(1024, 2048)
+        self.hidden2 = nn.Linear(2048, 4096)
+        self.output = nn.Linear(4096, self.num_classes)
+        self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, input_, device):
         x = self.relu(self.input_layer(self.flatten(input_)))
-        x = self.relu(self.hidden1(x))
-        x = self.relu(self.hidden2(x))
-        x = self.flatten(F.normalize(x))
-        x = self.softmax(x)
-        x = self.output(x)
-        x = self.softmax(x)
-        return x
+        x = self.dropout(self.relu(self.hidden1(x)))
+        x = self.dropout(self.relu(self.hidden2(x)))
+        x = self.output(self.flatten(F.normalize(x)))
+        return self.softmax(x)
+
+
+class FCN(Model):
+
+    def __init__(
+        self,
+        num_classes=None,
+        num_features=None,
+        num_frames=None,
+        optimizer=None,
+        loss_function=None,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            num_features=num_features,
+            num_frames=num_frames,
+            optimizer=optimizer,
+            loss_function=loss_function,
+        )
+        self.network = Sequential(
+            nn.Conv1d(num_features, 27, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm1d(27),
+            # nn.AvgPool1d(4),
+            nn.Conv1d(27, 9, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm1d(9),
+            # nn.MaxPool1d(4),
+            nn.Conv1d(9, 3, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm1d(3),
+            # nn.AvgPool1d(4),
+            # nn.Conv1d(9, 9, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.BatchNorm1d(9),
+            # # nn.MaxPool1d(4),
+            # nn.Conv1d(9, 9, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.BatchNorm1d(9),
+            nn.Conv1d(3, num_classes, kernel_size=3, padding=1),
+            nn.BatchNorm1d(num_classes),
+            nn.AvgPool1d(num_classes),
+            nn.Flatten(),
+            nn.Linear(44000, num_classes),
+            nn.Softmax(0),
+        )
+        self.num_classes = num_classes
+        self.loss_function = loss_function
+        self.optimizer = optimizer
+
+    def forward(self, input_, device):
+        return self.network(input_)
+
 
 
 class CNN(Model):
@@ -97,7 +148,8 @@ class CNN(Model):
             # nn.ReLU(),
             # nn.BatchNorm1d(9),
             nn.Conv1d(3, num_classes, kernel_size=3, padding=1),
-            # nn.AvgPool1d(4),
+            nn.BatchNorm1d(num_classes),
+            nn.AvgPool1d(num_classes),
             nn.Flatten(),
             nn.Linear(44000, num_classes),
             nn.Softmax(0),
@@ -159,7 +211,6 @@ class ResNet(Model):
         output_block_2 = self.block_1(output_block_1 + motion, device)
         output_block_3 = self.block_1(output_block_1 + output_block_2, device)
         return self.softmax(self.linear(self.flatten(output_block_3)))
-
 
 
 class RNN(Model):
@@ -400,8 +451,9 @@ if __name__ == '__main__':
         folds = random_split(dataset, [1/num_folds]*num_folds)
     labels_, predictions_, training_losses_ = [], [], []
     weights = torch.tensor(weights).to(device)
+
     for i in range(num_folds):
-        model = ResNet(
+        model = CNN(
             num_classes=len(activities_dictionary),
             # num_features=44 + 6,
             # num_features=6,
@@ -440,8 +492,8 @@ if __name__ == '__main__':
                 num_workers=0,
             )
         training_losses, history, labels, predictions = model.fit(
-            20,
-            .0001,
+            10,
+            .00001,
             # .01,
             device,
             train_loader,
@@ -453,7 +505,5 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-        if i == 2:
-            break
-    plot('MLP', histories, labels_, predictions_, training_losses_)
+    plot('CNN', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')
