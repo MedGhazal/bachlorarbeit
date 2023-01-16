@@ -28,3 +28,6 @@ src/test.py
 *.pt
 plots/*
 *.json
+
+# Temporary
+transformer.py
