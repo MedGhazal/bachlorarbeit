@@ -68,6 +68,7 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
                 ('Labels', '@labels'),
                 ('Predictions', '@predictions'),
             ],
+            output_backend="svg",
         )
         color_mapper = LinearColorMapper(
             palette=Iridescent[23][::-1],
@@ -100,6 +101,7 @@ def visualize_losses(figure_losses, fold, loss_values, color):
         name=f'{fold}',
         legend_label=f'{fold}. fold',
         line_color=color,
+        output_backend="svg",
     )
 
 
@@ -110,6 +112,7 @@ def visualize_accuracies(figure_accuracies, fold, accuracy_values, color):
         name=f'{fold}',
         legend_label=f'{fold}. fold',
         line_color=color,
+        output_backend="svg",
     )
 
 
@@ -118,16 +121,19 @@ def plot(model, histories, labels_, predictions_, training_losses_):
     figures = []
     figure_validation_losses = figure(
         title=f'The validation loss values the {model} over epochs',
+        output_backend="svg",
         # width=300,
         # height=300,
     )
     figure_training_losses = figure(
         title=f'The training loss values the {model} over epochs',
+        output_backend="svg",
         # width=300,
         # height=300,
     )
     figure_accuracies = figure(
         title=f'The accuracy the {model} over epochs',
+        output_backend="svg",
         # width=300,
         # height=300,
     )
@@ -162,12 +168,14 @@ def visualize_length_distribution(motions_lengths):
             title='Frames length distribution',
             x_axis_label='Number of motions',
             y_axis_label='Number of frames',
+            output_backend="svg",
         ),
         figure(
             title='Length of frames',
             y_axis_label='Motion ID',
             x_axis_label='Number of frames',
             tooltips=[('Motion', '$y'),('Length', '$x')],
+            output_backend="svg",
         )
     ]
     lengths = list(motions_lengths.values())

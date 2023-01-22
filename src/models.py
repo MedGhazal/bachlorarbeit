@@ -51,6 +51,8 @@ class MLP(Model):
 
     def forward(self, input_, device):
         x = self.relu(self.input_layer(self.flatten(input_)))
+        # x = self.relu(self.hidden1(x))
+        # x = self.relu(self.hidden2(x))
         x = self.dropout(self.relu(self.hidden1(x)))
         x = self.dropout(self.relu(self.hidden2(x)))
         x = self.output(self.flatten(F.normalize(x)))
@@ -397,6 +399,7 @@ if __name__ == '__main__':
 
     # device = 'cpu'
     print(f'Using {device} as a backend')
+
     frequency = 1
     min_length, max_length = [4000, 4000]
     if not os.path.exists('dataset.pt'):
@@ -408,6 +411,8 @@ if __name__ == '__main__':
             frequency=frequency,
             max_length=max_length,
             min_length=min_length,
+            padding='last',
+            inverse=False,
         )
         try:
             dataset.parse()
@@ -416,11 +421,11 @@ if __name__ == '__main__':
             dataset.parse()
         dataset = dataset.matrix_represetations
         label_frequency = visualize_class_distribution(dataset)
-        power = 4
+        power = 1
         num_datapoints = sum(
             frequency for label, frequency in label_frequency.items()
             if label in activities_dictionary
-        ) ** power
+        )
         label_ratio = {
             label: frequency ** power / num_datapoints
             for label, frequency in label_frequency.items()
@@ -432,7 +437,7 @@ if __name__ == '__main__':
         with open('label_ratio.json', 'w') as json_file:
             json.dump(label_ratio, json_file)
         weights = [ratio for label, ratio in label_ratio.items()]
-        dataset = prepare_dataset(dataset, normalize=True)
+        dataset = prepare_dataset(dataset, normalize=False, oversample=True)
         torch.save(dataset, 'dataset.pt')
     else:
         print('Loading the dataset...')
@@ -453,16 +458,15 @@ if __name__ == '__main__':
     weights = torch.tensor(weights).to(device)
 
     for i in range(num_folds):
-        model = CNN(
+        model = MLP(
             num_classes=len(activities_dictionary),
             # num_features=44 + 6,
-            # num_features=6,
             num_features=44,
+            # num_features=6,
             num_frames=max_length//frequency,
             optimizer=Adam,
             # optimizer=SGD,
             # optimizer=ASGD,
-            # loss_function=mse_loss,
             loss_function=cross_entropy,
             # num_layers=3,
             # hidden_size=1024,
@@ -476,7 +480,7 @@ if __name__ == '__main__':
             ])
         train_loader = DataLoader(
             train_dataset,
-            batch_size=32,
+            batch_size=16,
             # batch_size=1,
             shuffle=True,
             drop_last=False,
@@ -486,15 +490,14 @@ if __name__ == '__main__':
         if num_folds > 1:
             validation_loader = DataLoader(
                 folds[i],
-                batch_size=32,
+                batch_size=64,
                 # batch_size=1,
                 drop_last=False,
                 num_workers=0,
             )
         training_losses, history, labels, predictions = model.fit(
-            10,
-            .00001,
-            # .01,
+            20,
+            10 ** -5,
             device,
             train_loader,
             validation_loader if validation_loader else train_loader,
@@ -505,5 +508,5 @@ if __name__ == '__main__':
         predictions_.append(predictions)
         accuracies.append(history[-1]['valueAccuracy'])
         histories.append(history)
-    plot('CNN', histories, labels_, predictions_, training_losses_)
+    plot('MLP', histories, labels_, predictions_, training_losses_)
     print(f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%')

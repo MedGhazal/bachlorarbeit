@@ -236,6 +236,8 @@ class Motion:
         frequency=1,
         max_length=None,
         min_length=None,
+        inverse=True,
+        padding='zero',
     ):
         try:
             self.position_matrix = np.load(f'{self.id_}_joint_positions.npy')
@@ -247,14 +249,25 @@ class Motion:
                 self.classification
             )
         if min_length and self.position_matrix.shape[0] < min_length:
-            padding = np.zeros(
-                (
-                    min_length - self.position_matrix.shape[0],
-                    self.position_matrix.shape[1],
+            if padding == 'zero':
+                padding = np.zeros(
+                    (
+                        min_length - self.position_matrix.shape[0],
+                        self.position_matrix.shape[1],
+                    )
                 )
-            )
+            elif padding == 'last':
+                padding = np.tile(
+                    self.position_matrix[-1, :],
+                    (min_length - self.position_matrix.shape[0], 1),
+                )
+            else:
+                raise ValueError
             self.position_matrix = np.vstack((self.position_matrix, padding))
-        return self.position_matrix[::frequency], self.classification
+        if inverse:
+            return np.flip(self.position_matrix[::frequency]), self.classification
+        else:
+            return self.position_matrix[::frequency], self.classification
 
     @change_to(DEFAULT_ROOT)
     def get_matrixified_root_infomation(
@@ -262,6 +275,8 @@ class Motion:
         frequency=1,
         max_length=None,
         min_length=None,
+        inverse=True,
+        padding='zero',
     ):
         try:
             root_positions = np.load(f'{self.id_}_root_positions.npy')
@@ -277,16 +292,27 @@ class Motion:
                 self.classification
             )
         if min_length and self.position_matrix.shape[0] < min_length:
-            padding = np.zeros(
-                (
-                    min_length - self.position_matrix.shape[0],
-                    self.position_matrix.shape[1],
+            if padding == 'zero':
+                padding = np.zeros(
+                    (
+                        min_length - self.position_matrix.shape[0],
+                        self.position_matrix.shape[1],
+                    )
                 )
-            )
+            elif padding == 'last':
+                padding = np.tile(
+                    self.position_matrix[-1, :],
+                    (min_length - self.position_matrix.shape[0], 1),
+                )
+            else:
+                raise ValueError
             self.position_matrix = np.vstack(
                 (self.position_matrix, padding)
             )
-        return self.position_matrix[::frequency], self.classification
+        if inverse:
+            return np.flip(self.position_matrix[::frequency]), self.classification
+        else:
+            return self.position_matrix[::frequency], self.classification
 
     @change_to(DEFAULT_ROOT)
     def get_matrixified_all(
@@ -294,6 +320,8 @@ class Motion:
         frequency=1,
         max_length=None,
         min_length=None,
+        inverse=True,
+        padding='zero',
     ):
         try:
             root_positions = np.load(f'{self.id_}_root_positions.npy')
@@ -310,16 +338,27 @@ class Motion:
                 self.classification
             )
         if min_length and self.position_matrix.shape[0] < min_length:
-            padding = np.zeros(
-                (
-                    min_length - self.position_matrix.shape[0],
-                    self.position_matrix.shape[1],
+            if padding == 'zero':
+                padding = np.zeros(
+                    (
+                        min_length - self.position_matrix.shape[0],
+                        self.position_matrix.shape[1],
+                    )
                 )
-            )
+            elif padding == 'last':
+                padding = np.tile(
+                    self.position_matrix[-1, :],
+                    (min_length - self.position_matrix.shape[0], 1),
+                )
+            else:
+                raise ValueError
             self.position_matrix = np.vstack(
                 (self.position_matrix, padding)
             )
-        return self.position_matrix[::frequency], self.classification
+        if inverse:
+            return np.flip(self.position_matrix[::frequency]), self.classification
+        else:
+            return self.position_matrix[::frequency], self.classification
 
     def matrixfy_all(self):
         self.parse()
@@ -370,6 +409,8 @@ class MotionDataset:
         frequency=1,
         max_length=None,
         min_length=None,
+        padding='zero',
+        inverse=True,
     ):
         self.root = os.path.expanduser(root)
         self.train = train
@@ -381,6 +422,8 @@ class MotionDataset:
         self.get_matrixified_root_infomation = get_matrixified_root_infomation
         self.get_matrixified_joint_positions = get_matrixified_joint_positions
         self.get_matrixified_all = get_matrixified_all
+        self.inverse = inverse
+        self.padding = padding
 
     def download(self):
         print('Downloading the dataset...')
@@ -450,6 +493,8 @@ class MotionDataset:
                 frequency=self.frequency,
                 max_length=self.max_length,
                 min_length=self.min_length,
+                inverse=self.inverse,
+                padding=self.padding,
             )
             if label:
                 self.matrix_represetations.append(
@@ -460,6 +505,8 @@ class MotionDataset:
                 frequency=self.frequency,
                 max_length=self.max_length,
                 min_length=self.min_length,
+                inverse=self.inverse,
+                padding=self.padding,
             )
             if label:
                 self.matrix_represetations.append(
@@ -470,6 +517,8 @@ class MotionDataset:
                 frequency=self.frequency,
                 max_length=self.max_length,
                 min_length=self.min_length,
+                inverse=self.inverse,
+                padding=self.padding,
             )
             if label:
                 self.matrix_represetations.append(

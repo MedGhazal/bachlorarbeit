@@ -150,7 +150,7 @@ class Model(nn.Module):
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
-            # adjust_learning_rate(optimizer, epoch, learning_rate)
+            adjust_learning_rate(optimizer, epoch, learning_rate)
             result, labels, predictions = self.evaluate(valuation_loader, device, weights=weights)
             self.epoch_end(epoch, result)
             # learning_scheduler.step(training_losses[-1])
@@ -182,7 +182,7 @@ def normalize_dataset(dataset):
     return normalized_dataset
 
 
-def prepare_dataset(dataset, normalize=False):
+def prepare_dataset(dataset, normalize=False, oversample=True):
     if normalize:
         return normalize_dataset(dataset)
     prepared_dataset = []
@@ -190,12 +190,14 @@ def prepare_dataset(dataset, normalize=False):
         if label in CLASSES_MAPPING.keys():
             onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
             onehot_presentation[CLASSES_MAPPING[label]] = 1.0
-            prepared_dataset.append(
-                [
-                    torch.tensor(matrix_positions).float().transpose(0, 1),
-                    onehot_presentation,
-                ]
-            )
+            item = [
+                torch.tensor(matrix_positions.copy()).float().transpose(0, 1),
+                onehot_presentation,
+            ]
+            if oversample and label != 'walk':
+                prepared_dataset += 8 * [item]
+            else:
+                prepared_dataset.append(item)
     return prepared_dataset
 
 
