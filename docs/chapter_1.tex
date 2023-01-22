@@ -8,19 +8,19 @@ First, the shape-based methods have received a lot of attention since the 2000s,
 Another approach is using the multimodal methods, which were the focus of recent studies and attempts to tackle this problem. Here, events are seen as ensemble of of values of some descriptors, i.e. the position of the arm ans its velocity, in a moment. Thus providing the model with more useful information. However, the collected information should be be somehow fused together in a meaningful way, and making feature fusion a necessary tool to achieve this. One can differentiate between two extreme strategies: early and late fusion, though a hybrid approaches exists, such as slow fusion and single frame as illustrated in fig \ref{fig:feature_fusion} and explained in more details in \ref{subsec:feature-fusion}. In the context of classifying human activities by using information about the positions of the joints feature fusion could make the trained models very robust against occlusion and noise and could improve the recognition performance\cite{vrigkas2015review}.
 \subsection{Feature Fusion}\label{subsec:feature-fusion}
 The need to use feature fusion for the task of human activity recognition is due to the fact, that this can be achieved by using an multitude of input, i.g visual or auditory. In this thesis only information about the joints and the position of the pelvis is taken into account. However, each joint is positioned in an axis, thus making it useful to use feature fusion in this context. Karpathy et al. investigated fusing information across temporal domain using multiple methods listed in fig \ref{fig:feature_fusion}. In principle, the fusion can be used in the early stages in a CNN by modifying the first convolutional layer in the network and extending them in time. Another approach is to delay the fusion and replace the first layer by two temporally separate single-frame networks. Later can the fusing of the output of the two single-frame networks take part\cite{karpathy2014large}.\newline
-% TODO Continue the explanation of feature fusion by using the paper {karpathy2014large}
-\begin{description}
-	\item[Single frame] TOBEFILLED
-	\item[Slow fusion] TOBEFILLED
-	\item[Late fusion] TOBEFILLED
-	\item[Early fusion] TOBEFILLED
-\end{description}
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{img/feature_fusion.pdf}
-	\caption{Representation of fusion of information as shown in \cite{karpathy2014large}}
-	\label{fig:feature_fusion}
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=.75\textwidth]{img/feature_fusion.pdf}
+		\caption{Representation of fusion of information as shown in \cite{karpathy2014large}}
+		\label{fig:feature_fusion}
+	\end{center}
 \end{figure}
+\begin{description}
+	\item[Single frame] was used a as baseline to understand the contribution of static appearance to the classification accuracy\cite{karpathy2014large}.
+	\item[Late fusion] places two separate single frames with shared parameters at the beginning and the end of a window. Then, their outputs are merged in the first fully connected layer. This allows the model to detect global motion characteristics and makes the classification process more robust, which can be achieved by comparing the output of both single frames\cite{karpathy2014large}.
+	\item[Early fusion] is an extension of the single frame architecture, where information is combined across an entire time window. The direct and early extraction of the data would allow the machine learning to detect local motion and speed in a precise manner\cite{karpathy2014large}.
+	\item[Slow fusion] fuses temporal information throughout the network and allows higher layers access to global information in both the temporal and spacial dimensions. This can be implemented by extending the connectivity of all convolutional layers, and makes this architecture a mix of early and late fusion\cite{karpathy2014large}.
+\end{description}
 \subsection{Inherent Problems with HAR}\label{subsec:probHAR}
 To understand the complexity the HAR problem, one must understand the problem of recognition as a whole. This would allow researchers to understand the intricacies of the problem in general and contribute in unifying the process of developing general recognition systems. As Kaixuan Chen and Dalin Zhang et al. recognised the fact that the challenges faced by HAR are shared by other fields of research such as computer vision and natural language processing\cite{chen2021deep}. Nevertheless, some of theses challenges are unique due to the fact that, sensor-based HAR require dedicated methods for real-life applications.\newline
 First in the list comes feature extraction, due to the nature of the HAR, a classification task, it shares this problem with other classification problems. % continue with chen2021
@@ -77,8 +77,21 @@ In the paper \cite{yang2019time} a standard baseline is established to exploit d
 The conclusion of this comparative study is that ResNets and FCNs in a pure end-to-end training achieved better performance than COTE(Collective of \\Transformation-Based Ensembles)\cite{2015TSClassificationCOTE}. In addition to that, the use of global average pooling in the convolution layers in the models in the study enabled the exploitation of CAM(Class Activation Map). Thus finding our the contributing regions in the time series to the specific class\cite{wang2017time}. In the fig. \ref{fig:wang2017time} the architectures used by Wang et al. are illustrated.\newline
 The MLP, as in fig. \ref{fig:wang2017timemlp}, is used a very rudimentary learning machine as golden standard to time series classification. Here they used three hidden layers, each with 500 neurons and ReLU as the activation function. The output layer in this was was a softmax layer to ensure the production of meaningful probabilities, i.e the output represent a probability distribution over the different possible class\cite{wang2017time}. In addition to that, dropout at each layer was user to decrease the possibility of overfitting, thus making the trained model more generalizable.\newline
 Next Wang et al. investigated the used of FCN, as in fig. \ref{fig:wang2017timefcn}, which has shown great potential in image segmentation. Here, each output pixel matches the receptive field, thus making the network trainable given the category-wise semantic annotation.\cite{wang2017time}. However, this makes FCNs suitable as a feature extractor, and as in MLP the final softmax layer is used to generate the probability distribution. As for the architecture itself, it is comprised of tree block beside the output layer, and each block is a convolutional layer followed by a batch normalization layer and a ReLU activation layer.This isn't the norm, when it comes to this type of architectures, as Wang et al. removed the pooling function altogether to reduce the possibility of overfitting. Besides, batch normalization is used to speed up the conversion and improve generalization. Finally the output block is a global average pooling layer to reduce the number of weights\cite{wang2017time}.\newline
-The final deep neural network investigated was residual networks, which extend the other deep neutral network by adding the bypass connection in each residual block, as shown in fig \ref{fig:wang2017timeresnet}. This help overcome the problem of vanishing gradients by allowing direct flow of the gradient to the early layers in the network. As such these networks achieve the state-of-the-art performance in object detection and other vision related tasks. Due to the nature of ResNet architecture one must expect, that trained models based on it might overfit the training data. This is in part due to the fact, that dataset in the field of HAR are relatively small and lack the variance of data pints to capture the complex structures with such models. The main components of the ResNet are taken from the FCN, i.e. the convolutional blocks, and staked on each other.
-\subsection{RNNs und LSTMs}
+The final deep neural network investigated was residual networks, which extend the other deep neutral network by adding the bypass connection in each residual block, as shown in fig \ref{fig:wang2017timeresnet}. This help overcome the problem of vanishing gradients by allowing direct flow of the gradient to the early layers in the network. As such these networks achieve the state-of-the-art performance in object detection and other vision related tasks. Due to the nature of ResNet architecture one must expect, that trained models based on it might overfit the training data. This is in part due to the fact, that dataset in the field of HAR are relatively small and lack the variance of data pints to capture the complex structures with such models. The main components of the ResNet are taken from the FCN, i.e. the convolutional blocks, and staked on each other\cite{wang2017time}.
+\subsection{Recurrent Neural Networks}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=.75\textwidth]{img/rnn.pdf}
+	\caption{The recurrent neural network}
+	\label{fig:rnn}
+\end{figure}
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=\textwidth]{img/cells.pdf}
+		\caption{TODO}
+		\label{fig:cells}
+	\end{center}
+\end{figure}
 % \section{Decoder-Encoders}
 % \section{Transformers}
 % \section{Multi-head self-attention}
