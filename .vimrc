@@ -22,6 +22,8 @@ au BufNewFile,BufRead *.py
     \ set autoindent |
     \ set fileformat=unix
 
+autocmd BufNewFile,BufRead *.tex nnoremap <leader>c :!./compile.sh<CR>
+
 au BufNewFile,BufRead *.js,*.html,*.css 
     \ set tabstop=2 |
     \ set softtabstop=2 |
@@ -45,7 +47,6 @@ call vundle#begin()
 	Plugin 'altercation/vim-colors-solarized'
 	Plugin 'lervag/vimtex'
 	Plugin 'tpope/vim-surround'
-	Plugin 'tpope/vim-commentary'
 	Plugin 'vim-scripts/ReplaceWithRegister'
 	Plugin 'christoomey/vim-system-copy'
 	Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -108,7 +109,6 @@ nmap <C-k> <C-w>k
 nmap <C-l> <C-w>l
 map <leader>t :TagbarToggle<CR>
 map <leader>n :NERDTree<CR>
-map <leader>c :Commentary<CR>
 
 autocmd FileType python map <buffer> <leader>f :call flake8#Flake8()<CR>
 

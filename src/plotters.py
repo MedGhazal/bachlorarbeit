@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from random import randrange
+from collections import Counter
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.layouts import grid, row, column
@@ -9,6 +10,7 @@ from bokeh.models import ColumnDataSource, LinearColorMapper, ColorBar, BasicTic
 from bokeh.transform import transform
 
 from utils import activities_dictionary, CLASSES_MAPPING
+
 
 def get_random_hex():
     return hex(randrange(17, 255))[2:].upper()
@@ -68,7 +70,6 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
                 ('Labels', '@labels'),
                 ('Predictions', '@predictions'),
             ],
-            output_backend="svg",
         )
         color_mapper = LinearColorMapper(
             palette=Iridescent[23][::-1],
@@ -94,14 +95,26 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
     return figures
 
 
-def visualize_losses(figure_losses, fold, loss_values, color):
+def visualize_losses(
+    figure_losses,
+    training_losses,
+    validation_losses,
+    fold,
+    color,
+):
     figure_losses.line(
-        x=list(range(len(loss_values))),
-        y=loss_values,
+        x=list(range(len(training_losses))),
+        y=training_losses,
         name=f'{fold}',
-        legend_label=f'{fold}. fold',
+        legend_label=f'Training loss values',
         line_color=color,
-        output_backend="svg",
+    )
+    figure_losses.line(
+        x=np.linspace(0, len(training_losses), len(validation_losses)),
+        y=validation_losses,
+        name=f'{fold}',
+        legend_label=f'Validation loss values',
+        line_color=color,
     )
 
 
@@ -112,34 +125,34 @@ def visualize_accuracies(figure_accuracies, fold, accuracy_values, color):
         name=f'{fold}',
         legend_label=f'{fold}. fold',
         line_color=color,
-        output_backend="svg",
     )
 
 
-def plot(model, histories, labels_, predictions_, training_losses_):
-    output_file('plots/Experiements.html')
+def plot(
+    model,
+    frequency,
+    num_features,
+    histories,
+    labels_,
+    predictions_,
+    training_losses_,
+):
+    output_file(f'plots/Experiements{model}_{num_features}_{frequency}.html')
     figures = []
-    figure_validation_losses = figure(
-        title=f'The validation loss values the {model} over epochs',
-        output_backend="svg",
-        # width=300,
-        # height=300,
-    )
-    figure_training_losses = figure(
-        title=f'The training loss values the {model} over epochs',
-        output_backend="svg",
-        # width=300,
-        # height=300,
+    figure_losses = figure(
+        title=f'The loss values the {model} over epochs',
+        width=800,
+        height=500,
+        sizing_mode="scale_both",
     )
     figure_accuracies = figure(
         title=f'The accuracy the {model} over epochs',
-        output_backend="svg",
-        # width=300,
-        # height=300,
+        width=800,
+        height=500,
+        sizing_mode="scale_both",
     )
     figures.append(figure_accuracies)
-    figures.append(figure_validation_losses)
-    figures.append(figure_training_losses)
+    figures.append(figure_losses)
     final_accuracy_values = []
     for fold, (history, training_losses) in enumerate(
         zip(
@@ -148,16 +161,28 @@ def plot(model, histories, labels_, predictions_, training_losses_):
         )
     ):
         color = get_random_color()
-        loss_values = [values['valueLoss'] for values in history]
+        validation_losses = [values['valueLoss'] for values in history]
         accuracy_values = [values['valueAccuracy'] for values in history]
         final_accuracy_values.append(accuracy_values[-1])
         visualize_accuracies(figure_accuracies, fold+1, accuracy_values, color)
-        visualize_losses(figure_training_losses, fold+1, training_losses, color)
-        visualize_losses(figure_validation_losses, fold+1, loss_values, color)
+        visualize_losses(
+            figure_losses,
+            training_losses,
+            validation_losses,
+            fold+1,
+            color,
+        )
     figures_confusion_matrices =  visualize_confusion_matrix(
         labels_, predictions_, final_accuracy_values
     )
-    grid_ = grid(column(row(*figures), row(*figures_confusion_matrices)))
+    grid_ = grid(
+        column(
+            row(*figures),
+            row(*figures_confusion_matrices[:2]),
+            row(*figures_confusion_matrices[2:4]),
+            row(figures_confusion_matrices[4]),
+        )
+    )
     show(grid_)
 
 
@@ -168,14 +193,12 @@ def visualize_length_distribution(motions_lengths):
             title='Frames length distribution',
             x_axis_label='Number of motions',
             y_axis_label='Number of frames',
-            output_backend="svg",
         ),
         figure(
             title='Length of frames',
             y_axis_label='Motion ID',
             x_axis_label='Number of frames',
             tooltips=[('Motion', '$y'),('Length', '$x')],
-            output_backend="svg",
         )
     ]
     lengths = list(motions_lengths.values())
@@ -201,3 +224,31 @@ def visualize_length_distribution(motions_lengths):
     grid_ = grid(row(*figures))
     show(grid_)
     return figures
+
+
+def visualize_class_distribution(dataset):
+    output_file('plots/class_distribution.html')
+    label_frequency = Counter(label for _, label in dataset)
+    labels = list(label_frequency.keys())
+    label_frequency_source = ColumnDataSource(
+        data=dict(
+            label=list(label_frequency.keys()),
+            count=list(label_frequency.values()),
+        )
+    )
+    figure_ = figure(
+        title='Label distribution',
+        y_range=labels,
+        tooltips=[('Num', '@count'), ('Label', '@label')],
+    )
+    figure_.hbar(
+        y='label',
+        right='count',
+        left=0,
+        height=.5,
+        fill_color='#000000',
+        line_color='#000000',
+        source=label_frequency_source,
+    )
+    show(figure_)
+    return label_frequency

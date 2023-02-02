@@ -19,10 +19,13 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import EnglishStemmer
 from string import punctuation
+from torch import load, save
+from torch.utils.data import random_split
 
-from utils import change_to, activities_dictionary
+from utils import change_to, activities_dictionary, prepare_dataset
 from plotters import (
     visualize_length_distribution,
+    visualize_class_distribution,
 )
 
 # Change this to the path where you want to download the dataset to
@@ -550,21 +553,6 @@ class MotionDataset:
         self.classes = set()
         self.matrix_represetations = []
 
-        # TODO: Complete multiprocessing for parsing motions
-        # with Pool(processes=8) as pool:
-        #     self.motions = list(
-        #         tqdm(
-        #             pool.imap_unordered(
-        #                 self.parse_motion,
-        #                 ids,
-        #                 chunksize=10,
-        #             ),
-        #             total=len(ids),
-        #             ncols=100,
-        #         )
-        #     )
-        # len(self.motions)
-        # self.motions = [motion for motion in self.motions if motion]
         for id_ in tqdm(ids, ncols=100,):
             motion = self.parse_motion(id_, format_)
             if motion:
@@ -729,6 +717,137 @@ def get_number_infos_motions(dataset):
         f'The number of motions > 5 is {number_motions_under_5}',
         sep='\n',
     )
+
+
+def create_dataset(
+    train=True,
+    frequency=None,
+    min_length=None,
+    max_length=None,
+    get_matrixified_root_infomation=False,
+    get_matrixified_joint_positions=False,
+    get_matrixified_all=False,
+    padding=None,
+    inverse=False,
+    normalize=True,
+    oversample=True,
+):
+    dataset = MotionDataset(
+        train=train,
+        classification=Classification(2),
+        get_matrixified_root_infomation=get_matrixified_root_infomation,
+        get_matrixified_joint_positions=get_matrixified_joint_positions,
+        get_matrixified_all=get_matrixified_all,
+        frequency=frequency,
+        max_length=max_length,
+        min_length=min_length,
+        padding=padding,
+        inverse=inverse,
+    )
+    try:
+        dataset.parse()
+    except FileNotFoundError:
+        dataset.extract()
+        dataset.parse()
+    dataset = dataset.matrix_represetations
+    label_frequency = visualize_class_distribution(dataset)
+    power = 1
+    num_datapoints = sum(
+        frequency for label, frequency in label_frequency.items()
+        if label in activities_dictionary
+    )
+    label_ratio = {
+        label: frequency**power/num_datapoints*(1 if label=='walk' else 4)
+        for label, frequency in label_frequency.items()
+        if label in activities_dictionary
+    }
+    label_ratio = {
+        label: label_ratio[label] for label in activities_dictionary
+    }
+    with open('label_ratio.json', 'w') as json_file:
+        json.dump(label_ratio, json_file)
+    dataset = prepare_dataset(
+        dataset,
+        normalize=normalize,
+        oversample=oversample,
+    )
+    save(dataset, 'dataset.pt')
+    return dataset
+
+
+def load_dataset(
+    train=True,
+    frequency=None,
+    min_length=None,
+    max_length=None,
+    get_matrixified_root_infomation=False,
+    get_matrixified_joint_positions=False,
+    get_matrixified_all=False,
+    padding=None,
+    inverse=False,
+    normalize=True,
+    oversample=True,
+):
+
+    print('Loading the dataset...')
+    try:
+        dataset = load('dataset.pt')
+    except FileNotFoundError:
+        dataset = create_dataset(
+            train=train,
+            get_matrixified_root_infomation=get_matrixified_root_infomation,
+            get_matrixified_joint_positions=get_matrixified_joint_positions,
+            get_matrixified_all=get_matrixified_all,
+            frequency=frequency,
+            max_length=max_length,
+            min_length=min_length,
+            padding=padding,
+            inverse=inverse,
+            normalize=normalize,
+            oversample=oversample,
+        )
+    with open('label_ratio.json', 'r') as json_file:
+        label_ratio = json.load(json_file)
+    weights = [ratio for label, ratio in label_ratio.items()]
+    return weights, dataset
+
+
+def get_folds(
+    num_folds=None,
+    frequency=None,
+    min_length=None,
+    max_length=None,
+    get_matrixified_root_infomation=False,
+    get_matrixified_joint_positions=False,
+    get_matrixified_all=False,
+    padding=None,
+    inverse=False,
+    normalize=True,
+    oversample=True,
+):
+
+    weights, dataset = load_dataset(
+        train=bool(num_folds),
+        frequency=frequency,
+        min_length=min_length,
+        max_length=max_length,
+        get_matrixified_root_infomation=get_matrixified_root_infomation,
+        get_matrixified_joint_positions=get_matrixified_joint_positions,
+        get_matrixified_all=get_matrixified_all,
+        padding=padding,
+        inverse=inverse,
+        normalize=normalize,
+        oversample=oversample,
+    )
+
+    if num_folds == 1:
+        folds = [dataset]
+    elif num_folds == 2:
+        folds = random_split(dataset, [.1, .9])
+    else:
+        folds = random_split(dataset, [1/num_folds]*num_folds)
+
+    return weights, folds
 
 
 if __name__ == '__main__':

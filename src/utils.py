@@ -1,6 +1,3 @@
-from numpy import linspace, histogram
-from random import randrange
-from collections import Counter
 from tqdm import tqdm
 import os
 from functools import wraps
@@ -57,6 +54,22 @@ def change_to(path):
             return returns
         return func
     return decorator
+
+
+def get_device(device_cpu=False):
+
+    if device_cpu and not torch.cuda.is_available():
+        print(f'Used device is cpu')
+        return torch.device('cpu')
+    elif torch.backends.mps.is_available():
+        print(f'Used device is mps')
+        return torch.device('mps')
+    elif torch.cuda.is_available():
+        print(f'Used device is cuda')
+        return torch.device('cuda')
+    else:
+        print(f'Used device is cpu')
+        return torch.device('cpu')
 
 
 class Model(nn.Module):
@@ -116,15 +129,14 @@ class Model(nn.Module):
 
     def epoch_end(self, epoch, result):
         print(
-            f"{epoch}. epoch, the loss value: {result['valueLoss']:.4f}"
+            f"Final epoch, the loss value: {result['valueLoss']:.4f}"
             f" with model accuracy: {result['valueAccuracy']:.2f}%"
         )
 
     def evaluate(self, valuationSetLoader, device, weights=None):
         outputs = []
-        print('Evaluate...')
         labels, predictions = None, None
-        for batch in tqdm(valuationSetLoader, ncols=100):
+        for batch in valuationSetLoader:
             outputs.append(self.validation_step(batch, device, weights=weights))
             motions, batch_labels = batch
             motions = motions.to(device)
@@ -139,22 +151,34 @@ class Model(nn.Module):
                 predictions = torch.cat((predictions, batch_predictions))
         return self.validation_epoch_end(outputs), labels, predictions
 
-    def fit(self, epochs, learning_rate, device, train_loader, valuation_loader, weights=None):
+    def fit(
+        self,
+        epochs,
+        learning_rate,
+        device,
+        train_loader,
+        validation_loader,
+        weights=None,
+    ):
         history, training_losses = [], []
         optimizer = self.optimizer(self.parameters(), learning_rate)
         learning_scheduler = ReduceLROnPlateau(optimizer, patience=2,)
         print('Training...')
-        for epoch in range(1, epochs):
-            for batch in tqdm(train_loader, ncols=100,):
+        for epoch in tqdm(range(1, epochs), ncols=50,):
+            for batch in train_loader:
                 loss = self.training_step(batch, device, weights=weights)
                 training_losses.append(float(loss))
                 loss.backward()
                 optimizer.step()
             adjust_learning_rate(optimizer, epoch, learning_rate)
-            result, labels, predictions = self.evaluate(valuation_loader, device, weights=weights)
-            self.epoch_end(epoch, result)
+            result, labels, predictions = self.evaluate(
+                validation_loader,
+                device,
+                weights=weights,
+            )
             # learning_scheduler.step(training_losses[-1])
             history.append(result)
+        self.epoch_end(epoch, result)
         return training_losses, history, labels, predictions
 
 
@@ -195,7 +219,7 @@ def prepare_dataset(dataset, normalize=False, oversample=True):
                 onehot_presentation,
             ]
             if oversample and label != 'walk':
-                prepared_dataset += 8 * [item]
+                prepared_dataset += 4 * [item]
             else:
                 prepared_dataset.append(item)
     return prepared_dataset
@@ -205,36 +229,3 @@ def adjust_learning_rate(optimizer, epoch, base_learning_rate):
     learning_rate = base_learning_rate / epoch
     for parameter_group in optimizer.param_groups:
         parameter_group['lr'] = learning_rate
-
-
-def visualize_class_distribution(dataset):
-    output_file('plots/class_distribution.html')
-    label_frequency = Counter(label for _, label in dataset)
-    labels = list(label_frequency.keys())
-    label_frequency_source = ColumnDataSource(
-        data=dict(
-            label=list(label_frequency.keys()),
-            count=list(label_frequency.values()),
-        )
-    )
-    figure_ = figure(
-        title='Label distribution',
-        y_range=labels,
-        tooltips=[('Num', '@count'), ('Label', '@label')],
-    )
-    figure_.hbar(
-        y='label',
-        right='count',
-        left=0,
-        height=.5,
-        fill_color='#000000',
-        line_color='#000000',
-        source=label_frequency_source,
-    )
-    show(figure_)
-    return label_frequency
-
-
-if __name__ == '__main__':
-    lengths = [randrange(100, 10000) for _ in range(1000)]
-    visualize_length_distribution(lengths)
