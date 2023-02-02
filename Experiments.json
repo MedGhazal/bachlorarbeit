@@ -1,0 +1,53 @@
+[
+	{
+		"model": "RNN",
+		"device": "cuda",
+		"num_epochs": 5,
+		"num_layers": 3,
+		"hidden_size": 256,
+		"frequency": 1,
+		"min_length": 500,
+		"max_length": 2000,
+		"get_matrixified_root_infomation": false,
+		"get_matrixified_joint_positions": true,
+		"get_matrixified_all": false,
+		"padding": "zero",
+		"inverse": false,
+		"oversample": true,
+		"normalize": true
+	},
+	{
+		"model": "GRU",
+		"device": "cuda",
+		"num_epochs": 5,
+		"num_layers": 3,
+		"hidden_size": 256,
+		"frequency": 1,
+		"min_length": 500,
+		"max_length": 2000,
+		"get_matrixified_root_infomation": false,
+		"get_matrixified_joint_positions": true,
+		"get_matrixified_all": false,
+		"padding": "zero",
+		"inverse": false,
+		"oversample": true,
+		"normalize": true
+	},
+	{
+		"model": "LSTM",
+		"device": "cuda",
+		"num_epochs": 5,
+		"num_layers": 3,
+		"hidden_size": 256,
+		"frequency": 1,
+		"min_length": 500,
+		"max_length": 2000,
+		"get_matrixified_root_infomation": false,
+		"get_matrixified_joint_positions": true,
+		"get_matrixified_all": false,
+		"padding": "zero",
+		"inverse": false,
+		"oversample": true,
+		"normalize": true
+	}
+]

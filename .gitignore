@@ -27,7 +27,7 @@ sources/*
 src/test.py
 *.pt
 plots/*
-*.json
+label_ratio.json
 
 # Temporary
 transformer.py
