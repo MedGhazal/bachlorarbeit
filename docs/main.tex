@@ -8,12 +8,16 @@
 	\SetKwComment{Comment}{/* }{ */}
 	\pagenumbering{gobble}
 	\include{title_page.tex}
+	\include{eigenstaendigkeitserklaerung.tex}
+	\include{abstract.tex}
 	\pagenumbering{Roman}
 	\tableofcontents
 	\include{intro.tex}
 	\include{chapter_1.tex}
 	% \include{chapter_2.tex}
 	\include{chapter_3.tex}
+	\include{evaluation.tex}
 	\include{closing.tex}
 	\printbibliography
+	\addcontentsline{toc}{chapter}{Bibliography}
 \end{document}
