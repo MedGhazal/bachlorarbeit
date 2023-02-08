@@ -5,11 +5,14 @@ from collections import Counter
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.layouts import grid, row, column
-from bokeh.palettes import Viridis, Iridescent
-from bokeh.models import ColumnDataSource, LinearColorMapper, ColorBar, BasicTicker
+from bokeh.palettes import Iridescent
+from bokeh.models import (
+    ColumnDataSource,
+    LinearColorMapper,
+    ColorBar,
+    BasicTicker,
+)
 from bokeh.transform import transform
-
-from utils import activities_dictionary, CLASSES_MAPPING
 
 
 def get_random_hex():
@@ -28,31 +31,38 @@ def get_element_confusion_matrix(position, labels, predictions):
     )
 
 
-def get_row(row, labels, predictions):
+def get_row(num_classes, row, labels, predictions):
     return [
         get_element_confusion_matrix((row, column), labels, predictions)
-        for column in range(len(activities_dictionary))
+        for column in range(num_classes)
     ]
 
 
-def get_confusion_matrix(labels, predictions):
+def get_confusion_matrix(num_classes, labels, predictions):
     confusion_matrix = [
-        get_row(row, labels, predictions) for row in range(len(activities_dictionary))
+        get_row(num_classes, row, labels, predictions)
+        for row in range(num_classes)
     ]
     return np.array(confusion_matrix)
 
 
-def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
+def visualize_confusion_matrix(
+    classes,
+    labels_,
+    predictions_,
+    final_accuracy_values,
+):
     figures = []
     for fold, (labels, predictions) in enumerate(zip(labels_, predictions_)):
         confusion_matrix = pd.DataFrame(
-            get_confusion_matrix(labels, predictions),
-            index=list(CLASSES_MAPPING.keys()),
-            columns=list(CLASSES_MAPPING.keys()),
+            get_confusion_matrix(len(classes), labels, predictions),
+            index=classes,
+            columns=classes,
         )
         confusion_matrix.index.name = 'labels'
         confusion_matrix.columns.name = 'predictions'
-        confusion_matrix = confusion_matrix.stack().rename("value").reset_index()
+        confusion_matrix = confusion_matrix.stack(
+        ).rename("value").reset_index()
         figure_ = figure(
             width=550,
             height=400,
@@ -60,8 +70,8 @@ def visualize_confusion_matrix(labels_, predictions_, final_accuracy_values):
                 f'Confusion matrices for fold {fold+1} '
                 f'with accuracy {final_accuracy_values[fold]:.2f}%'
             ),
-            x_range=list(CLASSES_MAPPING.keys()),
-            y_range=list(CLASSES_MAPPING.keys())[::-1],
+            x_range=classes,
+            y_range=classes[::-1],
             x_axis_label='Predictions',
             y_axis_label='Labels',
             x_axis_location="above",
@@ -106,14 +116,14 @@ def visualize_losses(
         x=list(range(len(training_losses))),
         y=training_losses,
         name=f'{fold}',
-        legend_label=f'Training loss values',
+        legend_label='Training loss values',
         line_color=color,
     )
     figure_losses.line(
         x=np.linspace(0, len(training_losses), len(validation_losses)),
         y=validation_losses,
         name=f'{fold}',
-        legend_label=f'Validation loss values',
+        legend_label='Validation loss values',
         line_color=color,
     )
 
@@ -128,25 +138,27 @@ def visualize_accuracies(figure_accuracies, fold, accuracy_values, color):
     )
 
 
-def plot(
+def plot_experiment_set(
     model,
+    classes,
     frequency,
     num_features,
     histories,
     labels_,
     predictions_,
     training_losses_,
+    bidirectional=False,
 ):
-    output_file(f'plots/Experiements{model}_{num_features}_{frequency}.html')
     figures = []
+    bi = 'bi-' if bidirectional else ''
     figure_losses = figure(
-        title=f'The loss values the {model} over epochs',
+        title=f'The loss values the {bi}{model} over epochs',
         width=800,
         height=500,
         sizing_mode="scale_both",
     )
     figure_accuracies = figure(
-        title=f'The accuracy the {model} over epochs',
+        title=f'The accuracy the {bi}{model} over epochs',
         width=800,
         height=500,
         sizing_mode="scale_both",
@@ -172,8 +184,8 @@ def plot(
             fold+1,
             color,
         )
-    figures_confusion_matrices =  visualize_confusion_matrix(
-        labels_, predictions_, final_accuracy_values
+    figures_confusion_matrices = visualize_confusion_matrix(
+        classes, labels_, predictions_, final_accuracy_values,
     )
     grid_ = grid(
         column(
@@ -183,7 +195,7 @@ def plot(
             row(figures_confusion_matrices[4]),
         )
     )
-    show(grid_)
+    return grid_
 
 
 def visualize_length_distribution(motions_lengths):
@@ -198,11 +210,10 @@ def visualize_length_distribution(motions_lengths):
             title='Length of frames',
             y_axis_label='Motion ID',
             x_axis_label='Number of frames',
-            tooltips=[('Motion', '$y'),('Length', '$x')],
+            tooltips=[('Motion', '$y'), ('Length', '$x')],
         )
     ]
     lengths = list(motions_lengths.values())
-    bins = np.linspace(min(lengths), max(lengths), 40)
     histogram_, edges = np.histogram(lengths, density=True, bins='auto')
     figures[0].quad(
         top=histogram_*len(lengths),

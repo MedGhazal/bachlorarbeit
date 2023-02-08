@@ -190,36 +190,56 @@ def accuracy(outputs, labels):
     )
 
 
-def normalize_dataset(dataset):
+def normalize_dataset(
+    dataset,
+    labels,
+    oversample=False,
+    oversample_values=None,
+):
     normalized_dataset = []
-    for matrix_positions, label in dataset:
-        if label in CLASSES_MAPPING.keys():
-            onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
-            onehot_presentation[CLASSES_MAPPING[label]] = 1.0
-            normalized_positions = normalize(torch.tensor(matrix_positions))
-            normalized_dataset.append(
-                [
-                    normalized_positions.float().transpose(0, 1),
-                    onehot_presentation,
-                ]
-            )
-    return normalized_dataset
-
-
-def prepare_dataset(dataset, normalize=False, oversample=True):
-    if normalize:
-        return normalize_dataset(dataset)
-    prepared_dataset = []
+    CLASSES_MAPPING = {
+        activity: number for number, activity in enumerate(labels)
+    }
     for matrix_positions, label in dataset:
         if label in CLASSES_MAPPING.keys():
             onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
             onehot_presentation[CLASSES_MAPPING[label]] = 1.0
             item = [
-                torch.tensor(matrix_positions.copy()).float().transpose(0, 1),
+                normalize(torch.tensor(matrix_positions)).float(),
                 onehot_presentation,
             ]
-            if oversample and label != 'walk':
-                prepared_dataset += 4 * [item]
+            if oversample:
+                normalized_dataset += oversample_values[label] * [item]
+            else:
+                normalized_dataset.append(item)
+    return normalized_dataset
+
+
+def prepare_dataset(
+    dataset,
+    labels,
+    normalize=False,
+    oversample=True,
+    oversample_values=None,
+):
+    if normalize:
+        return normalize_dataset(
+            dataset,
+            labels,
+            oversample=oversample,
+            oversample_values=oversample_values,
+        )
+    prepared_dataset = []
+    CLASSES_MAPPING = {
+        activity: number for number, activity in enumerate(labels)
+    }
+    for matrix_positions, label in dataset:
+        if label in CLASSES_MAPPING.keys():
+            onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
+            onehot_presentation[CLASSES_MAPPING[label]] = 1.0
+            item = [torch.tensor(matrix_positions).float(), onehot_presentation]
+            if oversample:
+                prepared_dataset += oversample_values[label] * [item]
             else:
                 prepared_dataset.append(item)
     return prepared_dataset

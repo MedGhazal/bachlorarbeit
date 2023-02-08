@@ -1,5 +1,3 @@
-import gc
-import sys
 import os
 from enum import Enum
 from contextlib import redirect_stdout
@@ -12,7 +10,6 @@ import xml.etree.cElementTree as ET
 import shutil
 import requests
 import zipfile
-from multiprocessing import Pool
 from nltk import download, FreqDist, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords, wordnet
@@ -22,7 +19,7 @@ from string import punctuation
 from torch import load, save
 from torch.utils.data import random_split
 
-from utils import change_to, activities_dictionary, prepare_dataset
+from utils import change_to, prepare_dataset
 from plotters import (
     visualize_length_distribution,
     visualize_class_distribution,
@@ -109,7 +106,7 @@ class Motion:
         self.motion_file = motion_file
         self.classification = None
 
-    def get_label(self, stop_stems):
+    def get_label(self, labels, stop_stems):
         try:
             words = word_tagger(word_tokenize(self.annotation))
             for word_tag in words:
@@ -117,14 +114,20 @@ class Motion:
                     stem_ = stem(word_tag[0])
                     if (
                         stem_ not in stop_stems and
-                        stem_ in activities_dictionary
+                        stem_ in labels
                     ):
                         self.classification = stem_
         except KeyError:
             # TODO create new Exception for unlabelable motions
             raise KeyError
 
-    def get_extended_label(self, stop_stems, classes, collect_all=False):
+    def get_extended_label(
+        self,
+        labels,
+        stop_stems,
+        classes,
+        collect_all=False,
+    ):
         try:
             words = word_tagger(word_tokenize(self.annotation))
             verbs = set()
@@ -135,7 +138,7 @@ class Motion:
                         if stem_ not in stop_stems:
                             verbs.add(stem(word_tag[0]))
                     else:
-                        if stem_ not in stop_stems and stem_ in activities_dictionary:
+                        if stem_ not in stop_stems and stem_ in labels:
                             verbs.add(stem(word_tag[0]))
             self.classification = ' '.join(verbs)
             classes.add(' '.join(verbs))
@@ -145,6 +148,7 @@ class Motion:
 
     def classify_motion(
         self,
+        labels,
         basic=False,
         extended_labeling=False,
         classes=None,
@@ -163,10 +167,10 @@ class Motion:
             'goe',
         ]
         if basic:
-            self.get_label(stop_stems)
+            self.get_label(labels, stop_stems)
 
         elif extended_labeling:
-            self.get_extended_label(stop_stems, classes)
+            self.get_extended_label(labels, stop_stems, classes)
 
     def _parse_frame(self, xml_frame, joints):
         return Frame(
@@ -268,7 +272,10 @@ class Motion:
                 raise ValueError
             self.position_matrix = np.vstack((self.position_matrix, padding))
         if inverse:
-            return np.flip(self.position_matrix[::frequency]), self.classification
+            return (
+                np.flip(self.position_matrix[::frequency]),
+                self.classification,
+            )
         else:
             return self.position_matrix[::frequency], self.classification
 
@@ -313,7 +320,11 @@ class Motion:
                 (self.position_matrix, padding)
             )
         if inverse:
-            return np.flip(self.position_matrix[::frequency]), self.classification
+            return (
+                np.flip(self.position_matrix[::frequency]),
+                self.classification,
+            )
+
         else:
             return self.position_matrix[::frequency], self.classification
 
@@ -359,7 +370,10 @@ class Motion:
                 (self.position_matrix, padding)
             )
         if inverse:
-            return np.flip(self.position_matrix[::frequency]), self.classification
+            return (
+                np.flip(self.position_matrix[::frequency]),
+                self.classification,
+            )
         else:
             return self.position_matrix[::frequency], self.classification
 
@@ -406,6 +420,7 @@ class MotionDataset:
         root=DEFAULT_ROOT,
         train=False,
         classification=Classification(1),
+        labels=None,
         get_matrixified_root_infomation=False,
         get_matrixified_joint_positions=False,
         get_matrixified_all=False,
@@ -417,6 +432,7 @@ class MotionDataset:
     ):
         self.root = os.path.expanduser(root)
         self.train = train
+        self.labels = labels
         self.motions = []
         self.classification = classification
         self.frequency = frequency
@@ -482,9 +498,10 @@ class MotionDataset:
 
         try:
             if self.classification == Classification.BASIC:
-                motion.classify_motion(basic=True)
+                motion.classify_motions(self.labels, basic=True)
             elif self.classification == Classification.LABELED:
                 motion.classify_motion(
+                    self.labels,
                     extended_labeling=True,
                     classes=self.classes,
                 )
@@ -671,7 +688,7 @@ def get_dataset_infos(dataset):
     print(
         f'The number of miss classification is {dataset.miss_classification}'
     )
-    annotations = [''.join( motion.annotation) for motion in dataset.motions]
+    annotations = [''.join(motion.annotation) for motion in dataset.motions]
     percentage_annotated_motions = (
         len(list(annotation for annotation in annotations if annotation)) /
         len(annotations)
@@ -720,6 +737,7 @@ def get_number_infos_motions(dataset):
 
 
 def create_dataset(
+    labels=None,
     train=True,
     frequency=None,
     min_length=None,
@@ -735,6 +753,7 @@ def create_dataset(
     dataset = MotionDataset(
         train=train,
         classification=Classification(2),
+        labels=labels,
         get_matrixified_root_infomation=get_matrixified_root_infomation,
         get_matrixified_joint_positions=get_matrixified_joint_positions,
         get_matrixified_all=get_matrixified_all,
@@ -751,31 +770,43 @@ def create_dataset(
         dataset.parse()
     dataset = dataset.matrix_represetations
     label_frequency = visualize_class_distribution(dataset)
-    power = 1
+    power = 1.2
     num_datapoints = sum(
         frequency for label, frequency in label_frequency.items()
-        if label in activities_dictionary
+        if label in labels
     )
-    label_ratio = {
-        label: frequency**power/num_datapoints*(1 if label=='walk' else 4)
+    oversample_values = {
+        label: (
+            1
+            if not oversample or label == 'walk'
+            else label_frequency['walk'] // label_frequency[label] // 2
+        )
         for label, frequency in label_frequency.items()
-        if label in activities_dictionary
+        if label in labels
     }
     label_ratio = {
-        label: label_ratio[label] for label in activities_dictionary
+        label: frequency ** power / num_datapoints
+        for label, frequency in label_frequency.items()
+        if label in labels
+    }
+    label_ratio = {
+        label: label_ratio[label] for label in labels
     }
     with open('label_ratio.json', 'w') as json_file:
         json.dump(label_ratio, json_file)
     dataset = prepare_dataset(
         dataset,
+        labels,
         normalize=normalize,
         oversample=oversample,
+        oversample_values=oversample_values,
     )
     save(dataset, 'dataset.pt')
     return dataset
 
 
 def load_dataset(
+    labels=None,
     train=True,
     frequency=None,
     min_length=None,
@@ -794,6 +825,7 @@ def load_dataset(
         dataset = load('dataset.pt')
     except FileNotFoundError:
         dataset = create_dataset(
+            labels=labels,
             train=train,
             get_matrixified_root_infomation=get_matrixified_root_infomation,
             get_matrixified_joint_positions=get_matrixified_joint_positions,
@@ -814,6 +846,7 @@ def load_dataset(
 
 def get_folds(
     num_folds=None,
+    labels=None,
     frequency=None,
     min_length=None,
     max_length=None,
@@ -827,6 +860,7 @@ def get_folds(
 ):
 
     weights, dataset = load_dataset(
+        labels=labels,
         train=bool(num_folds),
         frequency=frequency,
         min_length=min_length,
@@ -840,12 +874,7 @@ def get_folds(
         oversample=oversample,
     )
 
-    if num_folds == 1:
-        folds = [dataset]
-    elif num_folds == 2:
-        folds = random_split(dataset, [.1, .9])
-    else:
-        folds = random_split(dataset, [1/num_folds]*num_folds)
+    folds = random_split(dataset, [1/num_folds]*num_folds)
 
     return weights, folds
 
