@@ -1,53 +1,149 @@
 [
 	{
-		"model": "RNN",
-		"device": "cuda",
-		"num_epochs": 5,
-		"num_layers": 3,
-		"hidden_size": 256,
-		"frequency": 1,
-		"min_length": 500,
-		"max_length": 2000,
-		"get_matrixified_root_infomation": false,
-		"get_matrixified_joint_positions": true,
-		"get_matrixified_all": false,
-		"padding": "zero",
-		"inverse": false,
-		"oversample": true,
-		"normalize": true
+		"params": {
+			"frequency": 5,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": true,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "LSTM",
+				"device": "cpu",
+				"num_epochs": 9,
+				"learning_rate": 0.01,
+				"hidden_size": 512,
+				"num_layers": 2
+			}
+		]
 	},
 	{
-		"model": "GRU",
-		"device": "cuda",
-		"num_epochs": 5,
-		"num_layers": 3,
-		"hidden_size": 256,
-		"frequency": 1,
-		"min_length": 500,
-		"max_length": 2000,
-		"get_matrixified_root_infomation": false,
-		"get_matrixified_joint_positions": true,
-		"get_matrixified_all": false,
-		"padding": "zero",
-		"inverse": false,
-		"oversample": true,
-		"normalize": true
+		"params": {
+			"frequency": 5,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": true,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "LSTM",
+				"device": "cpu",
+				"num_epochs": 9,
+				"learning_rate": 0.01,
+				"hidden_size": 512,
+				"num_layers": 2
+			}
+		]
 	},
 	{
-		"model": "LSTM",
-		"device": "cuda",
-		"num_epochs": 5,
-		"num_layers": 3,
-		"hidden_size": 256,
-		"frequency": 1,
-		"min_length": 500,
-		"max_length": 2000,
-		"get_matrixified_root_infomation": false,
-		"get_matrixified_joint_positions": true,
-		"get_matrixified_all": false,
-		"padding": "zero",
-		"inverse": false,
-		"oversample": true,
-		"normalize": true
+		"params": {
+			"frequency": 5,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": true,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "LSTM",
+				"device": "cpu",
+				"num_epochs": 9,
+				"learning_rate": 0.01,
+				"hidden_size": 512,
+				"num_layers": 2
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 5,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": true,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "LSTM",
+				"bidirectional": true,
+				"device": "cpu",
+				"num_epochs": 9,
+				"learning_rate": 0.01,
+				"hidden_size": 512,
+				"num_layers": 2
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 5,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": true,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "LSTM",
+				"bidirectional": true,
+				"device": "cpu",
+				"num_epochs": 9,
+				"learning_rate": 0.01,
+				"hidden_size": 512,
+				"num_layers": 2
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 5,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": true,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "LSTM",
+				"bidirectional": true,
+				"device": "cpu",
+				"num_epochs": 9,
+				"learning_rate": 0.01,
+				"hidden_size": 512,
+				"num_layers": 2
+			}
+		]
 	}
 ]

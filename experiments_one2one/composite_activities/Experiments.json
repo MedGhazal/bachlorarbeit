@@ -1,0 +1,434 @@
+[
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": true,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": true,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": true,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": true,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": true,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": true,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": true,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": true,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": true,
+			"normalize": false
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": true,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": true,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": true,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": false,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": true,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": true,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": true,
+			"get_matrixified_all": false,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": true,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	},
+	{
+		"params": {
+			"frequency": 1,
+			"min_length": 2000,
+			"max_length": 2000,
+			"get_matrixified_root_infomation": false,
+			"get_matrixified_joint_positions": false,
+			"get_matrixified_all": true,
+			"padding": "zero",
+			"inverse": false,
+			"oversample": true,
+			"normalize": true
+		},
+		"models": [
+			{
+				"model": "ResNet",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "CNN",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "MLP",
+				"device": "mps",
+				"num_epochs": 10
+			},
+			{
+				"model": "FCN",
+				"device": "mps",
+				"num_epochs": 10
+			}
+		]
+	}
+]
