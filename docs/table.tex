@@ -1,0 +1,294 @@
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.75}
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		Model & data & oversampling & normalization & accuracy & validation loss\\
+		\hline\hline
+		\multirow{8}{*}{MLP}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 54.30 & 0.08\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 59.06 & 0.1\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 38.31 & 0.09\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 34.04 & 0.095\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 65.94 & 0.095\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 55.91 & 0.095\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 41.72 & 0.1\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 36.67 & 0.1\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{FCN}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 21.09 & 0.05\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 42.19 & 0.09\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.54 & 0.08\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 35.29 & 0.07\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 28.75 & 0.08\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 33.2 & 0.09\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 40.16 & 0.08\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 39.89 & 0.09\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{CNN}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 36.33 & 0.08\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 37.5 & 0.07\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 50.95 & 0.075\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 47.36 & 0.07\\\cline{2-6}
+		                    & \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 37.19 & 0.07\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 19.69 & 0.07\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 46.33 & 0.075\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 43.31 & 0.07\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{ResNet}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 26.95 & 0.08\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 18.36 & 0.05\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 42.09 & 0.085\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 43.75 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 34.38 & 0.09\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 25.39 & 0.08\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 36.99 & 0.09\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 40.08 & 0.095\\\cline{2-6}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy and validation loss values for each method and with the data extracted from the xml-files}
+	\label{tab:results-experiments-raw}
+\end{table}
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.75}
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Model & oversampling & normalization & accuracy & validation loss\\
+		\hline\hline
+		\multirow{4}{*}{MLP}& \multirow{2}{*}{$\Box$} & $\Box$ & 56.88 & 0.08\\\cline{4-5}
+				    &                         & $\blackinwhitesquare$ & 67.58 & 0.09\\\cline{3-5}
+				    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 37.66 & 0.095\\\cline{4-5}
+				    &                         & $\blackinwhitesquare$ & 41.96 & 0.09\\\cline{2-5}
+		\hline\hline
+		\multirow{4}{*}{FCN}& \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-5}
+				    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-5}
+				    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-5}
+				    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-5}
+		\hline\hline
+		\multirow{4}{*}{CNN}& \multirow{2}{*}{$\Box$} & $\Box$ & 38.67 & 0.08\\\cline{4-5}
+				    &                         & $\blackinwhitesquare$ & 35.31 & 0.07\\\cline{3-5}
+				    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 46.25 & 0.085\\\cline{4-5}
+				    &                         & $\blackinwhitesquare$ & 52.33 & 0.075\\\cline{2-5}
+		\hline\hline
+		\multirow{4}{*}{ResNet}& \multirow{2}{*}{$\Box$} & $\Box$ & 52.81 & 0.08\\\cline{4-5}
+				       &                         & $\blackinwhitesquare$ & 24.61 & 0.09\\\cline{3-5}
+				       & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 51.32 & 0.07\\\cline{4-5}
+				       &                         & $\blackinwhitesquare$ & 38.13 & 0.085\\\cline{2-5}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy and validation loss values for each method and with all the data extracted from the xml-files}
+	\label{tab:results-experiments-raw-all}
+\end{table}
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.75}
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Model & frequency & oversampling & normalization & accuracy \\
+		\hline\hline
+		\multirow{8}{*}{MLP}& \multirow{4}{*}{20} & \multirow{2}{*}{$\Box$} & $\Box$ & 66.80 \\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 64.38 \\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 42.09 \\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 36.57 \\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 47.5 \\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 59.38 \\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 46.31 \\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 42.17 \\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{FCN}& \multirow{4}{*}{20} & \multirow{2}{*}{$\Box$} & $\Box$ & 30.62 \\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 39.38 \\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 35.55 \\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 38.39 \\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 42.19 \\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 46.88 \\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 34.74 \\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 31.57 \\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{CNN}& \multirow{4}{*}{20} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 \\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 \\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 \\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 \\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 \\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 \\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 \\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 \\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{ResNet}& \multirow{4}{*}{20} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 \\\cline{4-6}
+				       &                    &                         & $\blackinwhitesquare$ & 45.89 \\\cline{3-6}
+				       &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 \\\cline{4-6}
+				       &                    &                         & $\blackinwhitesquare$ & 49.89 \\\cline{2-6}
+				       & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 \\\cline{4-6}
+				       &                     &                         & $\blackinwhitesquare$ & 45.89 \\\cline{3-6}
+				       &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 \\\cline{4-6}
+				       &                     &                         & $\blackinwhitesquare$ & 49.89 \\\cline{2-6}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy rates for each method and with the reduced frame frequencies 20 Hz and 10 Hz}
+	\label{tab:stats_frequency_121}
+\end{table}
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.68}
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		Model & data & oversampling & normalization & accuracy & validation loss\\
+		\hline\hline
+		\multirow{8}{*}{RNN}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ ALL } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{GRU}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ ALL } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{LSTM}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ ALL } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy and validation loss values for each method and with the data extracted from the xml-files using unidirectional RNNs}
+	\label{tab:results-experiments-rnn}
+\end{table}
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.68}
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		Model & data & oversampling & normalization & accuracy & validation loss\\
+		\hline\hline
+		\multirow{8}{*}{bi-RNN}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ ALL } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{bi-GRU}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ ALL } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{bi-LSTM}& \multirow{4}{*}{ RJPR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ AJR } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{ ALL } & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy and validation loss values for each method and with the data extracted from the xml-files using bidirectional RNNs}
+	\label{tab:results-experiments-rnn-bi}
+\end{table}
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.68}
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		Model & frequency & oversampling & normalization & accuracy & validation loss\\
+		\hline\hline
+		\multirow{8}{*}{RNN}& \multirow{4}{*}{5} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{GRU}& \multirow{4}{*}{5} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{LSTM}& \multirow{4}{*}{5} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy and validation loss values for each method and with the reduced frame frequencies 20 Hz and 10 Hz with unidirectional RNNs}
+	\label{tab:stats_frequency_seq}
+\end{table}
+\begin{table}[H]
+	\renewcommand{\arraystretch}{.68}
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		Model & frequency & oversampling & normalization & accuracy & validation loss\\
+		\hline\hline
+		\multirow{8}{*}{bi-RNN}& \multirow{4}{*}{5} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{bi-GRU}& \multirow{4}{*}{5} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+		\multirow{8}{*}{bi-LSTM}& \multirow{4}{*}{5} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                    & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                    &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+				    & \multirow{4}{*}{10} & \multirow{2}{*}{$\Box$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 45.89 & 0.0989\\\cline{3-6}
+				    &                     & \multirow{2}{*}{$\blackinwhitesquare$} & $\Box$ & 45.89 & 0.0989\\\cline{4-6}
+				    &                     &                         & $\blackinwhitesquare$ & 49.89 & 0.0989\\\cline{2-6}
+		\hline\hline
+	\end{tabular}
+	\caption{Accuracy and validation loss values for each method and with the reduced frame frequencies 20 Hz and 10 Hz with bidirectional RNNs}
+	\label{tab:stats_frequency_seq_bi}
+\end{table}

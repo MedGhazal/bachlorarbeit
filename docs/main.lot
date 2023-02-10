@@ -1,0 +1,13 @@
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Accuracy and validation loss values for each method and with the data extracted from the xml-files\relax }}{51}{table.caption.21}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Accuracy and validation loss values for each method and with all the data extracted from the xml-files\relax }}{52}{table.caption.22}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Accuracy and validation loss values for each method and with the reduced frame frequencies 20 Hz and 10 Hz\relax }}{54}{table.caption.24}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Accuracy and validation loss values for each method and with the data extracted from the xml-files using unidirectional RNNs\relax }}{59}{table.caption.29}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Accuracy and validation loss values for each method and with the data extracted from the xml-files using bidirectional RNNs\relax }}{60}{table.caption.30}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Accuracy and validation loss values for each method and with the reduced frame frequencies 20 Hz and 10 Hz with unidirectional RNNs\relax }}{61}{table.caption.31}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Accuracy and validation loss values for each method and with the reduced frame frequencies 20 Hz and 10 Hz with bidirectional RNNs\relax }}{62}{table.caption.32}%
+\addvspace {10\p@ }

@@ -1,0 +1,25 @@
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Representation of fusion of information as shown in \blx@tocontentsinit {0}\cite {karpathy2014large}\relax }}{7}{figure.caption.4}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces The network structure of three tested neural networks. The dash line indicates the operation of dropout\blx@tocontentsinit {0}\cite {wang2017time}.\relax }}{15}{figure.caption.5}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces The recurrent neural network\relax }}{18}{figure.caption.6}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces The inner workings of multiple recurrent cells\relax }}{19}{figure.caption.7}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The base of the mmm model as in \blx@tocontentsinit {0}\cite {Plappert2016}\relax }}{24}{figure.caption.8}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Label distribution showing the presence of composite activities in the dataset\relax }}{28}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces The distribution of the number of frames of motions\relax }}{30}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces The process of creating the dataset with the information extracted from the KIT Motion-Language dataset\relax }}{31}{figure.caption.11}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces The general overview of the implementation of the pipeline in fig \ref {fig:pipeline} and the experimentation framework\relax }}{32}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces The implementation of the parser and matrixfier\relax }}{34}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Implementation of the models module\relax }}{37}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces The implementation of the experiment module\relax }}{39}{figure.caption.15}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces The interface of the visualisation of the results for each experiment set\relax }}{44}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces The accuracy rate and the loss values over the epochs and during the training of one-to-one models\relax }}{49}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces The best results achieved by using the root joint informations\relax }}{51}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces The confusion matrix achieved by using a frequency of 20 frames per seconds\relax }}{52}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces The accuracy rate and the loss values over the epochs and during the training of sequence-modeling models\relax }}{55}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces The best results achieved by RNNs and their variants\relax }}{57}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces The confusion matrix achieved by using a frequency of 20 frames per seconds with recurrent neural networks in combination with oversampling and normalization\relax }}{59}{figure.caption.26}%
+\addvspace {10\p@ }
