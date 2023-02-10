@@ -3,11 +3,8 @@ import os
 from functools import wraps
 import torch
 import torch.nn as nn
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+# from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.nn.functional import normalize, cross_entropy
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource
 
 
 activities_dictionary = [
@@ -59,16 +56,16 @@ def change_to(path):
 def get_device(device_cpu=False):
 
     if device_cpu and not torch.cuda.is_available():
-        print(f'Used device is cpu')
+        print('Used device is cpu')
         return torch.device('cpu')
     elif torch.backends.mps.is_available():
-        print(f'Used device is mps')
+        print('Used device is mps')
         return torch.device('mps')
     elif torch.cuda.is_available():
-        print(f'Used device is cuda')
+        print('Used device is cuda')
         return torch.device('cuda')
     else:
-        print(f'Used device is cpu')
+        print('Used device is cpu')
         return torch.device('cpu')
 
 
@@ -125,7 +122,10 @@ class Model(nn.Module):
         epoch_loss = torch.stack(batch_losses).mean()
         batch_accs = [x['valueAccuracy'] for x in outputs]
         epoch_acc = torch.stack(batch_accs).mean() * 100
-        return {'valueLoss': epoch_loss.item(), 'valueAccuracy': epoch_acc.item()}
+        return {
+            'valueLoss': epoch_loss.item(),
+            'valueAccuracy': epoch_acc.item(),
+        }
 
     def epoch_end(self, epoch, result):
         print(
@@ -137,7 +137,9 @@ class Model(nn.Module):
         outputs = []
         labels, predictions = None, None
         for batch in valuationSetLoader:
-            outputs.append(self.validation_step(batch, device, weights=weights))
+            outputs.append(
+                self.validation_step(batch, device, weights=weights),
+            )
             motions, batch_labels = batch
             motions = motions.to(device)
             batch_outputs = self.forward(motions, device)
@@ -162,7 +164,7 @@ class Model(nn.Module):
     ):
         history, training_losses = [], []
         optimizer = self.optimizer(self.parameters(), learning_rate)
-        learning_scheduler = ReduceLROnPlateau(optimizer, patience=2,)
+        # learning_scheduler = ReduceLROnPlateau(optimizer, patience=2,)
         print('Training...')
         for epoch in tqdm(range(1, epochs), ncols=50,):
             for batch in train_loader:
@@ -205,7 +207,7 @@ def normalize_dataset(
             onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
             onehot_presentation[CLASSES_MAPPING[label]] = 1.0
             item = [
-                normalize(torch.tensor(matrix_positions)).float(),
+                normalize(torch.tensor(matrix_positions.transpose())).float(),
                 onehot_presentation,
             ]
             if oversample:
@@ -237,7 +239,10 @@ def prepare_dataset(
         if label in CLASSES_MAPPING.keys():
             onehot_presentation = torch.zeros((len(CLASSES_MAPPING)))
             onehot_presentation[CLASSES_MAPPING[label]] = 1.0
-            item = [torch.tensor(matrix_positions).float(), onehot_presentation]
+            item = [
+                torch.tensor(matrix_positions.transpose()).float(),
+                onehot_presentation,
+            ]
             if oversample:
                 prepared_dataset += oversample_values[label] * [item]
             else:

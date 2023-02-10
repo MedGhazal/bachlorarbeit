@@ -130,18 +130,18 @@ class Experiment:
 
     def get_model(self):
         models = {
-            'MLP' : MLP,
-            'CNN' : CNN,
-            'FCN' : FCN,
-            'ResNet' : ResNet,
-            'RNN' : RNN,
-            'GRU' : GRU,
-            'LSTM' : LSTM,
+            'MLP': MLP,
+            'CNN': CNN,
+            'FCN': FCN,
+            'ResNet': ResNet,
+            'RNN': RNN,
+            'GRU': GRU,
+            'LSTM': LSTM,
         }
         return models[self.model]
 
     def run(self, folds, weights, num_features, num_frames=None):
-        device = get_device(device_cpu=self.device=='cpu')
+        device = get_device(device_cpu=self.device == 'cpu')
         model = self.get_model()
         return train_model(
             device,

@@ -203,8 +203,8 @@ def visualize_length_distribution(motions_lengths):
     figures = [
         figure(
             title='Frames length distribution',
-            x_axis_label='Number of motions',
-            y_axis_label='Number of frames',
+            y_axis_label='Number of motions',
+            x_axis_label='Number of frames',
         ),
         figure(
             title='Length of frames',

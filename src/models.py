@@ -38,8 +38,8 @@ class MLP(Model):
         self.softmax = nn.Softmax(0)
         self.input_layer = nn.Linear(num_features * num_frames, 1024)
         self.hidden1 = nn.Linear(1024, 2048)
-        self.hidden2 = nn.Linear(2048, 4096)
-        self.output = nn.Linear(4096, self.num_classes)
+        self.hidden2 = nn.Linear(2048, 2048)
+        self.output = nn.Linear(2048, self.num_classes)
 
     def forward(self, input_, device):
         x = self.relu(self.input_layer(self.flatten(input_)))
@@ -49,7 +49,7 @@ class MLP(Model):
         return self.softmax(x)
 
 
-class FCN(Model):
+class CNN(Model):
     is_seqential = False
 
     def __init__(
@@ -83,9 +83,9 @@ class FCN(Model):
                     ), 3
                 ), 3
             ), num_classes,
-        ) - 16
+        ) * num_classes
         self.network = Sequential(
-            nn.Conv1d(num_frames, 4, 3),
+            nn.Conv1d(num_features, 4, 3),
             nn.BatchNorm1d(4),
             nn.ReLU(),
             nn.Conv1d(4, 8, 3),
@@ -113,7 +113,7 @@ class FCN(Model):
         return self.network(input_)
 
 
-class CNN(Model):
+class FCN(Model):
     is_seqential = False
 
     def __init__(
@@ -149,25 +149,19 @@ class CNN(Model):
                     ), 3
                 ), 3
             ), num_classes,
-        ) * num_classes // 12
+        ) * num_classes
         self.network = Sequential(
-            nn.Conv1d(num_frames, 4, 3),
-            nn.BatchNorm1d(4),
+            nn.Conv1d(num_features, 4, 3),
             nn.ReLU(),
             nn.Conv1d(4, 16, 3),
-            nn.BatchNorm1d(16),
             nn.ReLU(),
             nn.Conv1d(16, 32, 3),
-            nn.BatchNorm1d(32),
             nn.ReLU(),
             nn.Conv1d(32, 64, 3),
-            nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.Conv1d(64, 128, 3),
-            nn.BatchNorm1d(128),
             nn.ReLU(),
             nn.Conv1d(128, num_classes, 3),
-            nn.BatchNorm1d(num_classes),
             nn.ReLU(),
             nn.AvgPool1d(num_classes),
             nn.Flatten(),
@@ -221,9 +215,9 @@ class ResNet(Model):
             loss_function=loss_function,
         )
 
-        self.block_1 = ResNetBlock(num_frames, num_frames)
-        self.block_2 = ResNetBlock(num_frames, num_frames)
-        self.block_3 = ResNetBlock(num_frames, num_frames)
+        self.block_1 = ResNetBlock(num_features, num_features)
+        self.block_2 = ResNetBlock(num_features, num_features)
+        self.block_3 = ResNetBlock(num_features, num_features)
         self.flatten = nn.Flatten()
         self.linear = nn.Linear(num_frames * num_features, num_classes)
         self.softmax = nn.Softmax(0)
@@ -261,7 +255,7 @@ class RNN(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.rnn = nn.RNN(
-            num_features,
+            num_frames,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -310,7 +304,7 @@ class GRU(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.gru = nn.GRU(
-            num_features,
+            num_frames,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -359,7 +353,7 @@ class LSTM(Model):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.lstm = nn.LSTM(
-            num_features,
+            num_frames,
             hidden_size,
             num_layers,
             batch_first=True,
@@ -493,6 +487,6 @@ def train_model(
 
     print(
         f'Average accuracy is {sum(accuracies)/len(accuracies):.2f}%'
-        f' with the model {model.__name__}'
+        f' with the model {"bi-"if bidirectional else ""}{model.__name__}'
     )
     return histories, labels_, predictions_, training_losses_

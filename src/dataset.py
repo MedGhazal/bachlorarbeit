@@ -19,7 +19,7 @@ from string import punctuation
 from torch import load, save
 from torch.utils.data import random_split
 
-from utils import change_to, prepare_dataset
+from utils import change_to, prepare_dataset, activities_dictionary
 from plotters import (
     visualize_length_distribution,
     visualize_class_distribution,
@@ -498,7 +498,7 @@ class MotionDataset:
 
         try:
             if self.classification == Classification.BASIC:
-                motion.classify_motions(self.labels, basic=True)
+                motion.classify_motion(self.labels, basic=True)
             elif self.classification == Classification.LABELED:
                 motion.classify_motion(
                     self.labels,
@@ -880,5 +880,7 @@ def get_folds(
 
 
 if __name__ == '__main__':
-    dataset = MotionDataset()
+    dataset = MotionDataset(
+        labels=activities_dictionary,
+    )
     get_number_infos_motions(dataset)
