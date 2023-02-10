@@ -16,21 +16,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -52,21 +56,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -88,21 +96,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -124,21 +136,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -160,21 +176,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -196,21 +216,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -232,21 +256,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -268,21 +296,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -304,21 +336,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -340,21 +376,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -376,21 +416,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
@@ -412,21 +456,25 @@
 			{
 				"model": "ResNet",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "CNN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "MLP",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			},
 			{
 				"model": "FCN",
 				"device": "mps",
+				"learning_rate": 0.0001,
 				"num_epochs": 10
 			}
 		]
