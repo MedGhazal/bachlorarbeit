@@ -17,9 +17,9 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces The interface of the visualisation of the results for each experiment set\relax }}{44}{figure.caption.16}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces The accuracy rate and the loss values over the epochs and during the training of one-to-one models\relax }}{49}{figure.caption.18}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces The best results achieved by using the root joint informations\relax }}{51}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces The best results achieved by one-to-one models\relax }}{51}{figure.caption.20}%
 \contentsline {figure}{\numberline {4.4}{\ignorespaces The confusion matrix achieved by using a frequency of 20 frames per seconds\relax }}{52}{figure.caption.21}%
 \contentsline {figure}{\numberline {4.5}{\ignorespaces The accuracy rate and the loss values over the epochs and during the training of sequence-modeling models\relax }}{55}{figure.caption.24}%
 \contentsline {figure}{\numberline {4.6}{\ignorespaces The best results achieved by RNNs and their variants\relax }}{57}{figure.caption.25}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces The confusion matrix achieved by using a frequency of 20 frames per seconds with recurrent neural networks in combination with oversampling and normalization\relax }}{59}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces The confusion matrix achieved by using a frequency of 20 frames per seconds with recurrent neural networks in combination with oversampling and normalization\relax }}{59}{figure.caption.27}%
 \addvspace {10\p@ }
