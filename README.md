@@ -22,3 +22,7 @@ Templates and perepared examples can be found in the folder experiments. Copy th
 ```
 pyhon3 src/experiment.py
 ```
+To compile the docs the LateX engine XeLaTex must be installed on your machine and the compilation is done using the command after givin the file docs/compile.sh execution rights and changing to the folder docs
+```
+./compile.sh
+```
